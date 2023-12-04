@@ -12,9 +12,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "aoc"
+version = "0.1.0"
+dependencies = [
+ "lazy_static",
+]
+
+[[package]]
 name = "aoc-2022-1"
 version = "0.1.0"
 dependencies = [
+ "aoc",
  "lazy_static",
  "regex",
 ]

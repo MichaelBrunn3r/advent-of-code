@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 
-members = ["*/day-*"]
+members = ["*/day-*", "aoc"]
 
 [workspace.dependencies]
 regex = "1.10.2"

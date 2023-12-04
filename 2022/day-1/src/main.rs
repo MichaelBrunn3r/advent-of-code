@@ -1,13 +1,10 @@
+use aoc;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::path::PathBuf;
 
-lazy_static! {
-    static ref PROJECT_DIR: PathBuf = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
-}
-
 fn main() {
-    let input = std::fs::read_to_string(PROJECT_DIR.join("input")).unwrap();
+    let input = aoc::read_input_to_string();
     println!("Max total calories: {}", task_0(&input));
     println!("Total calories of top 3: {}", task_1(&input));
 }
@@ -35,29 +32,23 @@ mod tests {
 
     #[test]
     fn test_example_0() {
-        if !PROJECT_DIR.join("example_0").exists() {
+        if !aoc::solution_exists(0) {
             return;
         }
 
-        let input = std::fs::read_to_string(PROJECT_DIR.join("example_0")).unwrap();
-        let expected = std::fs::read_to_string(PROJECT_DIR.join("solution_0"))
-            .unwrap()
-            .parse::<usize>()
-            .unwrap();
+        let input = aoc::read_example_to_string(0);
+        let expected = aoc::read_solution_to_string(0).parse::<usize>().unwrap();
         assert_eq!(task_0(&input), expected);
     }
 
     #[test]
     fn test_example_1() {
-        if !PROJECT_DIR.join("solution_1").exists() {
+        if !aoc::solution_exists(1) {
             return;
         }
 
-        let input = std::fs::read_to_string(PROJECT_DIR.join("example_0")).unwrap();
-        let expected = std::fs::read_to_string(PROJECT_DIR.join("solution_1"))
-            .unwrap()
-            .parse::<usize>()
-            .unwrap();
+        let input = aoc::read_example_to_string(0);
+        let expected = aoc::read_solution_to_string(1).parse::<usize>().unwrap();
         assert_eq!(task_1(&input), expected);
     }
 }
