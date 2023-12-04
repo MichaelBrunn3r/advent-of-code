@@ -1,15 +1,10 @@
-use lazy_static::lazy_static;
+use aoc;
 use regex::Regex;
-use std::path::PathBuf;
 
 const MAX_PART_NUM_LEN: u8 = 3;
 
-lazy_static! {
-    static ref PROJECT_DIR: PathBuf = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
-}
-
 fn main() {
-    let input = std::fs::read_to_string(PROJECT_DIR.join("input")).expect("file not found");
+    let input = aoc::read_input_to_string();
     let lines = prepare_input(&input);
 
     // println!("Sum of part numbers = {}", sum_part_numbers(&input));

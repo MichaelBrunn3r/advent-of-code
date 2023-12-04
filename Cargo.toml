@@ -6,3 +6,4 @@ members = ["*/day-*", "aoc"]
 [workspace.dependencies]
 regex = "1.10.2"
 lazy_static = "1.4.0"
+aoc = { path = "aoc" }

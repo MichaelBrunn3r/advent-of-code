@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 regex = {workspace = true}
 lazy_static = {workspace = true}
+aoc = {workspace = true}
