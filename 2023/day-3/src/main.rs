@@ -1,14 +1,18 @@
-use std::{fs, io::BufReader, ops::RangeInclusive};
-
+use lazy_static::lazy_static;
 use regex::Regex;
+use std::path::PathBuf;
 
 const MAX_PART_NUM_LEN: u8 = 3;
 
+lazy_static! {
+    static ref PROJECT_DIR: PathBuf = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
+}
+
 fn main() {
-    let input = std::fs::read_to_string("input").expect("file not found");
+    let input = std::fs::read_to_string(PROJECT_DIR.join("input")).expect("file not found");
     let lines = prepare_input(&input);
 
-    println!("Sum of part numbers = {}", sum_part_numbers(&input));
+    // println!("Sum of part numbers = {}", sum_part_numbers(&input));
     println!("Sum of gear ratios = {}", sum_gear_ratios(&lines));
 }
 

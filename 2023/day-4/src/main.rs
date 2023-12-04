@@ -1,8 +1,13 @@
 use lazy_static::lazy_static;
 use regex::Regex;
+use std::path::PathBuf;
+
+lazy_static! {
+    static ref PROJECT_DIR: PathBuf = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
+}
 
 fn main() {
-    let input = std::fs::read_to_string("input").unwrap();
+    let input = std::fs::read_to_string(PROJECT_DIR.join("input")).unwrap();
     println!("Task 0: {}", task_0(&input));
     println!("Task 1: {}", task_1(&input));
 }
@@ -98,8 +103,8 @@ mod tests {
 
     #[test]
     fn test_task_0() {
-        let input = std::fs::read_to_string("example_0").unwrap();
-        let expected = std::fs::read_to_string("solution_0")
+        let input = std::fs::read_to_string(PROJECT_DIR.join("example_0")).unwrap();
+        let expected = std::fs::read_to_string(PROJECT_DIR.join("solution_0"))
             .unwrap()
             .parse::<usize>()
             .unwrap();
@@ -108,9 +113,9 @@ mod tests {
 
     #[test]
     fn test_task_1() {
-        let input = std::fs::read_to_string("example_1").unwrap();
+        let input = std::fs::read_to_string(PROJECT_DIR.join("example_1")).unwrap();
         println!("input={}", input);
-        let expected = std::fs::read_to_string("solution_1")
+        let expected = std::fs::read_to_string(PROJECT_DIR.join("solution_1"))
             .unwrap()
             .parse::<usize>()
             .unwrap();
