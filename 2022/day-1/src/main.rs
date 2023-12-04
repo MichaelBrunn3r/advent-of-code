@@ -8,8 +8,8 @@ lazy_static! {
 
 fn main() {
     let input = std::fs::read_to_string(PROJECT_DIR.join("input")).unwrap();
-    println!("Task 0: {}", task_0(&input));
-    println!("Task 1: {}", task_1(&input));
+    println!("Max total calories: {}", task_0(&input));
+    println!("Total calories of top 3: {}", task_1(&input));
 }
 
 fn task_0(input: &str) -> usize {
@@ -21,7 +21,12 @@ fn task_0(input: &str) -> usize {
 }
 
 fn task_1(input: &str) -> usize {
-    0
+    let mut elves = input
+        .split("\n\n")
+        .map(|elf| elf.lines().map(|line| line.parse::<usize>().unwrap()).sum())
+        .collect::<Vec<usize>>();
+    elves.sort();
+    elves.iter().rev().take(3).sum()
 }
 
 #[cfg(test)]
@@ -44,11 +49,11 @@ mod tests {
 
     #[test]
     fn test_example_1() {
-        if !PROJECT_DIR.join("example_1").exists() {
+        if !PROJECT_DIR.join("solution_1").exists() {
             return;
         }
 
-        let input = std::fs::read_to_string(PROJECT_DIR.join("example_1")).unwrap();
+        let input = std::fs::read_to_string(PROJECT_DIR.join("example_0")).unwrap();
         let expected = std::fs::read_to_string(PROJECT_DIR.join("solution_1"))
             .unwrap()
             .parse::<usize>()

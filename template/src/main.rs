@@ -26,7 +26,7 @@ mod tests {
 
     #[test]
     fn test_example_0() {
-        if !PROJECT_DIR.join("example_0").exists() {
+        if !PROJECT_DIR.join("solution_0").exists() {
             return;
         }
 
@@ -40,7 +40,7 @@ mod tests {
 
     #[test]
     fn test_example_1() {
-        if !PROJECT_DIR.join("example_1").exists() {
+        if !PROJECT_DIR.join("solution_1").exists() {
             return;
         }
 
