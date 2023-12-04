@@ -1,0 +1,8 @@
+[workspace]
+resolver = "2"
+
+members = ["day-*"]
+
+[workspace.dependencies]
+regex = "1.10.2"
+lazy_static = "1.4.0"

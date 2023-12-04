@@ -8,7 +8,7 @@ def "main init" [day?:int, year?:int] {
     let year = if ($year == null) {$today | get year} else $year
 
     # Create day directory
-    let out_dir = $"($env.FILE_PWD)\\($year)\\($day)"
+    let out_dir = $"($env.FILE_PWD)\\($year)\\day-($day)"
     mkdir -v $out_dir
 
     # Create Description.md
