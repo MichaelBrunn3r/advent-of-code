@@ -24,6 +24,21 @@ def "main init" [day?:int, year?:int] {
     create_input $day $year $out_dir
 }
 
+def "main update" [day?:int, year?:int] {
+    let day = if ($day == null) {$today | get day} else $day
+    let year = if ($year == null) {$today | get year} else $year
+
+    # Create day directory
+    let out_dir = $"($env.FILE_PWD)\\($year)\\day-($day)"
+
+    # Create Description.md
+    let html_day = fetch_day $day $year
+    create_description $html_day ($"($out_dir)\\Description.md")
+
+    # Save examples and solutions
+    create_examples_with_solutions $html_day $out_dir
+}
+
 def create_input [day: int, year: int, out_dir: string] {
     let input = fetch_input $day $year
     $input | save ($"($out_dir)\\input") -f
@@ -70,5 +85,6 @@ def html_to_markdown [html: string] {
     $html = ($html | str replace --all '<pre><code>' '```' | str replace --all '</code></pre>' '```')
     $html = ($html | str replace --all -r '<p>(.*)</p>' '$1
 ')
+    $html = ($html | str replace --all -r '<a href="([^"]+)"[^>]*>([^<]*)</a>' '[$2]($1)')
     $html
 }
