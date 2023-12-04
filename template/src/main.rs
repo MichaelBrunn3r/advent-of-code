@@ -40,6 +40,6 @@ mod tests {
 
         let input = aoc::read_example_to_string(1);
         let expected = aoc::read_solution_to_string(1).parse::<usize>().unwrap();
-        assert_eq!(task_0(&input), expected);
+        assert_eq!(task_1(&input), expected);
     }
 }
