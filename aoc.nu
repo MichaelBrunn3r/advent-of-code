@@ -59,8 +59,15 @@ def create_examples_with_solutions [html: string, dir: string] {
         let example = $examples | get $i
         let solution = $solutions | get $i
 
-        $example | save ($"($dir)\\example_($i)") -f
-        $solution | save ($"($dir)\\solution_($i)") -f
+        let ex_path = ($"($dir)\\example_($i)")
+        if ($ex_path | path exists ) {} else {
+            $example | save ($"($dir)\\example_($i)")
+        }
+
+        let sol_path = ($"($dir)\\solution_($i)")
+        if ($sol_path | path exists ) {} else {
+            $solution | save ($"($dir)\\solution_($i)")
+        }
     }
 }
 
