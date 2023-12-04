@@ -1,1 +1,2 @@
 - [Advent of Code 2023 | General Tips](https://www.youtube.com/watch?v=s_WDYcrh_dk)
+- [How to set up Rust for Advent of Code](https://www.youtube.com/watch?v=fEQv-cqzbPg)
