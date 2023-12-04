@@ -21,7 +21,33 @@ fn task_0(input: &str) -> usize {
 }
 
 fn task_1(input: &str) -> usize {
-    0
+    let matches_per_card: Vec<usize> = input
+        .lines()
+        .map(|line| Card::from_str(line))
+        .map(|card| card.count_matching())
+        .collect();
+    let mut card_counts = vec![1; matches_per_card.len()];
+
+    let mut total_cards = matches_per_card.len();
+    loop {
+        let mut cards_won = 0;
+        for (i, num_matches) in matches_per_card.iter().enumerate() {
+            if card_counts[i] == 0 {
+                continue;
+            }
+            card_counts[i] -= 1;
+            for j in i + 1..=i + num_matches {
+                card_counts[j] += 1;
+                cards_won += 1;
+                total_cards += 1;
+            }
+        }
+        if cards_won == 0 {
+            break;
+        }
+    }
+
+    total_cards
 }
 
 #[derive(Debug)]
@@ -80,13 +106,14 @@ mod tests {
         assert_eq!(task_0(&input), expected);
     }
 
-    // #[test]
-    // fn test_task_1() {
-    //     let input = std::fs::read_to_string("example_1").unwrap();
-    //     let expected = std::fs::read_to_string("solution_1")
-    //         .unwrap()
-    //         .parse::<usize>()
-    //         .unwrap();
-    //     assert_eq!(task_1(&input), expected);
-    // }
+    #[test]
+    fn test_task_1() {
+        let input = std::fs::read_to_string("example_1").unwrap();
+        println!("input={}", input);
+        let expected = std::fs::read_to_string("solution_1")
+            .unwrap()
+            .parse::<usize>()
+            .unwrap();
+        assert_eq!(task_1(&input), expected);
+    }
 }
