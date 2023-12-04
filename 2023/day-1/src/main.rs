@@ -1,9 +1,14 @@
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::fs;
+use std::path::PathBuf;
+
+lazy_static! {
+    static ref PROJECT_DIR: PathBuf = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
+}
 
 fn main() {
-    let input = fs::read_to_string("input").unwrap();
+    let input = fs::read_to_string(PROJECT_DIR.join("input")).unwrap();
     println!(
         "Sum of calibration values={}",
         sum_of_calibration_values(input.as_str())

@@ -8,8 +8,8 @@ lazy_static! {
 
 fn main() {
     let input = std::fs::read_to_string(PROJECT_DIR.join("input")).unwrap();
-    println!("Task 0: {}", task_0(&input));
-    println!("Task 1: {}", task_1(&input));
+    println!("Points: {}", task_0(&input));
+    println!("Total number of cards: {}", task_1(&input));
 }
 
 fn task_0(input: &str) -> usize {

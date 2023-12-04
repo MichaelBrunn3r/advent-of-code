@@ -1,5 +1,13 @@
+use lazy_static::lazy_static;
+use regex::Regex;
+use std::path::PathBuf;
+
+lazy_static! {
+    static ref PROJECT_DIR: PathBuf = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
+}
+
 fn main() {
-    let input = std::fs::read_to_string("input").expect("Unable to read file");
+    let input = std::fs::read_to_string(PROJECT_DIR.join("input")).expect("Unable to read file");
     // println!("{}", sum_ids_possible_games(&input));
     println!("{}", sum_of_power_of_minimum_set_of_cubes(&input));
 }
