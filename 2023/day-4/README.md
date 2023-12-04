@@ -1,4 +1,4 @@
-# Day 4: Scratchcards
+# [Day 4: Scratchcards](https://adventofcode.com/2023/day/4)
 The gondola takes you up. Strangely, though, the ground doesn&#x27;t seem to be coming with you; you&#x27;re not climbing a mountain. As the circle of Snow Island recedes below you, an entire new landmass suddenly appears above you! The gondola carries you to the surface of the new island and lurches into the station.
 
 As you exit the gondola, the first thing you notice is that the air here is much **warmer** than it was on Snow Island. It&#x27;s also quite **humid**. Is this where the water source is?

@@ -13,7 +13,7 @@ def "main init" [day?:int, year?:int] {
 
     # Create Description.md
     let html_day = fetch_day $day $year
-    create_description $html_day ($"($out_dir)\\Description.md")
+    create_description $html_day ($"($out_dir)\\Description.md") $day $year
 
     # Copy template
     copy_template $out_dir
@@ -33,7 +33,7 @@ def "main update" [day?:int, year?:int] {
 
     # Create Description.md
     let html_day = fetch_day $day $year
-    create_description $html_day ($"($out_dir)\\Description.md")
+    create_description $html_day ($"($out_dir)\\README.md") $day $year
 
     # Save examples and solutions
     create_examples_with_solutions $html_day $out_dir
@@ -44,8 +44,8 @@ def create_input [day: int, year: int, out_dir: string] {
     $input | save ($"($out_dir)\\input") -f
 }
 
-def create_description [html: string, dest: string] {
-    html_to_markdown $html | query web --query '.day-desc' | save $dest -f
+def create_description [html: string, dest: string, day: int, year: int] {
+    day_html_to_markdown $html $day $year | query web --query '.day-desc' | save $dest -f
 }
 
 def copy_template [dest: string] {
@@ -80,12 +80,13 @@ def fetch_input [day: int, year: int] {
     http get --headers [Cookie session=($env.AOC_COOKIE)] https://adventofcode.com/($year)/day/($day)/input
 }
 
-def html_to_markdown [html: string] {
+def day_html_to_markdown [html: string, day: int, year: int] {
     mut html = $html
     $html = ($html | str replace --all -r '<code>([\d \*=]+)</code>' '`$1`')
     $html = ($html | str replace --all -r '<code><em>(\d+)</em></code>' '**`$1`**')
     $html = ($html | str replace --all -r '<em>([^<]+)</em>' '**$1**')
-    $html = ($html | str replace -r '<h2>--- (.+) ---</h2>' '# $1
+    let link = "(" + ($"https://adventofcode.com/($year)/day/($day)") + ")"
+    $html = ($html | str replace -r '<h2>--- (.+) ---</h2>' $'# [$1]($link)
 ')
     $html = ($html | str replace -r '<h2 id="part2">--- (.+) ---</h2>' '## $1
 ')
