@@ -97,17 +97,11 @@ mod tests {
 
     #[test]
     fn test_task_0() {
-        assert_eq!(
-            task_0(&aoc::read_example_to_string(0)),
-            aoc::read_solution_to_string(0).parse::<usize>().unwrap()
-        );
+        aoc::assert_solution(0, task_0);
     }
 
     #[test]
     fn test_task_1() {
-        assert_eq!(
-            task_1(&aoc::read_example_to_string(1)),
-            aoc::read_solution_to_string(1).parse::<usize>().unwrap()
-        );
+        aoc::assert_solution(1, task_1);
     }
 }

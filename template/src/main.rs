@@ -23,23 +23,11 @@ mod tests {
 
     #[test]
     fn test_example_0() {
-        if !aoc::solution_exists(0) {
-            return;
-        }
-
-        let input = aoc::read_example_to_string(0);
-        let expected = aoc::read_solution_to_string(0).parse::<usize>().unwrap();
-        assert_eq!(task_0(&input), expected);
+        aoc::assert_solution(0, task_0);
     }
 
     #[test]
     fn test_example_1() {
-        if !aoc::solution_exists(1) {
-            return;
-        }
-
-        let input = aoc::read_example_to_string(1);
-        let expected = aoc::read_solution_to_string(1).parse::<usize>().unwrap();
-        assert_eq!(task_1(&input), expected);
+        aoc::assert_solution(1, task_1);
     }
 }
