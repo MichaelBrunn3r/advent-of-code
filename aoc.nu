@@ -56,11 +56,11 @@ def create_examples_with_solutions [html: string, project_dir: string] {
     let examples_dir = ($"($project_dir)\\examples")
     mkdir -v $examples_dir
 
-    let examples = $html | query web --query 'pre'
-    let solutions = $html | query web --query 'code em'
+    let examples = $html | query web -q '.day-desc pre'
+    let solutions = $html | query web -q '.day-desc code em'
     for $i in 0..(($examples | length) - 1) {
         let example = $examples | get $i
-        let solution = $solutions | get $i
+        let solution = $solutions | reverse | get $i
 
         let ex_path = ($"($examples_dir)\\($i)")
         if ($ex_path | path exists ) {} else {
