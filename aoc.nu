@@ -60,7 +60,7 @@ def create_examples_with_solutions [html: string, project_dir: string] {
     let solutions = $html | query web -q '.day-desc code em'
     for $i in 0..(($examples | length) - 1) {
         let example = $examples | get $i
-        let solution = $solutions | reverse | get $i
+        let solution = $solutions | reverse | get 0
 
         let ex_path = ($"($examples_dir)\\($i)")
         if ($ex_path | path exists ) {} else {
