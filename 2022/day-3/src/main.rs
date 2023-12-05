@@ -1,6 +1,6 @@
-use core::panic;
-
 use aoc;
+use core::panic;
+use itertools::Itertools;
 use regex::Regex;
 
 fn main() {
@@ -34,14 +34,14 @@ fn item_to_priority(c: char) -> usize {
 }
 
 fn task_1(input: &str) -> usize {
-    let lines = input.lines().collect::<Vec<_>>();
-    lines
-        .chunks_exact(3)
-        .map(|chunk| {
-            let (a, b, c) = (chunk[0], chunk[1], chunk[2]);
+    input
+        .lines()
+        .chunks(3)
+        .into_iter()
+        .map(|mut chunk| {
+            let (a, b, c) = chunk.next_tuple().unwrap();
             group_priority(a, b, c)
         })
-        // .inspect(|priority| println!("{}", priority))
         .sum::<usize>()
 }
 
