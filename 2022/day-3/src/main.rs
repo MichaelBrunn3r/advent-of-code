@@ -34,7 +34,42 @@ fn item_to_priority(c: char) -> usize {
 }
 
 fn task_1(input: &str) -> usize {
-    0
+    let lines = input.lines().collect::<Vec<_>>();
+    lines
+        .chunks_exact(3)
+        .map(|chunk| {
+            let (a, b, c) = (chunk[0], chunk[1], chunk[2]);
+            group_priority(a, b, c)
+        })
+        // .inspect(|priority| println!("{}", priority))
+        .sum::<usize>()
+}
+
+fn group_priority(a: &str, b: &str, c: &str) -> usize {
+    let mut a_priorities = 0usize;
+    for c in a.chars() {
+        a_priorities |= 1 << item_to_priority(c);
+    }
+
+    let mut b_priorities = 0usize;
+    for c in b.chars() {
+        b_priorities |= 1 << item_to_priority(c);
+    }
+
+    let mut c_priorities = 0usize;
+    for c in c.chars() {
+        c_priorities |= 1 << item_to_priority(c);
+    }
+
+    let mut common_priorities = a_priorities & b_priorities & c_priorities;
+
+    let mut priority = 0usize;
+    while common_priorities > 1 {
+        common_priorities >>= 1;
+        priority += 1;
+    }
+
+    priority
 }
 
 #[cfg(test)]
