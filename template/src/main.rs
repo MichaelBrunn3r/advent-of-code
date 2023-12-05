@@ -1,4 +1,4 @@
-use aoc;
+use aoc::prelude::*;
 use itertools::Itertools;
 use regex::Regex;
 

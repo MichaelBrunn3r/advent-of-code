@@ -1,3 +1,8 @@
+mod iter;
+mod range;
+mod string;
+
+pub use iter::ProgressOptions;
 use lazy_static::lazy_static;
 use std::{fmt::Debug, path::PathBuf, str::FromStr};
 
@@ -57,4 +62,10 @@ where
     let expected = read_solution_to_string(solution).parse::<T>().unwrap();
     let actual = solve(&read_example_to_string(example));
     assert_eq!(expected, actual);
+}
+
+pub mod prelude {
+    pub use crate::iter::IteratorExt;
+    pub use crate::range::RangeExt;
+    pub use crate::string::CharExt;
 }
