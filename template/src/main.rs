@@ -1,7 +1,5 @@
 use aoc;
-use lazy_static::lazy_static;
 use regex::Regex;
-use std::path::PathBuf;
 
 fn main() {
     let input = aoc::read_input_to_string();

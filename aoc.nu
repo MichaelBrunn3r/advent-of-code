@@ -13,7 +13,7 @@ def "main init" [day?:int, year?:int] {
 
     # Create Description.md
     let html_day = fetch_day $day $year
-    create_description $html_day ($"($out_dir)\\Description.md") $day $year
+    create_description $html_day ($"($out_dir)\\README.md") $day $year
 
     # Copy template
     copy_template $out_dir
