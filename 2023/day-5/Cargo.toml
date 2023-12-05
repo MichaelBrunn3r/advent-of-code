@@ -1,0 +1,10 @@
+[package]
+name = "aoc-2023-5"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+regex = {workspace = true}
+lazy_static = {workspace = true}
+aoc = { workspace = true }
+itertools = { workspace = true }
