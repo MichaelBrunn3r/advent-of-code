@@ -26,26 +26,24 @@ fn task_0(input: &str) -> usize {
         .map(|s| parse_map_section(s.lines()))
         .collect::<Vec<_>>();
 
-    let mut locations = seeds.clone();
-
-    for location in locations.iter_mut() {
+    let mut min = usize::MAX;
+    for seed in seeds.iter() {
+        let mut mapped = *seed;
         for mappings in maps.iter() {
-            let default = RangeToRangeMap::identity(*location);
+            let default = RangeToRangeMap::identity(mapped);
             let mapping = mappings
                 .iter()
-                .find(|map| map.from.contains(location))
+                .find(|map| map.from.contains(&mapped))
                 .unwrap_or(&default);
 
-            *location = mapping.map(*location);
+            mapped = mapping.apply(mapped);
+        }
+        if mapped < min {
+            min = mapped;
         }
     }
 
-    seeds
-        .iter()
-        .enumerate()
-        .map(|(i, _)| locations[i])
-        .min()
-        .unwrap()
+    min
 }
 
 fn task_1(input: &str) -> usize {
@@ -75,20 +73,20 @@ fn task_1(input: &str) -> usize {
         println!("Seed range={:?}", seed_range);
         for seed in seed_range.clone().progress(seed_range.len().into()) {
             // println!("Seed={}", seed);
-            let mut current = seed;
+            let mut mapped = seed;
             for mappings in maps.iter() {
-                let default = RangeToRangeMap::identity(current);
+                let default = RangeToRangeMap::identity(mapped);
                 let mapping = mappings
                     .iter()
-                    .find(|map| map.from.contains(&current))
+                    .find(|map| map.from.contains(&mapped))
                     .unwrap_or(&default);
 
-                current = mapping.map(current);
+                mapped = mapping.apply(mapped);
                 // println!("{:?}->{}", mapping, current);
             }
 
-            if current < min {
-                min = current;
+            if mapped < min {
+                min = mapped;
             }
         }
     }
@@ -98,7 +96,7 @@ fn task_1(input: &str) -> usize {
 
 fn parse_map_section<'a>(lines: impl Iterator<Item = &'a str>) -> Vec<RangeToRangeMap> {
     lines
-        .skip(1)
+        .skip(1) // Skip header
         .map(|line| {
             let (to_start, from_start, len) = line
                 .parse_splits::<usize>(" ")
@@ -132,7 +130,7 @@ impl RangeToRangeMap {
         }
     }
 
-    fn map(&self, val: usize) -> usize {
+    fn apply(&self, val: usize) -> usize {
         self.to.start() + (val - self.from.start())
     }
 }
