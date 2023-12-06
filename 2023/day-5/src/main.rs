@@ -33,6 +33,7 @@ fn task_0(input: &str) -> usize {
             let default = RangeToRangeMap::identity(mapped);
             let mapping = mappings
                 .iter()
+                .take_while(|map| mapped >= map.from.start)
                 .find(|map| map.from.contains(&mapped))
                 .unwrap_or(&default);
 
@@ -72,17 +73,16 @@ fn task_1(input: &str) -> usize {
     for seed_range in seed_ranges.iter() {
         println!("Seed range={:?}", seed_range);
         for seed in seed_range.clone().progress(seed_range.len().into()) {
-            // println!("Seed={}", seed);
             let mut mapped = seed;
             for mappings in maps.iter() {
                 let default = RangeToRangeMap::identity(mapped);
                 let mapping = mappings
                     .iter()
+                    .take_while(|map| mapped >= map.from.start)
                     .find(|map| map.from.contains(&mapped))
                     .unwrap_or(&default);
 
                 mapped = mapping.apply(mapped);
-                // println!("{:?}->{}", mapping, current);
             }
 
             if mapped < min {
@@ -95,7 +95,7 @@ fn task_1(input: &str) -> usize {
 }
 
 fn parse_map_section<'a>(lines: impl Iterator<Item = &'a str>) -> Vec<RangeToRangeMap> {
-    lines
+    let mut maps: Vec<RangeToRangeMap> = lines
         .skip(1) // Skip header
         .map(|line| {
             let (to_start, from_start, len) = line
@@ -107,7 +107,11 @@ fn parse_map_section<'a>(lines: impl Iterator<Item = &'a str>) -> Vec<RangeToRan
                 to: (to_start)..(to_start + len),
             }
         })
-        .collect()
+        .collect();
+
+    maps.sort_by_key(|map| map.from.start);
+
+    maps
 }
 
 #[derive(Debug)]
