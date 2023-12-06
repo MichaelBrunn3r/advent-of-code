@@ -67,5 +67,5 @@ where
 pub mod prelude {
     pub use crate::iter::IteratorExt;
     pub use crate::range::RangeExt;
-    pub use crate::string::CharExt;
+    pub use crate::string::{CharExt, StrExt};
 }
