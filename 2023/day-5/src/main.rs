@@ -1,5 +1,6 @@
 use aoc::prelude::*;
 use itertools::Itertools;
+use rayon::prelude::*;
 use std::ops::Range;
 
 fn main() {
@@ -69,29 +70,41 @@ fn task_1(input: &str) -> usize {
         .map(|s| parse_map_section(s.lines()))
         .collect::<Vec<_>>();
 
-    let mut min = usize::MAX;
-    for seed_range in seed_ranges.iter() {
-        println!("Seed range={:?}", seed_range);
-        for seed in seed_range.clone().progress(seed_range.len().into()) {
-            let mut mapped = seed;
-            for mappings in maps.iter() {
-                let default = RangeToRangeMap::identity(mapped);
-                let mapping = mappings
-                    .iter()
-                    .take_while(|map| mapped >= map.from.start)
-                    .find(|map| map.from.contains(&mapped))
-                    .unwrap_or(&default);
+    seed_ranges
+        .into_iter()
+        .enumerate()
+        .par_bridge()
+        .map(|(i, seed_range)| {
+            let mut min = usize::MAX;
+            let len = seed_range.len();
+            for (j, seed) in seed_range.enumerate() {
+                if j > 0 && j % 2_000_000 == 0 {
+                    println!("{}: {:.1}", i, (j as f32 / len as f32) * 100.0);
+                    std::io::Write::flush(&mut std::io::stdout()).unwrap();
+                }
 
-                mapped = mapping.apply(mapped);
+                let mut mapped = seed;
+                for mappings in maps.iter() {
+                    let default = RangeToRangeMap::identity(mapped);
+                    let mapping = mappings
+                        .iter()
+                        .take_while(|map| mapped >= map.from.start)
+                        .find(|map| map.from.contains(&mapped))
+                        .unwrap_or(&default);
+
+                    mapped = mapping.apply(mapped);
+                }
+
+                if mapped < min {
+                    min = mapped;
+                }
             }
 
-            if mapped < min {
-                min = mapped;
-            }
-        }
-    }
-
-    min
+            min
+        })
+        .inspect(|min| println!("min: {}", min))
+        .min()
+        .unwrap()
 }
 
 fn parse_map_section<'a>(lines: impl Iterator<Item = &'a str>) -> Vec<RangeToRangeMap> {
