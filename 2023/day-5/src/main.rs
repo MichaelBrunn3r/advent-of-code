@@ -1,6 +1,6 @@
 use aoc::prelude::*;
 use itertools::Itertools;
-use std::ops::RangeInclusive;
+use std::ops::Range;
 
 fn main() {
     let input = aoc::read_input_to_string();
@@ -49,7 +49,7 @@ fn task_0(input: &str) -> usize {
 fn task_1(input: &str) -> usize {
     let mut sections = input.split("\n\n");
 
-    let seed_ranges: Vec<RangeInclusive<usize>> = sections
+    let seed_ranges: Vec<Range<usize>> = sections
         .next()
         .unwrap()
         .split_once(": ")
@@ -60,7 +60,7 @@ fn task_1(input: &str) -> usize {
         .into_iter()
         .map(|mut c| {
             let (start, len) = c.next_tuple().unwrap();
-            start..=start + len
+            start..start + len
         })
         .collect();
 
@@ -103,8 +103,8 @@ fn parse_map_section<'a>(lines: impl Iterator<Item = &'a str>) -> Vec<RangeToRan
                 .next_tuple::<(usize, usize, usize)>()
                 .unwrap();
             RangeToRangeMap {
-                from: (from_start)..=(from_start + len),
-                to: (to_start)..=(to_start + len),
+                from: (from_start)..(from_start + len),
+                to: (to_start)..(to_start + len),
             }
         })
         .collect()
@@ -112,12 +112,12 @@ fn parse_map_section<'a>(lines: impl Iterator<Item = &'a str>) -> Vec<RangeToRan
 
 #[derive(Debug)]
 struct RangeToRangeMap {
-    from: RangeInclusive<usize>,
-    to: RangeInclusive<usize>,
+    from: Range<usize>,
+    to: Range<usize>,
 }
 
-impl From<(RangeInclusive<usize>, RangeInclusive<usize>)> for RangeToRangeMap {
-    fn from((from, to): (RangeInclusive<usize>, RangeInclusive<usize>)) -> Self {
+impl From<(Range<usize>, Range<usize>)> for RangeToRangeMap {
+    fn from((from, to): (Range<usize>, Range<usize>)) -> Self {
         Self { from, to }
     }
 }
@@ -125,13 +125,13 @@ impl From<(RangeInclusive<usize>, RangeInclusive<usize>)> for RangeToRangeMap {
 impl RangeToRangeMap {
     fn identity(val: usize) -> Self {
         Self {
-            from: val..=val,
-            to: val..=val,
+            from: val..val,
+            to: val..val,
         }
     }
 
     fn apply(&self, val: usize) -> usize {
-        self.to.start() + (val - self.from.start())
+        self.to.start + (val - self.from.start)
     }
 }
 
