@@ -1,23 +1,26 @@
-use std::ops::RangeInclusive;
-
-use crate::prelude::CharExt;
+use std::ops::Range;
 
 pub trait RangeExt {
-    fn from_tuple(tuple: (usize, usize)) -> Self;
-    fn from_start_length(start: usize, length: usize) -> Self;
-    fn len(&self) -> usize;
+    fn overlaps(&self, other: &Self) -> bool;
 }
 
-impl RangeExt for RangeInclusive<usize> {
-    fn from_tuple(tuple: (usize, usize)) -> Self {
-        tuple.0..=tuple.1
+impl RangeExt for Range<usize> {
+    fn overlaps(&self, other: &Self) -> bool {
+        self.start < other.end && other.start < self.end
     }
+}
 
-    fn from_start_length(start: usize, length: usize) -> Self {
-        start..=start + length
-    }
+#[cfg(test)]
+mod test {
+    use super::*;
 
-    fn len(&self) -> usize {
-        self.end() - self.start() + 1
+    #[test]
+    fn test_overlaps() {
+        assert!((0..5).overlaps(&(0..5)));
+        assert!((0..5).overlaps(&(0..10)));
+        assert!((0..5).overlaps(&(2..10)));
+        assert!((0..5).overlaps(&(4..10)));
+
+        assert!(!(0..5).overlaps(&(5..10)));
     }
 }

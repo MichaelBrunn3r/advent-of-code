@@ -1,6 +1,6 @@
 use aoc::prelude::*;
+use aoc_2023_5::RangeToRangeMap;
 use itertools::Itertools;
-use rayon::prelude::*;
 use std::ops::Range;
 
 fn main() {
@@ -10,9 +10,9 @@ fn main() {
 }
 
 fn task_0(input: &str) -> usize {
-    let mut section = input.split("\n\n");
+    let mut sections = input.split("\n\n");
 
-    let seeds: Vec<usize> = section
+    let seeds: Vec<usize> = sections
         .next()
         .unwrap()
         .split_once(": ")
@@ -23,22 +23,23 @@ fn task_0(input: &str) -> usize {
 
     // println!("{:?}", seeds);
 
-    let maps = section
+    let map_sections = sections
         .map(|s| parse_map_section(s.lines()))
         .collect::<Vec<_>>();
 
     let mut min = usize::MAX;
     for seed in seeds.iter() {
         let mut mapped = *seed;
-        for mappings in maps.iter() {
+        for mappings in map_sections.iter() {
             let default = RangeToRangeMap::identity(mapped);
             let mapping = mappings
+                .maps
                 .iter()
                 .take_while(|map| mapped >= map.from.start)
                 .find(|map| map.from.contains(&mapped))
                 .unwrap_or(&default);
 
-            mapped = mapping.apply(mapped);
+            mapped = mapping.map_value(mapped);
         }
         if mapped < min {
             min = mapped;
@@ -51,7 +52,7 @@ fn task_0(input: &str) -> usize {
 fn task_1(input: &str) -> usize {
     let mut sections = input.split("\n\n");
 
-    let seed_ranges: Vec<Range<usize>> = sections
+    let mut seed_ranges: Vec<Range<usize>> = sections
         .next()
         .unwrap()
         .split_once(": ")
@@ -66,50 +67,63 @@ fn task_1(input: &str) -> usize {
         })
         .collect();
 
-    let maps = sections
+    let map_sections = sections
         .map(|s| parse_map_section(s.lines()))
         .collect::<Vec<_>>();
 
-    seed_ranges
-        .into_iter()
-        .enumerate()
-        .par_bridge()
-        .map(|(i, seed_range)| {
-            let mut min = usize::MAX;
-            let len = seed_range.len();
-            for (j, seed) in seed_range.enumerate() {
-                if j > 0 && j % 2_000_000 == 0 {
-                    println!("{}: {:.1}", i, (j as f32 / len as f32) * 100.0);
-                    std::io::Write::flush(&mut std::io::stdout()).unwrap();
+    for map_section in map_sections.iter() {
+        seed_ranges = seed_ranges
+            .into_iter()
+            .map(|mut seed_range| {
+                let maps: Vec<&RangeToRangeMap> = map_section
+                    .maps
+                    .iter()
+                    .filter(|m| seed_range.overlaps(&m.from))
+                    .collect();
+
+                if maps.is_empty() {
+                    return vec![seed_range];
                 }
 
-                let mut mapped = seed;
-                for mappings in maps.iter() {
-                    let default = RangeToRangeMap::identity(mapped);
-                    let mapping = mappings
-                        .iter()
-                        .take_while(|map| mapped >= map.from.start)
-                        .find(|map| map.from.contains(&mapped))
-                        .unwrap_or(&default);
+                let mut mapped = vec![];
+                for map in maps.into_iter() {
+                    let (left_overhang, mapped_range, right_overhang) = map.map(seed_range);
+                    mapped.push(mapped_range);
 
-                    mapped = mapping.apply(mapped);
+                    match left_overhang {
+                        // Maps are sorted -> We won't find a mapping for the left overhang in this section
+                        Some(range) => mapped.push(range),
+                        _ => {}
+                    }
+
+                    if right_overhang.is_none() {
+                        break;
+                    }
+
+                    // Maps are sorted -> right overhang may be mapped by subsequent maps
+                    seed_range = right_overhang.unwrap();
                 }
 
-                if mapped < min {
-                    min = mapped;
-                }
-            }
+                mapped
+            })
+            .flatten()
+            .collect();
+    }
 
-            min
-        })
-        .inspect(|min| println!("min: {}", min))
-        .min()
-        .unwrap()
+    seed_ranges.iter().map(|r| r.start).min().unwrap()
 }
 
-fn parse_map_section<'a>(lines: impl Iterator<Item = &'a str>) -> Vec<RangeToRangeMap> {
+fn parse_map_section<'a>(mut lines: impl Iterator<Item = &'a str>) -> MapSection<'a> {
+    let (from, to) = lines
+        .next()
+        .unwrap()
+        .split_once(' ')
+        .unwrap()
+        .0
+        .split_once("-to-")
+        .unwrap();
+
     let mut maps: Vec<RangeToRangeMap> = lines
-        .skip(1) // Skip header
         .map(|line| {
             let (to_start, from_start, len) = line
                 .parse_splits::<usize>(" ")
@@ -124,32 +138,13 @@ fn parse_map_section<'a>(lines: impl Iterator<Item = &'a str>) -> Vec<RangeToRan
 
     maps.sort_by_key(|map| map.from.start);
 
-    maps
+    MapSection { from, to, maps }
 }
 
-#[derive(Debug)]
-struct RangeToRangeMap {
-    from: Range<usize>,
-    to: Range<usize>,
-}
-
-impl From<(Range<usize>, Range<usize>)> for RangeToRangeMap {
-    fn from((from, to): (Range<usize>, Range<usize>)) -> Self {
-        Self { from, to }
-    }
-}
-
-impl RangeToRangeMap {
-    fn identity(val: usize) -> Self {
-        Self {
-            from: val..val,
-            to: val..val,
-        }
-    }
-
-    fn apply(&self, val: usize) -> usize {
-        self.to.start + (val - self.from.start)
-    }
+struct MapSection<'a> {
+    from: &'a str,
+    to: &'a str,
+    maps: Vec<RangeToRangeMap>,
 }
 
 #[cfg(test)]
