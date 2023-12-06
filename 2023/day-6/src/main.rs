@@ -8,6 +8,15 @@ fn main() {
     println!("Task 1: {}", task_1(&input));
 }
 
+// distance = hold_time * (time - hold_time)
+// -> distance_to_beat < hold_time * (time - hold_time)
+
+// d = h * (t - h) (h=1.7)
+// d/h = t-h
+// d/h + h = t
+// d + x^2 = th
+// h^2 - th + d = 0
+
 fn task_0(input: &str) -> usize {
     let re_number = Regex::new(r"(\d+)").unwrap();
     let (times, distances_to_beat) = input
@@ -26,7 +35,7 @@ fn task_0(input: &str) -> usize {
         .zip(distances_to_beat.iter())
         .map(|(time, distance_to_beat)| {
             let (max_hold_time, min_hold_time) =
-                quadratic_formula(1f32, -(*time as f32), *distance_to_beat as f32);
+                quadratic_formula(1.0, -(*time as f64), *distance_to_beat as f64);
 
             (
                 (max_hold_time - 1.0).ceil() as usize,
@@ -39,13 +48,31 @@ fn task_0(input: &str) -> usize {
 }
 
 fn task_1(input: &str) -> usize {
-    0
+    let (time, distance_to_beat) = input
+        .lines()
+        .map(|line| {
+            line.split_once(':')
+                .unwrap()
+                .1
+                .replace(" ", "")
+                .parse::<usize>()
+                .unwrap()
+        })
+        .collect_tuple()
+        .unwrap();
+
+    println!("time: {}, distance_to_beat: {}", time, distance_to_beat);
+
+    let (max_hold_time, min_hold_time) =
+        quadratic_formula(1.0, -(time as f64), distance_to_beat as f64);
+
+    ((max_hold_time - 1.0).ceil() as usize) - ((min_hold_time + 1.0).floor() as usize) + 1
 }
 
-fn quadratic_formula(a: f32, b: f32, c: f32) -> (f32, f32) {
-    let root = (b.powf(2f32) - 4f32 * a * c).sqrt();
-    let x1 = (-b + root) / 2f32 * a;
-    let x2 = (-b - root) / 2f32 * a;
+fn quadratic_formula(a: f64, b: f64, c: f64) -> (f64, f64) {
+    let root = (b.powf(2.0) - 4.0 * a * c).sqrt();
+    let x1 = (-b + root) / 2.0 * a;
+    let x2 = (-b - root) / 2.0 * a;
 
     (x1, x2)
 }
