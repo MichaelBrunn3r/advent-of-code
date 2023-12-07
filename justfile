@@ -46,3 +46,11 @@ bench1:
 alias bd := bench-day
 bench-day year day:
     cargo bench -p aoc-{{year}}-{{day}}
+
+alias bd0 := bench0-day
+bench0-day year day:
+    cargo bench -p aoc-{{year}}-{{day}} --bench task_0
+
+alias bd1 := bench1-day
+bench1-day year day:
+    cargo bench -p aoc-{{year}}-{{day}} --bench task_1
