@@ -22,6 +22,11 @@ def "main init" [day?:int, year?:int] {
     create_examples_with_solutions $html_day $out_dir
 
     create_input $day $year $out_dir
+
+    replace_template_strings ($"($out_dir)\\Cargo.toml") $day $year
+    replace_template_strings ($"($out_dir)\\benches\\task_0.rs") $day $year
+    replace_template_strings ($"($out_dir)\\benches\\task_1.rs") $day $year
+    replace_template_strings ($"($out_dir)\\src\\main.rs") $day $year
 }
 
 def "main update" [day?:int, year?:int] {
@@ -37,6 +42,13 @@ def "main update" [day?:int, year?:int] {
 
     # Save examples and solutions
     create_examples_with_solutions $html_day $out_dir
+}
+
+def replace_template_strings [file: string, day: int, year: int] {
+    let content = open $file --raw
+    let content = ($content | str replace '{{package_name}}' $'aoc-($year)-($day)')
+    let content = ($content | str replace '{{crate_name}}' $'aoc_($year)_($day)')
+    $content | save $file -f
 }
 
 def create_input [day: int, year: int, out_dir: string] {

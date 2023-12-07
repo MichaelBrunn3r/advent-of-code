@@ -1,19 +1,9 @@
-use aoc::prelude::*;
-use itertools::Itertools;
-use regex::Regex;
+use {{crate_name}}::*;
 
 fn main() {
     let input = aoc::read_input_to_string();
     println!("Task 0: {}", task_0(&input));
     println!("Task 1: {}", task_1(&input));
-}
-
-fn task_0(input: &str) -> usize {
-    0
-}
-
-fn task_1(input: &str) -> usize {
-    0
 }
 
 #[cfg(test)]

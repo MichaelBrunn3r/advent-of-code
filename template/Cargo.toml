@@ -1,5 +1,5 @@
 [package]
-name = "aoc-2023-?"
+name = "{{package_name}}"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,3 +9,12 @@ lazy_static = {workspace = true}
 aoc = { workspace = true }
 itertools = { workspace = true }
 rayon = { workspace = true }
+criterion = {workspace = true}
+
+[[bench]]
+name = "task_0"
+harness = false
+
+[[bench]]
+name = "task_1"
+harness = false
