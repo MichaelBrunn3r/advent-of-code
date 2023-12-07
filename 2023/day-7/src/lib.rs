@@ -61,17 +61,17 @@ impl<'a> Rules<'a> {
     }
 }
 
-fn labels_to_hand_strength(labels: &str, rules: &Rules) -> u64 {
+fn labels_to_hand_strength(labels: &str, rules: &Rules) -> u32 {
     let kind = HandKind::from_labels(labels, rules);
 
     labels
         .bytes()
-        .map(|l| rules.label_to_strength(l))
         .rev()
+        .map(|l| rules.label_to_strength(l))
         .enumerate()
-        .map(|(i, s)| (s as u64) << i * 8)
-        .sum::<u64>()
-        | (kind as u64) << 6 * 8
+        .map(|(i, s)| (s as u32) << (i << 2)) // i * 4
+        .sum::<u32>()
+        | (kind as u32) << 24 // 6*4
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
