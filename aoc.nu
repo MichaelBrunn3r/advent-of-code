@@ -13,7 +13,7 @@ def "main init" [day?:int, year?:int] {
 
     # Create Description.md
     let html_day = fetch_day $day $year
-    create_description $html_day ($"($out_dir)\\README.md") $day $year
+    create_description $html_day ($"($out_dir)\\TASKS.md") $day $year
 
     # Copy template
     copy_template $out_dir
@@ -24,6 +24,7 @@ def "main init" [day?:int, year?:int] {
     create_input $day $year $out_dir
 
     replace_template_strings ($"($out_dir)\\Cargo.toml") $day $year
+    replace_template_strings ($"($out_dir)\\README.md") $day $year
     replace_template_strings ($"($out_dir)\\benches\\task_0.rs") $day $year
     replace_template_strings ($"($out_dir)\\benches\\task_1.rs") $day $year
     replace_template_strings ($"($out_dir)\\src\\main.rs") $day $year
@@ -38,7 +39,7 @@ def "main update" [day?:int, year?:int] {
 
     # Create Description.md
     let html_day = fetch_day $day $year
-    create_description $html_day ($"($out_dir)\\README.md") $day $year
+    create_description $html_day ($"($out_dir)\\TASKS.md") $day $year
 
     # Save examples and solutions
     create_examples_with_solutions $html_day $out_dir

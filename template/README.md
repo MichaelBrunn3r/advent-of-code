@@ -1,11 +1,11 @@
-# [2023 Day 5: If You Give A Seed A Fertilizer](https://adventofcode.com/2023/day/5)
+# {{year}} Day {{day}}
 
 [Task description](./TASKS.md)
 
 ## Benchmarks
 
-- Task 0: 24.344 µs
-- Task 1: 61.941 µs
+- Task 0: ???
+- Task 1: ???
 
 Measures without reading input file.<br>
 CPU : 12th Gen Intel(R) Core(TM) i5-1240P
