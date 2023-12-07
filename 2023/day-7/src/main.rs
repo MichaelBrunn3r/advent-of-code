@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use aoc::prelude::*;
 use itertools::Itertools;
 use regex::Regex;
@@ -52,39 +50,40 @@ const fn generate_label_lookup(label_order: &[u8; 13]) -> [usize; 36] {
 #[derive(Debug, PartialEq, Eq, Ord)]
 struct Hand {
     hand_type: HandType,
-    cards: Vec<usize>,
+    strength: u64,
+    card_strengths: Vec<usize>,
 }
 
 impl Hand {
     fn from_labels(s: &str, lookup: &[usize]) -> Self {
-        let cards = s
+        let card_strengths = s
             .bytes()
             .map(|l| label_to_strength(l, lookup))
             .collect_vec();
 
         Self {
-            hand_type: HandType::from_strengths(&cards),
-            cards,
+            hand_type: HandType::from_strengths(&card_strengths),
+            strength: Self::strength_from_label_strengths(&card_strengths),
+            card_strengths,
         }
+    }
+
+    fn strength_from_label_strengths(s: &[usize]) -> u64 {
+        s.iter()
+            .rev()
+            .enumerate()
+            .map(|(i, s)| (*s as u64) << i * 8)
+            .sum()
     }
 }
 
 impl PartialOrd for Hand {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        let cmp_type = self.hand_type.cmp(&other.hand_type);
-        if cmp_type != std::cmp::Ordering::Equal {
-            return Some(cmp_type);
-        }
-
-        for (a, b) in self.cards.iter().zip(&other.cards) {
-            if *a > *b {
-                return Some(std::cmp::Ordering::Greater);
-            } else if *a < *b {
-                return Some(std::cmp::Ordering::Less);
-            }
-        }
-
-        Some(std::cmp::Ordering::Equal)
+        Some(
+            self.hand_type
+                .cmp(&other.hand_type)
+                .then(self.strength.cmp(&other.strength)),
+        )
     }
 }
 
@@ -98,10 +97,6 @@ enum HandType {
     FourOfAKind,
     FiveOfAKind,
 }
-
-// 0 pairs -> HighCard
-// 1 pair  -> FullHouse, OnePair
-// 2 pairs -> TwoPairs
 
 impl HandType {
     fn from_strengths(strengths: &[usize]) -> Self {
