@@ -26,8 +26,8 @@ fn count_winnings(input: &str, rules: &Rules) -> usize {
             )
         })
         .sorted_by_cached_key(|(hand_strength, _)| *hand_strength)
-        .enumerate()
-        .map(|(i, (_, bet))| (i + 1) * bet)
+        .zip(1..)
+        .map(|((_, bet), i)| i * bet)
         .sum()
 }
 
@@ -71,18 +71,19 @@ fn labels_to_hand_strength(labels: &str, rules: &Rules) -> u32 {
         .enumerate()
         .map(|(i, s)| (s as u32) << (i << 2)) // i * 4
         .sum::<u32>()
-        | (kind as u32) << 24 // 6*4
+        | kind as u32
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+#[repr(u32)]
 pub enum HandKind {
-    HighCard,
-    OnePair,
-    TwoPairs,
-    ThreeOfAKind,
-    FullHouse,
-    FourOfAKind,
-    FiveOfAKind,
+    HighCard = 0 << 5 * 4,
+    OnePair = 1 << 5 * 4,
+    TwoPairs = 2 << 5 * 4,
+    ThreeOfAKind = 3 << 5 * 4,
+    FullHouse = 4 << 5 * 4,
+    FourOfAKind = 5 << 5 * 4,
+    FiveOfAKind = 6 << 5 * 4,
 }
 
 impl HandKind {
