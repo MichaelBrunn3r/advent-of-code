@@ -21,11 +21,11 @@ fn count_winnings(input: &str, rules: &Rules) -> usize {
         .map(|line| {
             let (hand, bet) = line.split_once(' ').unwrap();
             (
-                Hand::from_labels(hand, &rules),
+                labels_to_hand_strength(hand, &rules),
                 bet.parse::<usize>().unwrap(),
             )
         })
-        .sorted_unstable_by(|(hand_a, _), (hand_b, _)| hand_a.cmp(hand_b))
+        .sorted_unstable_by(|(a, _), (b, _)| a.cmp(b))
         .enumerate()
         .map(|(i, (_, bet))| (i + 1) * bet)
         .sum()
@@ -61,56 +61,21 @@ impl<'a> Rules<'a> {
     }
 }
 
-#[derive(PartialEq, Eq, Ord)]
-struct Hand {
-    kind: HandKind,
-    strength: u64,
+fn labels_to_hand_strength(labels: &str, rules: &Rules) -> u64 {
+    let kind = HandKind::from_labels(labels, rules);
+
+    labels
+        .bytes()
+        .map(|l| rules.label_to_strength(l))
+        .rev()
+        .enumerate()
+        .map(|(i, s)| (s as u64) << i * 8)
+        .sum::<u64>()
+        | (kind as u64) << 6 * 8
 }
 
-impl Hand {
-    fn from_labels(labels: &str, rules: &Rules) -> Self {
-        let card_strengths = labels
-            .bytes()
-            .map(|l| rules.label_to_strength(l))
-            .collect_vec();
-
-        Self {
-            kind: HandKind::from_labels(labels, rules),
-            strength: Self::strength_from_label_strengths(&card_strengths),
-        }
-    }
-
-    fn strength_from_label_strengths(s: &[usize]) -> u64 {
-        s.iter()
-            .rev()
-            .enumerate()
-            .map(|(i, s)| (*s as u64) << i * 8)
-            .sum()
-    }
-}
-
-impl PartialOrd for Hand {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(
-            self.kind
-                .cmp(&other.kind)
-                .then(self.strength.cmp(&other.strength)),
-        )
-    }
-}
-
-impl fmt::Debug for Hand {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "Hand {{ kind: {:?}, strength: 0x{:010x} }}",
-            self.kind, self.strength
-        )
-    }
-}
-
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-enum HandKind {
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+pub enum HandKind {
     HighCard,
     OnePair,
     TwoPairs,
@@ -189,8 +154,14 @@ mod tests {
             joker_is_wildcard: false,
         };
 
-        assert!(Hand::from_labels("QQQ23", &no_joker) > Hand::from_labels("A3456", &no_joker));
-        assert!(Hand::from_labels("QQQ24", &no_joker) > Hand::from_labels("QQQ23", &no_joker));
+        assert!(
+            labels_to_hand_strength("QQQ23", &no_joker)
+                > labels_to_hand_strength("A3456", &no_joker)
+        );
+        assert!(
+            labels_to_hand_strength("QQQ24", &no_joker)
+                > labels_to_hand_strength("QQQ23", &no_joker)
+        );
     }
 
     #[test]
