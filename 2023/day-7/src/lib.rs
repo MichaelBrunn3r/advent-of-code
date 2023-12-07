@@ -25,7 +25,7 @@ fn count_winnings(input: &str, rules: &Rules) -> usize {
                 bet.parse::<usize>().unwrap(),
             )
         })
-        .sorted_unstable_by(|(a, _), (b, _)| a.cmp(b))
+        .sorted_unstable_by_key(|(hand_strength, _)| *hand_strength)
         .enumerate()
         .map(|(i, (_, bet))| (i + 1) * bet)
         .sum()
