@@ -1,3 +1,5 @@
+use core::fmt;
+
 use aoc::prelude::*;
 use itertools::Itertools;
 use regex::Regex;
@@ -22,6 +24,7 @@ fn task_0(input: &str) -> usize {
             )
         })
         .sorted_by(|(hand_a, _), (hand_b, _)| hand_a.cmp(hand_b))
+        // .inspect(|(hand, _)| println!("{:?}", hand))
         .enumerate()
         .map(|(i, (_, bet))| (i + 1) * bet)
         .sum()
@@ -47,11 +50,10 @@ const fn generate_label_lookup(label_order: &[u8; 13]) -> [usize; 36] {
     map
 }
 
-#[derive(Debug, PartialEq, Eq, Ord)]
+#[derive(PartialEq, Eq, Ord)]
 struct Hand {
-    hand_type: HandType,
+    kind: HandKind,
     strength: u64,
-    card_strengths: Vec<usize>,
 }
 
 impl Hand {
@@ -62,9 +64,8 @@ impl Hand {
             .collect_vec();
 
         Self {
-            hand_type: HandType::from_strengths(&card_strengths),
+            kind: HandKind::from_label_strengths(&card_strengths),
             strength: Self::strength_from_label_strengths(&card_strengths),
-            card_strengths,
         }
     }
 
@@ -80,15 +81,25 @@ impl Hand {
 impl PartialOrd for Hand {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(
-            self.hand_type
-                .cmp(&other.hand_type)
+            self.kind
+                .cmp(&other.kind)
                 .then(self.strength.cmp(&other.strength)),
         )
     }
 }
 
+impl fmt::Debug for Hand {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Hand {{ kind: {:?}, strength: 0x{:010x} }}",
+            self.kind, self.strength
+        )
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-enum HandType {
+enum HandKind {
     HighCard,
     OnePair,
     TwoPairs,
@@ -98,8 +109,8 @@ enum HandType {
     FiveOfAKind,
 }
 
-impl HandType {
-    fn from_strengths(strengths: &[usize]) -> Self {
+impl HandKind {
+    fn from_label_strengths(strengths: &[usize]) -> Self {
         let mut counts = [0; 13];
         for s in strengths {
             counts[*s] += 1;
@@ -109,8 +120,8 @@ impl HandType {
         let mut tripple = false;
         for c in counts {
             match c {
-                5 => return HandType::FiveOfAKind,
-                4 => return HandType::FourOfAKind,
+                5 => return HandKind::FiveOfAKind,
+                4 => return HandKind::FourOfAKind,
                 3 => tripple = true,
                 2 => pairs += 1,
                 _ => (),
@@ -120,19 +131,19 @@ impl HandType {
         match pairs {
             0 => {
                 if tripple {
-                    HandType::ThreeOfAKind
+                    HandKind::ThreeOfAKind
                 } else {
-                    HandType::HighCard
+                    HandKind::HighCard
                 }
             }
             1 => {
                 if tripple {
-                    HandType::FullHouse
+                    HandKind::FullHouse
                 } else {
-                    HandType::OnePair
+                    HandKind::OnePair
                 }
             }
-            2 => HandType::TwoPairs,
+            2 => HandKind::TwoPairs,
             _ => panic!("Invalid number of pairs"),
         }
     }
