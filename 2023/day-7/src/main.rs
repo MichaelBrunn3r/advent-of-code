@@ -4,6 +4,9 @@ use aoc::prelude::*;
 use itertools::Itertools;
 use regex::Regex;
 
+const LABEL_TO_STRENGTH_0: [usize; 36] = generate_label_lookup(b"23456789TJQKA");
+const LABEL_TO_STRENGTH_1: [usize; 36] = generate_label_lookup(b"J23456789TQKA");
+
 fn main() {
     let input = aoc::read_input_to_string();
     println!("Task 0: {}", task_0(&input));
@@ -15,9 +18,11 @@ fn task_0(input: &str) -> usize {
         .lines()
         .map(|line| {
             let (hand, bet) = line.split_once(' ').unwrap();
-            (hand.parse::<Hand>().unwrap(), bet.parse::<usize>().unwrap())
+            (
+                Hand::from_labels(hand, &LABEL_TO_STRENGTH_0),
+                bet.parse::<usize>().unwrap(),
+            )
         })
-        // .inspect(|(hand, bet)| println!("{:?} {}", hand, bet))
         .sorted_by(|(hand_a, _), (hand_b, _)| hand_a.cmp(hand_b))
         .enumerate()
         .map(|(i, (_, bet))| (i + 1) * bet)
@@ -28,16 +33,20 @@ fn task_1(input: &str) -> usize {
     0
 }
 
-fn label_to_strength(label: u8) -> usize {
-    match label {
-        b'2'..=b'9' => (label - b'2') as usize,
-        b'T' => 8,
-        b'J' => 9,
-        b'Q' => 10,
-        b'K' => 11,
-        b'A' => 12,
-        _ => panic!("Invalid label"),
+fn label_to_strength(label: u8, lookup: &[usize]) -> usize {
+    lookup[(label - b'2') as usize]
+}
+
+const fn generate_label_lookup(label_order: &[u8; 13]) -> [usize; 36] {
+    let mut map = [usize::MAX; 36];
+
+    let mut i = 0;
+    while i < 13 {
+        map[(label_order[i] - b'2') as usize] = i;
+        i += 1;
     }
+
+    map
 }
 
 #[derive(Debug, PartialEq, Eq, Ord)]
@@ -46,16 +55,17 @@ struct Hand {
     cards: Vec<usize>,
 }
 
-impl FromStr for Hand {
-    type Err = String;
+impl Hand {
+    fn from_labels(s: &str, lookup: &[usize]) -> Self {
+        let cards = s
+            .bytes()
+            .map(|l| label_to_strength(l, lookup))
+            .collect_vec();
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let cards = s.bytes().map(label_to_strength).collect_vec();
-
-        Ok(Self {
+        Self {
             hand_type: HandType::from_strengths(&cards),
             cards,
-        })
+        }
     }
 }
 
