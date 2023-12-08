@@ -1,32 +1,35 @@
 use aoc::prelude::UnsignedExt;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-use std::collections::HashMap;
 
+const NUM_POSSIBLE_NODES: usize = 26426;
 const ZZZ: u16 = encode_base_26("ZZZ");
 const Z: u16 = 25;
 const AAA: u16 = 0;
+
+pub static mut NETWORK: [(u16, u16); NUM_POSSIBLE_NODES] = [(0, 0); NUM_POSSIBLE_NODES];
 
 pub fn task_0(input: &str) -> usize {
     let (instructions, nodes) = input.split_once("\n\n").unwrap();
 
     let mut instructions = instructions.chars().cycle();
 
-    let mut network = HashMap::<u16, (u16, u16)>::with_capacity(720);
     nodes.lines().for_each(|line| {
         let name = encode_base_26(&line[0..=2]);
         let left = encode_base_26(&line[7..=9]);
         let right = encode_base_26(&line[12..=14]);
-        network.insert(name, (left, right));
+        unsafe {
+            NETWORK[name as usize] = (left, right);
+        }
     });
 
     let mut current = AAA;
     let mut step = 0;
     while current != ZZZ {
-        let (left, right) = network.get(&current).unwrap();
+        let (left, right) = unsafe { NETWORK[current as usize] };
         let instruction = instructions.next().unwrap();
         current = match instruction {
-            'L' => *left,
-            'R' => *right,
+            'L' => left,
+            'R' => right,
             _ => unreachable!(),
         };
 
@@ -41,7 +44,6 @@ pub fn task_1(input: &str) -> usize {
 
     let instructions = instructions.chars().cycle();
 
-    let mut network = HashMap::<u16, (u16, u16)>::with_capacity(720);
     let mut current_nodes = vec![];
     nodes.lines().for_each(|line| {
         let name = &line[0..=2];
@@ -53,28 +55,26 @@ pub fn task_1(input: &str) -> usize {
 
         let left = encode_base_26(&line[7..=9]);
         let right = encode_base_26(&line[12..=14]);
-        network.insert(key, (left, right));
+        unsafe {
+            NETWORK[key as usize] = (left, right);
+        }
     });
 
     current_nodes
         .par_iter()
-        .map(|&node| calc_cycle_length(node, &network, instructions.clone()))
+        .map(|&node| calc_cycle_length(node, instructions.clone()))
         .reduce(|| 1, |a, b| a.lcm(b))
 }
 
-fn calc_cycle_length(
-    start: u16,
-    network: &HashMap<u16, (u16, u16)>,
-    mut instructions: impl Iterator<Item = char>,
-) -> usize {
+fn calc_cycle_length(start: u16, mut instructions: impl Iterator<Item = char>) -> usize {
     let mut current = start;
     let mut step = 0;
     while current & 0b11111 != Z {
-        let (left, right) = network.get(&current).unwrap();
+        let (left, right) = unsafe { NETWORK[current as usize] };
 
         current = match instructions.next().unwrap() {
-            'L' => *left,
-            'R' => *right,
+            'L' => left,
+            'R' => right,
             _ => unreachable!(),
         };
 
