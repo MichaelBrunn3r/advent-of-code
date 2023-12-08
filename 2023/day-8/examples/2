@@ -1,0 +1,10 @@
+LR
+
+KKA = (KKB, XXX)
+KKB = (XXX, KKZ)
+KKZ = (KKB, XXX)
+LLA = (LLB, XXX)
+LLB = (LLC, LLC)
+LLC = (LLZ, LLZ)
+LLZ = (LLB, LLB)
+XXX = (XXX, XXX)
