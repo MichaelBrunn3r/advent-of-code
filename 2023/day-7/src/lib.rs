@@ -8,18 +8,18 @@ const LABEL_TO_STRENGTH_0: [u32; 36] = generate_label_to_strength_lookup(b"23456
 const LABEL_TO_STRENGTH_1: [u32; 36] = generate_label_to_strength_lookup(b"J23456789TQKA");
 
 pub fn task_0(input: &str) -> usize {
-    count_winnings(input, &Rules::new(&LABEL_TO_STRENGTH_0, false)) as usize
+    count_winnings(input, &LABEL_TO_STRENGTH_0, false) as usize
 }
 
 pub fn task_1(input: &str) -> usize {
-    count_winnings(input, &Rules::new(&LABEL_TO_STRENGTH_1, true)) as usize
+    count_winnings(input, &LABEL_TO_STRENGTH_1, true) as usize
 }
 
-fn count_winnings(input: &str, rules: &Rules) -> u32 {
+fn count_winnings(input: &str, lookup: &[u32; 36], joker_is_wildcard: bool) -> u32 {
     input
         .lines()
         .map(|line| {
-            let hand_strength = labels_to_hand_strength(&line[..5], &rules);
+            let hand_strength = labels_to_hand_strength(&line[..5], lookup, joker_is_wildcard);
             let bet = line[6..].parse::<u32>().unwrap();
             (hand_strength, bet)
         })
@@ -41,31 +41,13 @@ const fn generate_label_to_strength_lookup(label_order: &[u8; 13]) -> [u32; 36] 
     map
 }
 
-struct Rules<'a> {
-    label_to_strength: &'a [u32; 36],
-    joker_is_wildcard: bool,
-}
-
-impl<'a> Rules<'a> {
-    fn new(label_to_strength: &'a [u32; 36], joker_is_wildcard: bool) -> Self {
-        Self {
-            label_to_strength,
-            joker_is_wildcard,
-        }
-    }
-
-    fn label_to_strength(&self, label: u8) -> u32 {
-        self.label_to_strength[(label - b'2') as usize]
-    }
-}
-
-fn labels_to_hand_strength(labels: &str, rules: &Rules) -> u32 {
-    let kind = HandKind::from_labels(labels, rules);
+fn labels_to_hand_strength(labels: &str, lookup: &[u32; 36], joker_is_wildcard: bool) -> u32 {
+    let kind = HandKind::from_labels(labels, lookup, joker_is_wildcard);
 
     labels
         .bytes()
         .rev()
-        .map(|l| rules.label_to_strength(l))
+        .map(|l| lookup[l as usize - b'2' as usize])
         .enumerate()
         .map(|(i, s)| (s as u32) << (i << 2)) // i * 4
         .sum::<u32>()
@@ -85,16 +67,16 @@ pub enum HandKind {
 }
 
 impl HandKind {
-    fn from_labels(labels: &str, rules: &Rules) -> Self {
+    fn from_labels(labels: &str, lookup: &[u32; 36], joker_is_wildcard: bool) -> Self {
         let mut counts = [0; 13];
         let mut max = 0;
         let mut max_idx = 0usize;
 
         for l in labels.chars() {
-            let strength = rules.label_to_strength(l as u8) as usize;
+            let strength = lookup[l as usize - b'2' as usize] as usize;
             let count = counts[strength] + 1;
 
-            if count >= max && !(rules.joker_is_wildcard && l == 'J') {
+            if count >= max && !(joker_is_wildcard && l == 'J') {
                 max = count;
                 max_idx = strength;
             }
@@ -102,8 +84,8 @@ impl HandKind {
             counts[strength] = count;
         }
 
-        if rules.joker_is_wildcard {
-            let joker_strength = rules.label_to_strength(b'J') as usize;
+        if joker_is_wildcard {
+            let joker_strength = lookup[b'J' as usize - (b'2' as usize)] as usize;
             let joker_count = counts[joker_strength];
             counts[joker_strength] = 0;
             counts[max_idx] += joker_count;
@@ -148,38 +130,26 @@ mod tests {
 
     #[test]
     fn test_cmp_hands() {
-        let no_joker = Rules {
-            label_to_strength: &LABEL_TO_STRENGTH_0,
-            joker_is_wildcard: false,
-        };
-
         assert!(
-            labels_to_hand_strength("QQQ23", &no_joker)
-                > labels_to_hand_strength("A3456", &no_joker)
+            labels_to_hand_strength("QQQ23", &LABEL_TO_STRENGTH_0, false)
+                > labels_to_hand_strength("A3456", &LABEL_TO_STRENGTH_0, false)
         );
         assert!(
-            labels_to_hand_strength("QQQ24", &no_joker)
-                > labels_to_hand_strength("QQQ23", &no_joker)
+            labels_to_hand_strength("QQQ24", &LABEL_TO_STRENGTH_0, false)
+                > labels_to_hand_strength("QQQ23", &LABEL_TO_STRENGTH_0, false)
         );
     }
 
     #[test]
     fn test_kind_from_labels() {
-        let no_joker = Rules {
-            label_to_strength: &LABEL_TO_STRENGTH_0,
-            joker_is_wildcard: false,
-        };
-
         assert_eq!(
-            HandKind::from_labels("QQQ23", &no_joker),
+            HandKind::from_labels("QQQ23", &LABEL_TO_STRENGTH_0, false),
             HandKind::ThreeOfAKind
         );
 
-        let joker = Rules {
-            label_to_strength: &LABEL_TO_STRENGTH_1,
-            joker_is_wildcard: true,
-        };
-
-        assert_eq!(HandKind::from_labels("2345J", &joker), HandKind::OnePair);
+        assert_eq!(
+            HandKind::from_labels("2345J", &LABEL_TO_STRENGTH_1, true),
+            HandKind::OnePair
+        );
     }
 }
