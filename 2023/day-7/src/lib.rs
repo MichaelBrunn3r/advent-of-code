@@ -19,11 +19,9 @@ fn count_winnings(input: &str, rules: &Rules) -> usize {
     input
         .lines()
         .map(|line| {
-            let (hand, bet) = line.split_once(' ').unwrap();
-            (
-                labels_to_hand_strength(hand, &rules),
-                bet.parse::<usize>().unwrap(),
-            )
+            let hand_strength = labels_to_hand_strength(&line[..5], &rules);
+            let bet = line[6..].parse::<usize>().unwrap();
+            (hand_strength, bet)
         })
         .sorted_by_cached_key(|(hand_strength, _)| *hand_strength)
         .zip(1..)
