@@ -4,23 +4,23 @@ use aoc::prelude::*;
 use itertools::Itertools;
 use regex::Regex;
 
-const LABEL_TO_STRENGTH_0: [usize; 36] = generate_label_lookup(b"23456789TJQKA");
-const LABEL_TO_STRENGTH_1: [usize; 36] = generate_label_lookup(b"J23456789TQKA");
+const LABEL_TO_STRENGTH_0: [u32; 36] = generate_label_to_strength_lookup(b"23456789TJQKA");
+const LABEL_TO_STRENGTH_1: [u32; 36] = generate_label_to_strength_lookup(b"J23456789TQKA");
 
 pub fn task_0(input: &str) -> usize {
-    count_winnings(input, &Rules::new(&LABEL_TO_STRENGTH_0, false))
+    count_winnings(input, &Rules::new(&LABEL_TO_STRENGTH_0, false)) as usize
 }
 
 pub fn task_1(input: &str) -> usize {
-    count_winnings(input, &Rules::new(&LABEL_TO_STRENGTH_1, true))
+    count_winnings(input, &Rules::new(&LABEL_TO_STRENGTH_1, true)) as usize
 }
 
-fn count_winnings(input: &str, rules: &Rules) -> usize {
+fn count_winnings(input: &str, rules: &Rules) -> u32 {
     input
         .lines()
         .map(|line| {
             let hand_strength = labels_to_hand_strength(&line[..5], &rules);
-            let bet = line[6..].parse::<usize>().unwrap();
+            let bet = line[6..].parse::<u32>().unwrap();
             (hand_strength, bet)
         })
         .sorted_by_cached_key(|(hand_strength, _)| *hand_strength)
@@ -29,12 +29,12 @@ fn count_winnings(input: &str, rules: &Rules) -> usize {
         .sum()
 }
 
-const fn generate_label_lookup(label_order: &[u8; 13]) -> [usize; 36] {
-    let mut map = [usize::MAX; 36];
+const fn generate_label_to_strength_lookup(label_order: &[u8; 13]) -> [u32; 36] {
+    let mut map = [u32::MAX; 36];
 
     let mut i = 0;
     while i < 13 {
-        map[(label_order[i] - b'2') as usize] = i;
+        map[(label_order[i] - b'2') as usize] = i as u32;
         i += 1;
     }
 
@@ -42,19 +42,19 @@ const fn generate_label_lookup(label_order: &[u8; 13]) -> [usize; 36] {
 }
 
 struct Rules<'a> {
-    label_to_strength: &'a [usize; 36],
+    label_to_strength: &'a [u32; 36],
     joker_is_wildcard: bool,
 }
 
 impl<'a> Rules<'a> {
-    fn new(label_to_strength: &'a [usize; 36], joker_is_wildcard: bool) -> Self {
+    fn new(label_to_strength: &'a [u32; 36], joker_is_wildcard: bool) -> Self {
         Self {
             label_to_strength,
             joker_is_wildcard,
         }
     }
 
-    fn label_to_strength(&self, label: u8) -> usize {
+    fn label_to_strength(&self, label: u8) -> u32 {
         self.label_to_strength[(label - b'2') as usize]
     }
 }
@@ -88,10 +88,10 @@ impl HandKind {
     fn from_labels(labels: &str, rules: &Rules) -> Self {
         let mut counts = [0; 13];
         let mut max = 0;
-        let mut max_idx = 0;
+        let mut max_idx = 0usize;
 
         for l in labels.chars() {
-            let strength = rules.label_to_strength(l as u8);
+            let strength = rules.label_to_strength(l as u8) as usize;
             let count = counts[strength] + 1;
 
             if count >= max && !(rules.joker_is_wildcard && l == 'J') {
@@ -103,7 +103,7 @@ impl HandKind {
         }
 
         if rules.joker_is_wildcard {
-            let joker_strength = rules.label_to_strength(b'J');
+            let joker_strength = rules.label_to_strength(b'J') as usize;
             let joker_count = counts[joker_strength];
             counts[joker_strength] = 0;
             counts[max_idx] += joker_count;
