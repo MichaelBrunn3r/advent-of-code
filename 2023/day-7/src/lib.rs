@@ -20,13 +20,23 @@ fn count_winnings(input: &str, lookup: &[u32; 36], joker_is_wildcard: bool) -> u
         .lines()
         .map(|line| {
             let hand_strength = labels_to_hand_strength(&line[..5], lookup, joker_is_wildcard);
-            let bet = line[6..].parse::<u32>().unwrap();
+            let bet = str_to_u32(&line[6..]);
             (hand_strength, bet)
         })
         .sorted_by_cached_key(|(hand_strength, _)| *hand_strength)
         .zip(1..)
         .map(|((_, bet), i)| i * bet)
         .sum()
+}
+
+pub fn str_to_u32(bid: &str) -> u32 {
+    let mut val = 0u32;
+
+    for c in bid.bytes() {
+        val = val * 10 + (c - b'0') as u32;
+    }
+
+    val
 }
 
 const fn generate_label_to_strength_lookup(label_order: &[u8; 13]) -> [u32; 36] {

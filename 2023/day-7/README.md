@@ -4,8 +4,8 @@
 
 ## Benchmarks
 
-- Task 0: 40.816 µs
-- Task 1: 44.377 µs
+- Task 0: 38.659 µs
+- Task 1: 41.981 µs
 
 Measures without reading input file.<br>
 CPU : 12th Gen Intel(R) Core(TM) i5-1240P
