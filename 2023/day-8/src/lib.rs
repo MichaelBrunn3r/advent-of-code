@@ -1,4 +1,5 @@
 use aoc::prelude::UnsignedExt;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use std::collections::HashMap;
 
 const ZZZ: u16 = encode_base_26("ZZZ");
@@ -55,14 +56,10 @@ pub fn task_1(input: &str) -> usize {
         network.insert(key, (left, right));
     });
 
-    let cycle_lengths = current_nodes
-        .iter()
+    current_nodes
+        .par_iter()
         .map(|&node| calc_cycle_length(node, &network, instructions.clone()))
-        .collect::<Vec<_>>();
-
-    cycle_lengths
-        .iter()
-        .fold(1, |acc, &cycle_length| acc.lcm(cycle_length))
+        .reduce(|| 1, |a, b| a.lcm(b))
 }
 
 fn calc_cycle_length(
