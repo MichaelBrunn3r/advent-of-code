@@ -49,6 +49,8 @@ def replace_template_strings [file: string, day: int, year: int] {
     let content = open $file --raw
     let content = ($content | str replace '{{package_name}}' $'aoc-($year)-($day)')
     let content = ($content | str replace '{{crate_name}}' $'aoc_($year)_($day)')
+    let content = ($content | str replace '{{year}}' $'($year)')
+    let content = ($content | str replace '{{day}}' $'($day)')
     $content | save $file -f
 }
 

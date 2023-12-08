@@ -1,5 +1,5 @@
 [package]
-name = "{{package_name}}"
+name = "aoc-2023-8"
 version = "0.1.0"
 edition = "2021"
 

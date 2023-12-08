@@ -1,4 +1,4 @@
-# {{year}} Day {{day}}
+# 2023 Day 8
 
 - [Task description](./TASKS.md)
 
