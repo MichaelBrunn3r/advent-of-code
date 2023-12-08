@@ -1,4 +1,5 @@
 mod iter;
+mod number;
 mod range;
 mod string;
 
@@ -66,6 +67,7 @@ where
 
 pub mod prelude {
     pub use crate::iter::IteratorExt;
+    pub use crate::number::UnsignedExt;
     pub use crate::range::RangeExt;
     pub use crate::string::{CharExt, StrExt};
 }

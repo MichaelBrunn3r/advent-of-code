@@ -1,3 +1,4 @@
+use aoc::prelude::UnsignedExt;
 use std::collections::HashMap;
 
 const ZZZ: u16 = encode_base_26("ZZZ");
@@ -37,7 +38,7 @@ pub fn task_0(input: &str) -> usize {
 pub fn task_1(input: &str) -> usize {
     let (instructions, nodes) = input.split_once("\n\n").unwrap();
 
-    let mut instructions = instructions.chars().cycle();
+    let instructions = instructions.chars().cycle();
 
     let mut network = HashMap::<u16, (u16, u16)>::with_capacity(720);
     let mut current_nodes = vec![];
@@ -54,19 +55,31 @@ pub fn task_1(input: &str) -> usize {
         network.insert(key, (left, right));
     });
 
+    let cycle_lengths = current_nodes
+        .iter()
+        .map(|&node| calc_cycle_length(node, &network, instructions.clone()))
+        .collect::<Vec<_>>();
+
+    cycle_lengths
+        .iter()
+        .fold(1, |acc, &cycle_length| acc.lcm(cycle_length))
+}
+
+fn calc_cycle_length(
+    start: u16,
+    network: &HashMap<u16, (u16, u16)>,
+    mut instructions: impl Iterator<Item = char>,
+) -> usize {
+    let mut current = start;
     let mut step = 0;
-    while !current_nodes.iter().all(|&node| node & 0b11111 == Z) {
-        let instruction = instructions.next().unwrap();
+    while current & 0b11111 != Z {
+        let (left, right) = network.get(&current).unwrap();
 
-        for i in 0..current_nodes.len() {
-            let (left, right) = network.get(&current_nodes[i]).unwrap();
-
-            current_nodes[i] = match instruction {
-                'L' => *left,
-                'R' => *right,
-                _ => unreachable!(),
-            };
-        }
+        current = match instructions.next().unwrap() {
+            'L' => *left,
+            'R' => *right,
+            _ => unreachable!(),
+        };
 
         step += 1;
     }

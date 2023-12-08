@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 lazy_static = {workspace = true}
 rand = {workspace = true}
+gcd = {workspace = true}

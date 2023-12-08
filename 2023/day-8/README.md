@@ -4,7 +4,5 @@
 
 ## Benchmarks (i5-1240P, no IO)
 
-- Task 0: ???
-- Task 1: ???
-
-## Explanation
+- Task 0: `307.99 µs`
+- Task 1: `1.7564 ms`

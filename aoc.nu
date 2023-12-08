@@ -47,10 +47,10 @@ def "main update" [day?:int, year?:int] {
 
 def replace_template_strings [file: string, day: int, year: int] {
     let content = open $file --raw
-    let content = ($content | str replace '{{package_name}}' $'aoc-($year)-($day)')
-    let content = ($content | str replace '{{crate_name}}' $'aoc_($year)_($day)')
-    let content = ($content | str replace '{{year}}' $'($year)')
-    let content = ($content | str replace '{{day}}' $'($day)')
+    let content = ($content | str replace --all '{{package_name}}' $'aoc-($year)-($day)')
+    let content = ($content | str replace --all '{{crate_name}}' $'aoc_($year)_($day)')
+    let content = ($content | str replace --all '{{year}}' $'($year)')
+    let content = ($content | str replace --all '{{day}}' $'($day)')
     $content | save $file -f
 }
 
