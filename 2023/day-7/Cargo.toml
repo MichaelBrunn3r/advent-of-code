@@ -10,6 +10,7 @@ aoc = { workspace = true }
 itertools = { workspace = true }
 rayon = { workspace = true }
 criterion = {workspace = true}
+rand = {workspace = true}
 
 [[bench]]
 name = "task_0"

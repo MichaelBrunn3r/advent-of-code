@@ -19,4 +19,11 @@ mod tests {
     fn test_example_1() {
         aoc::assert_solution(1, task_1);
     }
+
+    #[test]
+    fn test_input() {
+        let input = aoc::read_input_to_string();
+        assert_eq!(task_0(&input), 252295678);
+        assert_eq!(task_1(&input), 250577259);
+    }
 }
