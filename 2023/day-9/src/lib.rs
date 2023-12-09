@@ -1,13 +1,10 @@
-use iter::{SeriesValuesIterator, SeriesValuesIteratorReverse};
 use itertools::Itertools;
 use rayon::iter::{ParallelBridge, ParallelIterator};
-mod iter;
-
 pub fn part_1(input: &str) -> i32 {
     input
         .lines()
         .par_bridge()
-        .map(|line| predict_next_value(SeriesValuesIterator::new(line.as_bytes())))
+        .map(|line| predict_next_value(line.split(' ').map(|num| parse_i32(num.as_bytes()))))
         .sum()
 }
 
@@ -15,7 +12,7 @@ pub fn part_2(input: &str) -> i32 {
     input
         .lines()
         .par_bridge()
-        .map(|line| predict_next_value(SeriesValuesIteratorReverse::new(line.as_bytes())))
+        .map(|line| predict_next_value(line.split(' ').rev().map(|num| parse_i32(num.as_bytes()))))
         .sum()
 }
 
@@ -52,4 +49,21 @@ fn collect_last_values(series: impl Iterator<Item = i32>) -> Vec<i32> {
     }
 
     last_values
+}
+
+fn parse_i32(mut input: &[u8]) -> i32 {
+    let mut val = 0;
+
+    let sign = if input[0] == b'-' {
+        input = &input[1..];
+        -1
+    } else {
+        1
+    };
+
+    for c in input {
+        val = val * 10 + (c - b'0') as i32;
+    }
+
+    val * sign
 }
