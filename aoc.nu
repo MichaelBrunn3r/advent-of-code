@@ -56,7 +56,7 @@ def replace_template_strings [file: string, day: int, year: int] {
 
 def create_input [day: int, year: int, out_dir: string] {
     let input = fetch_input $day $year
-    $input | save ($"($out_dir)\\input") -f
+    $input | save ($"($out_dir)\\input.txt") -f
 }
 
 def create_description [html: string, dest: string, day: int, year: int] {
@@ -77,12 +77,12 @@ def create_examples_with_solutions [html: string, project_dir: string] {
         let example = $examples | get $i
         let solution = $solutions | reverse | get 0
 
-        let ex_path = ($"($examples_dir)\\($i)")
+        let ex_path = ($"($examples_dir)\\($i).txt")
         if ($ex_path | path exists ) {} else {
             $example | save $ex_path
         }
 
-        let sol_path = ($"($examples_dir)\\($i)_solution")
+        let sol_path = ($"($examples_dir)\\($i)_solution.txt")
         if ($sol_path | path exists ) {} else {
             $solution | save $sol_path
         }

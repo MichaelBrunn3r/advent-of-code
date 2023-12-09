@@ -7,7 +7,8 @@ lazy_static! {
 }
 
 fn main() {
-    let input = std::fs::read_to_string(PROJECT_DIR.join("input")).expect("Unable to read file");
+    let input =
+        std::fs::read_to_string(PROJECT_DIR.join("input.txt")).expect("Unable to read file");
     // println!("{}", sum_ids_possible_games(&input));
     println!("{}", sum_of_power_of_minimum_set_of_cubes(&input));
 }

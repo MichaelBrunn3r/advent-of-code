@@ -14,7 +14,7 @@ lazy_static! {
 }
 
 pub fn read_input_to_string() -> String {
-    std::fs::read_to_string(PROJECT_DIR.join("input")).unwrap()
+    std::fs::read_to_string(PROJECT_DIR.join("input.txt")).unwrap()
 }
 
 pub fn read_example_to_string(n: usize) -> String {
@@ -26,11 +26,11 @@ pub fn read_solution_to_string(n: usize) -> String {
 }
 
 pub fn solution_path(n: usize) -> PathBuf {
-    EXAMPLES_DIR.join(format!("{}_solution", n))
+    EXAMPLES_DIR.join(format!("{}_solution.txt", n))
 }
 
 pub fn example_path(n: usize) -> PathBuf {
-    EXAMPLES_DIR.join(format!("{}", n))
+    EXAMPLES_DIR.join(format!("{}.txt", n))
 }
 
 pub fn example_exists(n: usize) -> bool {
