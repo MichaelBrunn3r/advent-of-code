@@ -1,23 +1,39 @@
+// #![feature(portable_simd)]
+
 use iter::{SeriesValuesIterator, SeriesValuesIteratorReverse};
 use itertools::Itertools;
+use rayon::iter::{ParallelBridge, ParallelIterator};
+// use std::simd::i;
+
 mod iter;
 
 pub fn part_1(input: &str) -> i32 {
-    input
-        .lines()
-        .map(|line| predict_next_value(SeriesValuesIterator::new(line.as_bytes())))
-        .sum()
+    let mut buffer = Vec::<i32>::with_capacity(21);
+    let mut sum = 0;
+
+    for line in input.lines() {
+        buffer.extend(SeriesValuesIterator::new(line.as_bytes()));
+        sum += predict_next_value(&mut buffer);
+        buffer.clear();
+    }
+
+    sum
 }
 
 pub fn part_2(input: &str) -> i32 {
-    input
-        .lines()
-        .map(|line| predict_next_value(SeriesValuesIteratorReverse::new(line.as_bytes())))
-        .sum()
+    let mut buffer = Vec::<i32>::with_capacity(21);
+    let mut sum = 0;
+
+    for line in input.lines() {
+        buffer.extend(SeriesValuesIteratorReverse::new(line.as_bytes()));
+        sum += predict_next_value(&mut buffer);
+        buffer.clear();
+    }
+
+    sum
 }
 
-fn predict_next_value(series: impl Iterator<Item = i32>) -> i32 {
-    let mut series = series.collect_vec();
+fn predict_next_value(series: &mut Vec<i32>) -> i32 {
     let mut end = series.len();
     loop {
         let mut all_zero = false;
