@@ -1,9 +1,7 @@
 use itertools::Itertools;
-use rayon::iter::{ParallelBridge, ParallelIterator};
 pub fn part_1(input: &str) -> i32 {
     input
         .lines()
-        .par_bridge()
         .map(|line| predict_next_value(line.split(' ').map(|num| parse_i32(num.as_bytes()))))
         .sum()
 }
@@ -11,44 +9,29 @@ pub fn part_1(input: &str) -> i32 {
 pub fn part_2(input: &str) -> i32 {
     input
         .lines()
-        .par_bridge()
         .map(|line| predict_next_value(line.split(' ').rev().map(|num| parse_i32(num.as_bytes()))))
         .sum()
 }
 
 fn predict_next_value(series: impl Iterator<Item = i32>) -> i32 {
-    let first_values = collect_last_values(series);
-    first_values.iter().fold(0, |acc, f| f + acc)
-}
-
-fn calc_differences(series: impl Iterator<Item = i32>) -> (i32, bool, Vec<i32>) {
-    let mut all_zero = true;
-    let mut last = 0;
-
-    let diffs = series
-        .inspect(|x| last = *x)
-        .tuple_windows()
-        .map(|(a, b)| {
-            let diff = b - a;
+    let mut series = series.collect_vec();
+    let mut end = series.len();
+    loop {
+        let mut all_zero = false;
+        for i in 1..end {
+            let diff = series[i] - series[i - 1];
             all_zero &= diff == 0;
-            diff
-        })
-        .collect_vec();
+            series[i - 1] = diff;
+        }
 
-    (last, all_zero, diffs)
-}
+        end -= 1;
 
-fn collect_last_values(series: impl Iterator<Item = i32>) -> Vec<i32> {
-    let (mut last, mut all_zero, mut diffs) = calc_differences(series);
-
-    let mut last_values = vec![last];
-
-    while !all_zero {
-        (last, all_zero, diffs) = calc_differences(diffs.into_iter());
-        last_values.push(last);
+        if all_zero || end == 0 {
+            break;
+        }
     }
 
-    last_values
+    series.iter().fold(0, |acc, f| f + acc)
 }
 
 fn parse_i32(mut input: &[u8]) -> i32 {
