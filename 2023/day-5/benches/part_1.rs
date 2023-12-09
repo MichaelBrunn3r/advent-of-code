@@ -1,10 +1,10 @@
-use aoc_2023_6::*;
+use aoc_2023_5::*;
 use criterion::{criterion_group, criterion_main, Criterion};
 
 fn bench(c: &mut Criterion) {
     let input = aoc::read_input_to_string();
 
-    c.bench_function("aoc_2023_6_task_1", |b| b.iter(|| task_1(&input)));
+    c.bench_function("aoc_2023_5_part_1", |b| b.iter(|| part_1(&input)));
 }
 
 criterion_group!(benches, bench);

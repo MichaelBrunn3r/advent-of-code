@@ -3,7 +3,7 @@ use aoc::prelude::*;
 use itertools::Itertools;
 use std::ops::Range;
 
-pub fn task_0(input: &str) -> usize {
+pub fn part_1(input: &str) -> usize {
     let mut sections = input.split("\n\n");
 
     let seeds: Vec<usize> = sections
@@ -43,7 +43,7 @@ pub fn task_0(input: &str) -> usize {
     min
 }
 
-pub fn task_1(input: &str) -> usize {
+pub fn part_2(input: &str) -> usize {
     let mut sections = input.split("\n\n");
 
     let mut seed_ranges: Vec<Range<usize>> = sections

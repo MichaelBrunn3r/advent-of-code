@@ -12,9 +12,9 @@ rayon = { workspace = true }
 criterion = {workspace = true}
 
 [[bench]]
-name = "task_0"
+name = "part_1"
 harness = false
 
 [[bench]]
-name = "task_1"
+name = "part_2"
 harness = false

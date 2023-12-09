@@ -25,8 +25,8 @@ def "main init" [day?:int, year?:int] {
 
     replace_template_strings ($"($out_dir)\\Cargo.toml") $day $year
     replace_template_strings ($"($out_dir)\\README.md") $day $year
-    replace_template_strings ($"($out_dir)\\benches\\task_0.rs") $day $year
-    replace_template_strings ($"($out_dir)\\benches\\task_1.rs") $day $year
+    replace_template_strings ($"($out_dir)\\benches\\part_1.rs") $day $year
+    replace_template_strings ($"($out_dir)\\benches\\part_2.rs") $day $year
     replace_template_strings ($"($out_dir)\\src\\main.rs") $day $year
 }
 

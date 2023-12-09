@@ -7,7 +7,7 @@ pub const CARD_LUT_LEN: usize = 36;
 pub const SMALLEST_LABEL: usize = b'2' as usize;
 const NUM_LABELS: usize = 13;
 
-pub fn task_0(input: &str) -> usize {
+pub fn part_1(input: &str) -> usize {
     count_winnings(
         input,
         &LABEL_TO_STRENGTH_LUT_0,
@@ -15,7 +15,7 @@ pub fn task_0(input: &str) -> usize {
     ) as usize
 }
 
-pub fn task_1(input: &str) -> usize {
+pub fn part_2(input: &str) -> usize {
     count_winnings(
         input,
         &LABEL_TO_STRENGTH_LUT_1,

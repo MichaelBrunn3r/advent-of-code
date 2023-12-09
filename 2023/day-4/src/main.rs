@@ -2,11 +2,11 @@ use aoc;
 
 fn main() {
     let input = aoc::read_input_to_string();
-    println!("Points: {}", task_0(&input));
-    println!("Total number of cards: {}", task_1(&input));
+    println!("Points: {}", part_1(&input));
+    println!("Total number of cards: {}", part_2(&input));
 }
 
-fn task_0(input: &str) -> usize {
+fn part_1(input: &str) -> usize {
     input
         .lines()
         .map(|line| Card::from_str(line))
@@ -19,7 +19,7 @@ fn task_0(input: &str) -> usize {
         .sum::<usize>()
 }
 
-fn task_1(input: &str) -> usize {
+fn part_2(input: &str) -> usize {
     let matches_per_card: Vec<usize> = input
         .lines()
         .map(|line| Card::from_str(line))
@@ -96,12 +96,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_task_0() {
-        aoc::assert_solution(0, task_0);
+    fn test_part_1() {
+        aoc::assert_solution(0, part_1);
     }
 
     #[test]
-    fn test_task_1() {
-        aoc::assert_solution(1, task_1);
+    fn test_part_2() {
+        aoc::assert_solution(1, part_2);
     }
 }

@@ -11,7 +11,7 @@ use regex::Regex;
 // d + x^2 = th
 // h^2 - th + d = 0
 
-pub fn task_0(input: &str) -> usize {
+pub fn part_1(input: &str) -> usize {
     let re_number = Regex::new(r"(\d+)").unwrap();
     let (times, distances_to_beat) = input
         .split('\n')
@@ -41,7 +41,7 @@ pub fn task_0(input: &str) -> usize {
         .unwrap()
 }
 
-pub fn task_1(input: &str) -> usize {
+pub fn part_2(input: &str) -> usize {
     let (time, distance_to_beat) = input
         .lines()
         .map(|line| {

@@ -5,14 +5,14 @@ use std::path::PathBuf;
 
 fn main() {
     let input = aoc::read_input_to_string();
-    println!("Total score: {}", task_0(&input));
-    println!("Task 1: {}", task_1(&input));
+    println!("Total score: {}", part_1(&input));
+    println!("Part 2: {}", part_2(&input));
 }
 
 // Rock     = 1 beats 3
 // Paper    = 2 beats 1
 // Scissors = 3 beats 2
-fn task_0(input: &str) -> usize {
+fn part_1(input: &str) -> usize {
     input
         .lines()
         .map(|line| line.split_once(' ').unwrap())
@@ -37,7 +37,7 @@ fn task_0(input: &str) -> usize {
         .sum()
 }
 
-fn task_1(input: &str) -> usize {
+fn part_2(input: &str) -> usize {
     input
         .lines()
         .map(|line| line.split_once(' ').unwrap())
@@ -136,11 +136,11 @@ mod tests {
 
     #[test]
     fn test_example_0() {
-        aoc::assert_solution(0, task_0);
+        aoc::assert_solution(0, part_1);
     }
 
     #[test]
     fn test_example_1() {
-        aoc::assert_solution(1, task_1);
+        aoc::assert_solution(1, part_2);
     }
 }

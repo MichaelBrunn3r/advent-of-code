@@ -8,7 +8,7 @@ const AAA: u16 = 0;
 
 pub static mut NETWORK: [(u16, u16); NUM_POSSIBLE_NODES] = [(0, 0); NUM_POSSIBLE_NODES];
 
-pub fn task_0(input: &str) -> usize {
+pub fn part_1(input: &str) -> usize {
     let (instructions, nodes) = input.split_once("\n\n").unwrap();
 
     let mut instructions = instructions.chars().cycle();
@@ -39,7 +39,7 @@ pub fn task_0(input: &str) -> usize {
     step
 }
 
-pub fn task_1(input: &str) -> usize {
+pub fn part_2(input: &str) -> usize {
     let (instructions, nodes) = input.split_once("\n\n").unwrap();
 
     let instructions = instructions.chars().cycle();
