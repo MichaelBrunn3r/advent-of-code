@@ -36,20 +36,3 @@ fn predict_next_value(series: impl Iterator<Item = i32>) -> i32 {
 
     series.iter().fold(0, |acc, f| f + acc)
 }
-
-fn parse_i32(mut input: &[u8]) -> i32 {
-    let mut val = 0;
-
-    let sign = if input[0] == b'-' {
-        input = &input[1..];
-        -1
-    } else {
-        1
-    };
-
-    for c in input {
-        val = val * 10 + (c - b'0') as i32;
-    }
-
-    val * sign
-}
