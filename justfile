@@ -35,22 +35,22 @@ alias b := bench
 bench:
     cargo bench -p aoc-{{today}}
 
-alias b0 := bench0
-bench0:
-    cargo bench -p aoc-{{today}} --bench part_1
-
 alias b1 := bench1
 bench1:
+    cargo bench -p aoc-{{today}} --bench part_1
+
+alias b2 := bench2
+bench2:
     cargo bench -p aoc-{{today}} --bench part_2
 
 alias bd := bench-day
 bench-day year day:
     cargo bench -p aoc-{{year}}-{{day}}
 
-alias bd0 := bench0-day
-bench0-day year day:
-    cargo bench -p aoc-{{year}}-{{day}} --bench part_1
-
 alias bd1 := bench1-day
 bench1-day year day:
+    cargo bench -p aoc-{{year}}-{{day}} --bench part_1
+
+alias bd2 := bench2-day
+bench2-day year day:
     cargo bench -p aoc-{{year}}-{{day}} --bench part_2

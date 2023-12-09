@@ -1,4 +1,6 @@
+use iter::{SeriesValuesIterator, SeriesValuesIteratorReverse};
 use itertools::Itertools;
+mod iter;
 
 pub fn part_1(input: &str) -> i32 {
     input
@@ -10,7 +12,7 @@ pub fn part_1(input: &str) -> i32 {
 pub fn part_2(input: &str) -> i32 {
     input
         .lines()
-        .map(|line| predict_next_value(line.split(' ').rev().map(|num| parse_i32(num.as_bytes()))))
+        .map(|line| predict_next_value(SeriesValuesIteratorReverse::new(line.as_bytes())))
         .sum()
 }
 
@@ -66,55 +68,6 @@ fn parse_i32(mut input: &[u8]) -> i32 {
     val * sign
 }
 
-struct SeriesValuesIterator<'a> {
-    input: &'a [u8],
-    pos: usize,
-}
-
-impl SeriesValuesIterator<'_> {
-    fn new(input: &[u8]) -> SeriesValuesIterator {
-        SeriesValuesIterator { input, pos: 0 }
-    }
-}
-
-impl<'a> Iterator for SeriesValuesIterator<'a> {
-    type Item = i32;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.pos >= self.input.len() {
-            return None;
-        }
-
-        let sign = match self.input[self.pos] {
-            b'-' => {
-                self.pos += 1;
-                -1
-            }
-            b'0'..=b'9' => 1,
-            _ => {
-                return None;
-            }
-        };
-
-        let mut val = 0;
-        while self.pos < self.input.len() {
-            let c = self.input[self.pos];
-            match c {
-                b'0'..=b'9' => {
-                    self.pos += 1;
-                    val = val * 10 + (c - b'0') as i32;
-                }
-                _ => {
-                    self.pos += 1;
-                    break;
-                }
-            }
-        }
-
-        return Some(val * sign);
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -123,17 +76,5 @@ mod tests {
     fn test_parse_i32() {
         assert_eq!(parse_i32(b"123"), 123);
         assert_eq!(parse_i32(b"-123"), -123);
-    }
-
-    #[test]
-    fn test_series_values_iterator() {
-        assert_eq!(
-            SeriesValuesIterator::new("0 1 2 3 4".as_bytes()).collect_vec(),
-            vec![0, 1, 2, 3, 4]
-        );
-        assert_eq!(
-            SeriesValuesIterator::new("-1 -4 -13 -35 -77 -144 -237 -351 -473 -580 -637 -595 -389 64 867 2145 4047 6748 10451 15389 21827".as_bytes()).collect_vec(),
-            vec![-1, -4, -13,-35,-77,-144,-237,-351,-473,-580,-637,-595,-389,64,867,2145,4047,6748,10451,15389,21827]
-        );
     }
 }

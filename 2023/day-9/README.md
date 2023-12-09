@@ -2,7 +2,7 @@
 
 ## Benchmarks (i5-1240P, no IO)
 
-- Part 1: `178.42 µs`
-- Part 2: `388.75 µs`
+- Part 1: `168.09 µs` (very inconsistent)
+- Part 2: `186.56 µs` (very inconsistent)
 
 ## Explanation
