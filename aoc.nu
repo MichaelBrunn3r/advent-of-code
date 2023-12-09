@@ -39,7 +39,7 @@ def "main update" [day?:int, year?:int] {
 
     # Create Description.md
     let html_day = fetch_day $day $year
-    create_description $html_day ($"($out_dir)\\TASKS.md") $day $year
+    # create_description $html_day ($"($out_dir)\\TASKS.md") $day $year
 
     # Save examples and solutions
     create_examples_with_solutions $html_day $out_dir

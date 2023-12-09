@@ -1,6 +1,4 @@
-# 2023 Day 8
-
-- [Task description](./TASKS.md)
+# [2023 Day 8: Haunted Wasteland](https://adventofcode.com/2023/day/8)
 
 ## Benchmarks (i5-1240P, no IO)
 

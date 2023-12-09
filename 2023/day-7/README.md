@@ -1,6 +1,5 @@
 # [2023 Day 7: Camel Cards](https://adventofcode.com/2023/day/7)
 
-- [Task description](./TASKS.md)
 - [Very optimized solution from orlp](https://github.com/orlp/aoc2023/blob/master/src/bin/day07.rs)
 
 ## Benchmarks (i5-1240P, no IO)

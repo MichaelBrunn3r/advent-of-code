@@ -1,3 +1,4 @@
 - [Advent of Code 2023 | General Tips](https://www.youtube.com/watch?v=s_WDYcrh_dk)
 - [How to set up Rust for Advent of Code](https://www.youtube.com/watch?v=fEQv-cqzbPg)
 - [The Rust Performance Book](https://nnethercote.github.io/perf-book/title-page.html)
+- [Cargo Advent of Code Helper](https://github.com/gobanos/cargo-aoc)

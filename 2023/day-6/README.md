@@ -1,7 +1,5 @@
 # [2023 Day 6: Wait For It](https://adventofcode.com/2023/day/6)
 
-[Task description](./TASKS.md)
-
 ## Benchmarks
 
 - Part 1: 73.435 µs
