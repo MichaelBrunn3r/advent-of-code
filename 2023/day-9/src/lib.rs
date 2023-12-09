@@ -3,16 +3,14 @@ use itertools::Itertools;
 pub fn part_1(input: &str) -> i32 {
     input
         .lines()
-        .map(|line| predict_next_value(line.split(' ').map(|num| num.parse::<i32>().unwrap())))
+        .map(|line| predict_next_value(line.split(' ').map(|num| parse_i32(num.as_bytes()))))
         .sum()
 }
 
 pub fn part_2(input: &str) -> i32 {
     input
         .lines()
-        .map(|line| {
-            predict_next_value(line.split(' ').rev().map(|num| num.parse::<i32>().unwrap()))
-        })
+        .map(|line| predict_next_value(line.split(' ').rev().map(|num| parse_i32(num.as_bytes()))))
         .sum()
 }
 
@@ -49,4 +47,32 @@ fn collect_first_and_last_values(series: impl Iterator<Item = i32>) -> Vec<i32> 
     }
 
     last_values
+}
+
+fn parse_i32(mut input: &[u8]) -> i32 {
+    let mut val = 0;
+
+    let sign = if input[0] == b'-' {
+        input = &input[1..];
+        -1
+    } else {
+        1
+    };
+
+    for c in input {
+        val = val * 10 + (c - b'0') as i32;
+    }
+
+    val * sign
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_i32() {
+        assert_eq!(parse_i32(b"123"), 123);
+        assert_eq!(parse_i32(b"-123"), -123);
+    }
 }
