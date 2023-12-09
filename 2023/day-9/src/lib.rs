@@ -1,10 +1,4 @@
-// #![feature(portable_simd)]
-
 use iter::{SeriesValuesIterator, SeriesValuesIteratorReverse};
-use itertools::Itertools;
-use rayon::iter::{ParallelBridge, ParallelIterator};
-// use std::simd::i;
-
 mod iter;
 
 pub fn part_1(input: &str) -> i32 {
@@ -36,16 +30,13 @@ pub fn part_2(input: &str) -> i32 {
 fn predict_next_value(series: &mut Vec<i32>) -> i32 {
     let mut end = series.len();
     loop {
-        let mut all_zero = false;
         for i in 1..end {
-            let diff = series[i] - series[i - 1];
-            all_zero &= diff == 0;
-            series[i - 1] = diff;
+            series[i - 1] = series[i] - series[i - 1];
         }
 
         end -= 1;
 
-        if all_zero || end == 0 {
+        if series[0] == 0 && series[end] == 0 || end == 0 {
             break;
         }
     }
