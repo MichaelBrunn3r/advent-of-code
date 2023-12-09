@@ -1,15 +1,18 @@
+use iter::{SeriesValuesIterator, SeriesValuesIteratorReverse};
 use itertools::Itertools;
+mod iter;
+
 pub fn part_1(input: &str) -> i32 {
     input
         .lines()
-        .map(|line| predict_next_value(line.split(' ').map(|num| parse_i32(num.as_bytes()))))
+        .map(|line| predict_next_value(SeriesValuesIterator::new(line.as_bytes())))
         .sum()
 }
 
 pub fn part_2(input: &str) -> i32 {
     input
         .lines()
-        .map(|line| predict_next_value(line.split(' ').rev().map(|num| parse_i32(num.as_bytes()))))
+        .map(|line| predict_next_value(SeriesValuesIteratorReverse::new(line.as_bytes())))
         .sum()
 }
 
