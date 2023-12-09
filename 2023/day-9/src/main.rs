@@ -17,6 +17,21 @@ mod tests {
 
     #[test]
     fn test_example_1() {
-        aoc::assert_solution(1, part_2);
+        aoc::assert_solution(1, part_1);
+    }
+
+    #[test]
+    fn test_example_2() {
+        aoc::assert_solution(2, part_1);
+    }
+
+    #[test]
+    fn test_example_3() {
+        aoc::assert_solution(3, part_1);
+    }
+
+    #[test]
+    fn test_part_1() {
+        assert_eq!(part_1(&aoc::read_input_to_string()), 1637452029);
     }
 }
