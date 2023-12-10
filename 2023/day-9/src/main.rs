@@ -3,7 +3,7 @@ use aoc_2023_9::*;
 fn main() {
     let input = aoc::read_input_to_string();
     println!("Part 1: {}", part_1(&input));
-    println!("Task 2: {}", part_2(&input));
+    println!("Part 2: {}", part_2(&input));
 }
 
 #[cfg(test)]
