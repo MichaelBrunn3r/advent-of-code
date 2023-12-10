@@ -14,15 +14,17 @@ pub fn part_1(input: &str) -> usize {
 
     let start = grid.find_start();
 
-    let mut pgrid = vec![vec!['.'; grid.width]; grid.height];
+    let mut pgrid = vec![vec![' '; grid.width]; grid.height];
     pgrid[start.row as usize][start.col as usize] = 'S';
 
     let mut prev_1 = start;
     let mut prev_2 = start;
     let (mut current_1, mut current_2) = grid.connected_neighbours(&start);
 
-    pgrid[current_1.row as usize][current_1.col as usize] = grid.tile_at(&current_1).unwrap();
-    pgrid[current_2.row as usize][current_2.col as usize] = grid.tile_at(&current_2).unwrap();
+    pgrid[current_1.row as usize][current_1.col as usize] =
+        tile_to_unicode_tile(grid.tile_at(&current_1).unwrap());
+    pgrid[current_2.row as usize][current_2.col as usize] =
+        tile_to_unicode_tile(grid.tile_at(&current_2).unwrap());
 
     let mut step = 1;
     loop {
@@ -47,25 +49,10 @@ pub fn part_1(input: &str) -> usize {
         current_2 = next_2;
 
         pgrid[current_1.row as usize][current_1.col as usize] =
-            match grid.tile_at(&current_1).unwrap() {
-                '|' => '│',
-                '-' => '─',
-                'L' => '└',
-                'J' => '┘',
-                '7' => '┐',
-                'F' => '┌',
-                c => c,
-            };
+            tile_to_unicode_tile(grid.tile_at(&current_1).unwrap());
+
         pgrid[current_2.row as usize][current_2.col as usize] =
-            match grid.tile_at(&current_2).unwrap() {
-                '|' => '│',
-                '-' => '─',
-                'L' => '└',
-                'J' => '┘',
-                '7' => '┐',
-                'F' => '┌',
-                c => c,
-            };
+            tile_to_unicode_tile(grid.tile_at(&current_2).unwrap());
 
         step += 1;
 
@@ -236,5 +223,17 @@ impl Position {
 
     fn right(&self) -> Self {
         Self::new(self.col + 1, self.row)
+    }
+}
+
+pub fn tile_to_unicode_tile(c: char) -> char {
+    match c {
+        '|' => '│',
+        '-' => '─',
+        'L' => '└',
+        'J' => '┘',
+        '7' => '┐',
+        'F' => '┌',
+        _ => c,
     }
 }

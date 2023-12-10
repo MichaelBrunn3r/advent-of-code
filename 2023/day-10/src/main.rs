@@ -3,27 +3,13 @@ use aoc_2023_10::*;
 fn main() {
     let input = aoc::read_input_to_string();
     println!("Part 1: {}", part_1(&input));
-    // println!("Part 2: {}", part_2(&input));
-
-    // redraw(input.as_str());
+    println!("Part 2: {}", part_2(&input));
 }
 
 pub fn redraw(input: &str) {
     input
         .lines()
-        .map(|line| {
-            line.chars()
-                .map(|c| match c {
-                    '|' => '│',
-                    '-' => '─',
-                    'L' => '└',
-                    'J' => '┘',
-                    '7' => '┐',
-                    'F' => '┌',
-                    _ => c,
-                })
-                .collect::<String>()
-        })
+        .map(|line| line.chars().map(tile_to_unicode_tile).collect::<String>())
         .for_each(|line| println!("{}", line));
 }
 
