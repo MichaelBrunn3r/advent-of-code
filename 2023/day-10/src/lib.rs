@@ -11,7 +11,7 @@ pub fn part_1(input: &mut str) -> usize {
     // let mut pgrid = vec![vec!['.'; grid.width]; grid.height];
     // pgrid[start.row as usize][start.col as usize] = 'S';
 
-    let (a, b) = grid.connected_neighbours(&start);
+    let (a, b) = grid.connected_neighbours(start);
     let mut walker_1 = Walker::new(start, a);
     let mut walker_2 = Walker::new(start, b);
 
@@ -53,7 +53,7 @@ pub fn part_2(tiles: &mut str) -> usize {
     let mut grid = Grid::from_tiles(tiles);
     let start = grid.find_start();
 
-    let (a, b) = grid.connected_neighbours(&start);
+    let (a, b) = grid.connected_neighbours(start);
     let mut walker_1 = Walker::new(start, a);
     let mut walker_2 = Walker::new(start, b);
 
@@ -61,15 +61,15 @@ pub fn part_2(tiles: &mut str) -> usize {
         walker_1.step(&grid);
         walker_2.step(&grid);
 
-        grid.mark_tile(&walker_1.prev);
-        grid.mark_tile(&walker_2.prev);
+        grid.mark_tile(walker_1.prev);
+        grid.mark_tile(walker_2.prev);
 
         if walker_1.current == walker_2.current {
             break;
         }
     }
 
-    grid.mark_tile(&walker_1.current);
+    grid.mark_tile(walker_1.current);
 
     // println!("{}", grid.tiles);
 
@@ -122,13 +122,13 @@ pub fn part_2(tiles: &mut str) -> usize {
 
 #[derive(Debug)]
 struct Walker {
-    pub current: Position,
-    pub prev: Position,
+    pub current: i32,
+    pub prev: i32,
     pub dir: Direction,
 }
 
 impl Walker {
-    fn new(prev: Position, start: (Position, Direction)) -> Self {
+    fn new(prev: i32, start: (i32, Direction)) -> Self {
         Self {
             prev,
             current: start.0,
@@ -136,8 +136,8 @@ impl Walker {
         }
     }
 
-    fn step(&mut self, grid: &Grid) -> Position {
-        let (next, new_dir) = grid.next_connected_neighbour(&self.current, self.dir);
+    fn step(&mut self, grid: &Grid) -> i32 {
+        let (next, new_dir) = grid.next_connected_neighbour(self.current, self.dir);
         self.dir = new_dir;
         self.prev = self.current;
         self.current = next;
@@ -185,22 +185,19 @@ impl<'g> Grid<'g> {
         }
     }
 
-    fn connected_neighbours(
-        &self,
-        pos: &Position,
-    ) -> ((Position, Direction), (Position, Direction)) {
+    fn connected_neighbours(&self, pos: i32) -> ((i32, Direction), (i32, Direction)) {
         let (a, dir_a) = self.next_connected_neighbour(pos, Direction::Initial);
         let (b, dir_b) = self.next_connected_neighbour(pos, dir_a.opposite());
 
         ((a, dir_a), (b, dir_b))
     }
 
-    fn next_connected_neighbour(&self, pos: &Position, dir: Direction) -> (Position, Direction) {
-        let tile = self.tile_at(&pos).unwrap();
+    fn next_connected_neighbour(&self, pos: i32, dir: Direction) -> (i32, Direction) {
+        let tile = self.tile_at(pos).unwrap();
 
         if !(dir == Direction::Down) {
-            let above = pos.above();
-            match (tile, self.tile_at(&above)) {
+            let above = pos - self.width as i32;
+            match (tile, self.tile_at(above)) {
                 ('|', Some('F'))
                 | ('|', Some('7'))
                 | ('|', Some('|'))
@@ -221,8 +218,8 @@ impl<'g> Grid<'g> {
         }
 
         if !(dir == Direction::Up) {
-            let below = pos.below();
-            match (tile, self.tile_at(&below)) {
+            let below = pos + self.width as i32;
+            match (tile, self.tile_at(below)) {
                 ('|', Some('L'))
                 | ('|', Some('J'))
                 | ('|', Some('|'))
@@ -244,8 +241,8 @@ impl<'g> Grid<'g> {
         }
 
         if !(dir == Direction::Right) {
-            let left = pos.left();
-            match (self.tile_at(&left), tile) {
+            let left = pos - 1;
+            match (self.tile_at(left), tile) {
                 (Some('L'), '-')
                 | (Some('F'), '-')
                 | (Some('-'), '-')
@@ -267,8 +264,8 @@ impl<'g> Grid<'g> {
         }
 
         if !(dir == Direction::Left) {
-            let right = pos.right();
-            match (tile, self.tile_at(&right)) {
+            let right = pos + 1;
+            match (tile, self.tile_at(right)) {
                 ('-', Some('J'))
                 | ('-', Some('7'))
                 | ('-', Some('-'))
@@ -292,65 +289,20 @@ impl<'g> Grid<'g> {
         panic!("No neighbours found for {:?}", pos);
     }
 
-    fn find_start(&self) -> Position {
-        let start = self.tiles.iter().position(|&c| c == b'S').unwrap();
-        Position::new((start % (self.width)) as i32, (start / self.width) as i32)
+    fn find_start(&self) -> i32 {
+        self.tiles.iter().position(|&c| c == b'S').unwrap() as i32
     }
 
-    fn tile_at(&self, pos: &Position) -> Option<char> {
-        if pos.row < 0
-            || pos.row >= self.height as i32
-            || pos.col < 0
-            || pos.col >= self.width as i32
-        {
+    fn tile_at(&self, idx: i32) -> Option<char> {
+        if idx < 0 || idx >= self.tiles.len() as i32 {
             return None;
         }
-        let row = pos.row as usize;
-        let col = pos.col as usize;
 
-        Some(self.tiles[row * self.width + col] as char)
+        Some(self.tiles[idx as usize] as char)
     }
 
-    fn mark_tile(&mut self, pos: &Position) {
-        // | -> {
-        // - -> ,
-        // L -> K
-        // J -> I
-        // 7 -> 6
-        // F -> E
-        // S -> R
-        let row = pos.row as usize;
-        let col = pos.col as usize;
-
-        self.tiles[row * self.width + col] -= 1;
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct Position {
-    col: i32,
-    row: i32,
-}
-
-impl Position {
-    fn new(col: i32, row: i32) -> Self {
-        Self { col, row }
-    }
-
-    fn above(&self) -> Self {
-        Self::new(self.col, self.row - 1)
-    }
-
-    fn below(&self) -> Self {
-        Self::new(self.col, self.row + 1)
-    }
-
-    fn left(&self) -> Self {
-        Self::new(self.col - 1, self.row)
-    }
-
-    fn right(&self) -> Self {
-        Self::new(self.col + 1, self.row)
+    fn mark_tile(&mut self, idx: i32) {
+        self.tiles[idx as usize] -= 1;
     }
 }
 
