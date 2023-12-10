@@ -4,7 +4,7 @@ use aoc::prelude::*;
 use itertools::Itertools;
 use regex::Regex;
 
-pub fn part_1(input: &str) -> usize {
+pub fn part_1(input: &mut str) -> usize {
     let row_len = input.find('\n').unwrap();
     let grid = Grid {
         tiles: input,
@@ -14,77 +14,170 @@ pub fn part_1(input: &str) -> usize {
 
     let start = grid.find_start();
 
-    let mut pgrid = vec![vec![' '; grid.width]; grid.height];
-    pgrid[start.row as usize][start.col as usize] = 'S';
+    // let mut pgrid = vec![vec!['.'; grid.width]; grid.height];
+    // pgrid[start.row as usize][start.col as usize] = 'S';
 
-    let mut prev_1 = start;
-    let mut prev_2 = start;
-    let (mut current_1, mut current_2) = grid.connected_neighbours(&start);
+    let neighbours = grid.connected_neighbours(&start);
+    let mut walker_1 = Walker::new(start, neighbours[0]);
+    let mut walker_2 = Walker::new(start, neighbours[1]);
 
-    pgrid[current_1.row as usize][current_1.col as usize] =
-        tile_to_unicode_tile(grid.tile_at(&current_1).unwrap());
-    pgrid[current_2.row as usize][current_2.col as usize] =
-        tile_to_unicode_tile(grid.tile_at(&current_2).unwrap());
+    // pgrid[walker_1.current.row as usize][walker_1.current.col as usize] =
+    //     tile_to_unicode_tile(grid.tile_at(&walker_1.current).unwrap());
+    // pgrid[walker_2.current.row as usize][walker_2.current.col as usize] =
+    //     tile_to_unicode_tile(grid.tile_at(&walker_2.current).unwrap());
 
     let mut step = 1;
     loop {
-        // println!("Step={}, 1={:?}, 2={:?}", step, current_1, current_2);
+        walker_1.step(&grid);
+        walker_2.step(&grid);
 
-        let (neighbour1, neighbour2) = grid.connected_neighbours(&current_1);
-        let next_1 = if neighbour1 == prev_1 {
-            neighbour2
-        } else {
-            neighbour1
-        };
-        prev_1 = current_1;
-        current_1 = next_1;
+        // pgrid[walker_1.current.row as usize][walker_1.current.col as usize] =
+        //     tile_to_unicode_tile(grid.tile_at(&walker_1.current).unwrap());
 
-        let (neighbour1, neighbour2) = grid.connected_neighbours(&current_2);
-        let next_2 = if neighbour1 == prev_2 {
-            neighbour2
-        } else {
-            neighbour1
-        };
-        prev_2 = current_2;
-        current_2 = next_2;
-
-        pgrid[current_1.row as usize][current_1.col as usize] =
-            tile_to_unicode_tile(grid.tile_at(&current_1).unwrap());
-
-        pgrid[current_2.row as usize][current_2.col as usize] =
-            tile_to_unicode_tile(grid.tile_at(&current_2).unwrap());
+        // pgrid[walker_2.current.row as usize][walker_2.current.col as usize] =
+        //     tile_to_unicode_tile(grid.tile_at(&walker_2.current).unwrap());
 
         step += 1;
 
-        if current_1 == current_2 {
+        if walker_1.current == walker_2.current {
             break;
         }
     }
 
-    pgrid[current_1.row as usize][current_1.col as usize] = '1';
-    pgrid[current_2.row as usize][current_2.col as usize] = '2';
+    // pgrid[walker_1.current.row as usize][walker_1.current.col as usize] = '1';
+    // pgrid[walker_2.current.row as usize][walker_2.current.col as usize] = '2';
 
-    pgrid.iter().for_each(|line| {
-        line.iter().for_each(|c| print!("{}", c));
-        println!();
-    });
+    // pgrid.iter().for_each(|line| {
+    //     line.iter().for_each(|c| print!("{}", c));
+    //     println!();
+    // });
 
     step
 }
 
-pub fn part_2(input: &str) -> usize {
-    0
+// 128 too low
+// 154 too low
+// 1726 too high
+// 1341 too high
+// 1047 too
+pub fn part_2(input: &mut str) -> usize {
+    let row_len = input.find('\n').unwrap();
+    let mut grid = Grid {
+        tiles: input,
+        width: row_len + 1,
+        height: row_len,
+    };
+
+    let start = grid.find_start();
+
+    let neighbours = grid.connected_neighbours(&start);
+    let mut walker_1 = Walker::new(start, neighbours[0]);
+    let mut walker_2 = Walker::new(start, neighbours[1]);
+
+    loop {
+        walker_1.step(&grid);
+        walker_2.step(&grid);
+
+        grid.mark_tile(&walker_1.prev);
+        grid.mark_tile(&walker_2.prev);
+
+        if walker_1.current == walker_2.current {
+            break;
+        }
+    }
+
+    grid.mark_tile(&walker_1.current);
+
+    // println!("{}", grid.tiles);
+
+    let mut count = 0;
+    for row in 0..grid.height {
+        // println!("row={}", row + 1);
+        let mut intersections = 0;
+        let mut last_intersection = 0u8;
+        for col in 0..grid.width {
+            let pos = (row * grid.width) + col;
+            let c = grid.tiles.as_bytes()[pos];
+            match c {
+                b'{' | b'E' | b'K' => {
+                    intersections += 1;
+                    last_intersection = c;
+                    // println!("{}: {}", intersections, pos);
+                }
+                b'6' => {
+                    if last_intersection == b'E' {
+                        intersections += 1;
+                        // println!("{}: {}", intersections, pos);
+                    }
+                    last_intersection = c;
+                }
+                b'I' => {
+                    if last_intersection == b'K' {
+                        intersections += 1;
+                        // println!("{}: {}", intersections, pos);
+                    }
+                    last_intersection = c;
+                }
+                b',' | b'Q' | b'S' => {}
+                _ => {
+                    if intersections % 2 == 1 {
+                        count += 1;
+                    }
+
+                    unsafe {
+                        if c == b'.' {
+                            grid.tiles.as_bytes_mut()[pos] =
+                                if intersections % 2 == 1 { b'i' } else { b'o' };
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // println!("{}", grid.tiles);
+
+    count
+}
+
+#[derive(Debug)]
+struct Walker {
+    pub current: Position,
+    pub prev: Position,
+}
+
+impl Walker {
+    fn new(prev: Position, start: Position) -> Self {
+        Self {
+            current: start,
+            prev,
+        }
+    }
+
+    fn step(&mut self, grid: &Grid) -> Position {
+        let neighbours = grid.connected_neighbours(&self.current);
+        let next = if neighbours.len() == 1 {
+            neighbours[0]
+        } else if neighbours[0] == self.prev {
+            neighbours[1]
+        } else {
+            neighbours[0]
+        };
+        self.prev = self.current;
+        self.current = next;
+        self.current
+    }
 }
 
 #[derive(Debug)]
 struct Grid<'a> {
-    tiles: &'a str,
+    pub tiles: &'a mut str,
     width: usize,
     height: usize,
 }
 
 impl Grid<'_> {
-    fn connected_neighbours(&self, pos: &Position) -> (Position, Position) {
+    fn connected_neighbours(&self, pos: &Position) -> Vec<Position> {
         let mut neighbours = Vec::new();
         let tile = self.tile_at(&pos).unwrap();
 
@@ -175,7 +268,7 @@ impl Grid<'_> {
             _ => {}
         }
 
-        (neighbours[0], neighbours[1])
+        neighbours
     }
 
     fn find_start(&self) -> Position {
@@ -195,6 +288,22 @@ impl Grid<'_> {
         let col = pos.col as usize;
 
         Some(self.tiles.as_bytes()[row * self.width + col] as char)
+    }
+
+    fn mark_tile(&mut self, pos: &Position) {
+        // | -> {
+        // - -> ,
+        // L -> K
+        // J -> I
+        // 7 -> 6
+        // F -> E
+        // S -> R
+        let row = pos.row as usize;
+        let col = pos.col as usize;
+
+        unsafe {
+            self.tiles.as_bytes_mut()[row * self.width + col] -= 1;
+        }
     }
 }
 

@@ -1,9 +1,8 @@
 use aoc_2023_10::*;
 
 fn main() {
-    let input = aoc::read_input_to_string();
-    println!("Part 1: {}", part_1(&input));
-    println!("Part 2: {}", part_2(&input));
+    println!("Part 1: {}", part_1(&mut aoc::read_input_to_string()));
+    println!("Part 2: {}", part_2(&mut aoc::read_input_to_string()));
 }
 
 pub fn redraw(input: &str) {
@@ -29,11 +28,21 @@ mod tests {
 
     #[test]
     fn test_example_2() {
-        aoc::assert_solution(1, part_1);
+        aoc::assert_solution(2, part_2);
+    }
+
+    #[test]
+    fn test_example_3() {
+        aoc::assert_solution(3, part_2);
+    }
+
+    #[test]
+    fn test_example_4() {
+        aoc::assert_solution(4, part_2);
     }
 
     #[test]
     fn test_part_1() {
-        assert_eq!(part_1(aoc::read_input_to_string().as_str()), 7145);
+        assert_eq!(part_1(&mut aoc::read_input_to_string()), 7145);
     }
 }
