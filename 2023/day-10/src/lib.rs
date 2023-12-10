@@ -80,7 +80,7 @@ pub fn part_2(tiles: &mut str) -> usize {
         let mut last_intersection = 0u8;
         for col in 0..grid.width {
             let pos = (row * grid.width) + col;
-            let c = grid.tiles.as_bytes()[pos];
+            let c = grid.tiles[pos];
             match c {
                 b'{' | b'E' | b'K' => {
                     intersections += 1;
@@ -107,11 +107,8 @@ pub fn part_2(tiles: &mut str) -> usize {
                         count += 1;
                     }
 
-                    unsafe {
-                        if c == b'.' {
-                            grid.tiles.as_bytes_mut()[pos] =
-                                if intersections % 2 == 1 { b'i' } else { b'o' };
-                        }
+                    if c == b'.' {
+                        grid.tiles[pos] = if intersections % 2 == 1 { b'i' } else { b'o' };
                     }
                 }
             }
@@ -154,18 +151,20 @@ impl Walker {
 
 #[derive(Debug)]
 struct Grid<'a> {
-    pub tiles: &'a mut str,
-    width: usize,
-    height: usize,
+    pub tiles: &'a mut [u8],
+    pub width: usize,
+    pub height: usize,
 }
 
 impl<'g> Grid<'g> {
     fn from_tiles(tiles: &'g mut str) -> Self {
         let row_len = tiles.find('\n').unwrap();
-        Self {
-            tiles,
-            width: row_len + 1,
-            height: row_len,
+        unsafe {
+            Self {
+                tiles: tiles.as_bytes_mut(),
+                width: row_len + 1,
+                height: row_len,
+            }
         }
     }
 
@@ -264,7 +263,7 @@ impl<'g> Grid<'g> {
     }
 
     fn find_start(&self) -> Position {
-        let start = self.tiles.find('S').unwrap();
+        let start = self.tiles.iter().position(|&c| c == b'S').unwrap();
         Position::new((start % (self.width)) as i32, (start / self.width) as i32)
     }
 
@@ -279,7 +278,7 @@ impl<'g> Grid<'g> {
         let row = pos.row as usize;
         let col = pos.col as usize;
 
-        Some(self.tiles.as_bytes()[row * self.width + col] as char)
+        Some(self.tiles[row * self.width + col] as char)
     }
 
     fn mark_tile(&mut self, pos: &Position) {
@@ -293,9 +292,7 @@ impl<'g> Grid<'g> {
         let row = pos.row as usize;
         let col = pos.col as usize;
 
-        unsafe {
-            self.tiles.as_bytes_mut()[row * self.width + col] -= 1;
-        }
+        self.tiles[row * self.width + col] -= 1;
     }
 }
 
