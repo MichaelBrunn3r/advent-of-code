@@ -5,13 +5,7 @@ use itertools::Itertools;
 use regex::Regex;
 
 pub fn part_1(input: &mut str) -> usize {
-    let row_len = input.find('\n').unwrap();
-    let grid = Grid {
-        tiles: input,
-        width: row_len + 1,
-        height: row_len,
-    };
-
+    let grid = Grid::from_tiles(input);
     let start = grid.find_start();
 
     // let mut pgrid = vec![vec!['.'; grid.width]; grid.height];
@@ -55,19 +49,8 @@ pub fn part_1(input: &mut str) -> usize {
     step
 }
 
-// 128 too low
-// 154 too low
-// 1726 too high
-// 1341 too high
-// 1047 too
-pub fn part_2(input: &mut str) -> usize {
-    let row_len = input.find('\n').unwrap();
-    let mut grid = Grid {
-        tiles: input,
-        width: row_len + 1,
-        height: row_len,
-    };
-
+pub fn part_2(tiles: &mut str) -> usize {
+    let mut grid = Grid::from_tiles(tiles);
     let start = grid.find_start();
 
     let neighbours = grid.connected_neighbours(&start);
@@ -176,7 +159,16 @@ struct Grid<'a> {
     height: usize,
 }
 
-impl Grid<'_> {
+impl<'g> Grid<'g> {
+    fn from_tiles(tiles: &'g mut str) -> Self {
+        let row_len = tiles.find('\n').unwrap();
+        Self {
+            tiles,
+            width: row_len + 1,
+            height: row_len,
+        }
+    }
+
     fn connected_neighbours(&self, pos: &Position) -> Vec<Position> {
         let mut neighbours = Vec::new();
         let tile = self.tile_at(&pos).unwrap();

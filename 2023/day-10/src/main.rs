@@ -45,4 +45,9 @@ mod tests {
     fn test_part_1() {
         assert_eq!(part_1(&mut aoc::read_input_to_string()), 7145);
     }
+
+    #[test]
+    fn test_part_2() {
+        assert_eq!(part_2(&mut aoc::read_input_to_string()), 445);
+    }
 }
