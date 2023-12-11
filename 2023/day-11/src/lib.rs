@@ -5,14 +5,14 @@ use itertools::Itertools;
 use regex::Regex;
 
 pub fn part_1(input: &str) -> usize {
-    count_distances(input, 1)
+    sum_distances(input, 1)
 }
 
 pub fn part_2(input: &str, expansion_rate: usize) -> usize {
-    count_distances(input, expansion_rate)
+    sum_distances(input, expansion_rate)
 }
 
-fn count_distances(input: &str, expansion_rate: usize) -> usize {
+fn sum_distances(input: &str, expansion_rate: usize) -> usize {
     let size = input.find('\n').unwrap();
 
     let mut galaxies = vec![vec![]; size];
@@ -49,6 +49,10 @@ fn count_distances(input: &str, expansion_rate: usize) -> usize {
         .into_iter()
         .flatten()
         .tuple_combinations()
-        .map(|(a, b)| a.0.abs_diff(b.0) + a.1.abs_diff(b.1))
+        .map(manhattan_distance)
         .sum()
+}
+
+fn manhattan_distance((a, b): ((usize, usize), (usize, usize))) -> usize {
+    a.0.abs_diff(b.0) + a.1.abs_diff(b.1)
 }
