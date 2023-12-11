@@ -42,6 +42,11 @@ mod tests {
     }
 
     #[test]
+    fn test_example_5() {
+        aoc::assert_solution(5, part_2);
+    }
+
+    #[test]
     fn test_part_1() {
         assert_eq!(part_1(&mut aoc::read_input_to_string()), 7145);
     }
