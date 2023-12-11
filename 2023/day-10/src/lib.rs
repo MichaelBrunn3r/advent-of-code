@@ -42,12 +42,12 @@ pub fn part_2(input: &mut str) -> usize {
     let mut count = 0;
     for row in 0..grid.height {
         let mut intersections = 0;
-        for col in 0..grid.width {
-            let pos = (row * grid.width) + col;
+
+        for pos in (row * grid.width)..(row * grid.width + grid.width) {
             let c: Tile = unsafe { std::mem::transmute(grid.tiles[pos]) };
             match c {
                 Tile::NSMarked | Tile::NEMarked | Tile::NWMarked => {
-                    intersections += 1;
+                    intersections ^= 1;
                 }
                 Tile::EWMarked
                 | Tile::SEMarked
@@ -55,14 +55,13 @@ pub fn part_2(input: &mut str) -> usize {
                 | Tile::StartMArked
                 | Tile::Start => {}
                 _ => {
-                    if intersections % 2 == 1 {
+                    if intersections == 1 {
                         count += 1;
                     }
                 }
             }
         }
     }
-
     count
 }
 
