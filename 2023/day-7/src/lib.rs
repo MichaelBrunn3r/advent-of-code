@@ -1,5 +1,6 @@
 pub mod lut;
 
+use aoc::StrExt;
 use itertools::Itertools;
 use lut::*;
 
@@ -32,23 +33,13 @@ fn count_winnings(
         .lines()
         .map(|line| {
             let hand_strength = labels_to_hand_strength(&line[..5], card_lut, occurences_lut);
-            let bet = str_to_u32(&line[6..]);
+            let bet = line[6..].parse_u32_unchecked();
             (hand_strength, bet)
         })
         .sorted_by_cached_key(|(hand_strength, _)| *hand_strength)
         .zip(1..)
         .map(|((_, bet), i)| i * bet)
         .sum()
-}
-
-pub fn str_to_u32(bid: &str) -> u32 {
-    let mut val = 0u32;
-
-    for c in bid.bytes() {
-        val = val * 10 + (c - b'0') as u32;
-    }
-
-    val
 }
 
 fn labels_to_hand_strength(
