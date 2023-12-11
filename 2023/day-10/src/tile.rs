@@ -49,6 +49,7 @@ impl Tile {
         self_has_out > 0 && other_has_in > 0
     }
 
+    #[inline(always)]
     pub fn mark(&mut self) -> &Self {
         *self = unsafe { std::mem::transmute((*self as u8 | 0b1110) & 0b1111_1110) };
         self
@@ -56,12 +57,18 @@ impl Tile {
 
     pub fn to_unicode_char(&self) -> char {
         match self {
-            Tile::NS | Tile::NSMarked => '|',
-            Tile::EW | Tile::EWMarked => '─',
-            Tile::NE | Tile::NEMarked => '└',
-            Tile::NW | Tile::NWMarked => '┘',
-            Tile::SE | Tile::SEMarked => '┌',
-            Tile::SW | Tile::SWMarked => '┐',
+            Tile::NS => '│',
+            Tile::NSMarked => '┃',
+            Tile::EW => '─',
+            Tile::EWMarked => '━',
+            Tile::NE => '└',
+            Tile::NEMarked => '┗',
+            Tile::NW => '┘',
+            Tile::NWMarked => '┛',
+            Tile::SE => '┌',
+            Tile::SEMarked => '┏',
+            Tile::SW => '┐',
+            Tile::SWMarked => '┓',
             Tile::Start | Tile::StartMArked => 'S',
             Tile::Ground => '.',
         }

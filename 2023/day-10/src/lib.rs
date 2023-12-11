@@ -5,28 +5,14 @@ pub fn part_1(input: &mut str) -> usize {
     let grid = Grid::from_ascii_str(input);
     let start = grid.find_start();
 
-    // // let mut pgrid = vec![vec!['.'; grid.width]; grid.height];
-    // // pgrid[start.row as usize][start.col as usize] = 'S';
-
     let (a, b) = grid.connected_neighbours(start);
-    let mut walker_1 = Walker::new(start, a);
-    let mut walker_2 = Walker::new(start, b);
-
-    // // pgrid[walker_1.current.row as usize][walker_1.current.col as usize] =
-    // //     tile_to_unicode_tile(grid.tile_at(&walker_1.current).unwrap());
-    // // pgrid[walker_2.current.row as usize][walker_2.current.col as usize] =
-    // //     tile_to_unicode_tile(grid.tile_at(&walker_2.current).unwrap());
+    let mut walker_1 = Walker::new(a);
+    let mut walker_2 = Walker::new(b);
 
     let mut step = 1;
     loop {
         walker_1.step(&grid);
         walker_2.step(&grid);
-
-        //     // pgrid[walker_1.current.row as usize][walker_1.current.col as usize] =
-        //     //     tile_to_unicode_tile(grid.tile_at(&walker_1.current).unwrap());
-
-        //     // pgrid[walker_2.current.row as usize][walker_2.current.col as usize] =
-        //     //     tile_to_unicode_tile(grid.tile_at(&walker_2.current).unwrap());
 
         step += 1;
 
@@ -35,59 +21,23 @@ pub fn part_1(input: &mut str) -> usize {
         }
     }
 
-    // // pgrid[walker_1.current.row as usize][walker_1.current.col as usize] = '1';
-    // // pgrid[walker_2.current.row as usize][walker_2.current.col as usize] = '2';
-
-    // // pgrid.iter().for_each(|line| {
-    // //     line.iter().for_each(|c| print!("{}", c));
-    // //     println!();
-    // // });
-
     step
 }
 
-pub fn part_2(tiles: &mut str) -> usize {
-    let mut grid = Grid::from_ascii_str(tiles);
+pub fn part_2(input: &mut str) -> usize {
+    let mut grid = Grid::from_ascii_str(input);
     let start = grid.find_start();
 
     let (a, b) = grid.connected_neighbours(start);
-    let mut walker_1 = Walker::new(start, a);
-    let mut walker_2 = Walker::new(start, b);
+    let mut walker_1 = Walker::new(a);
+    let mut walker_2 = Walker::new(b);
 
-    // unsafe { std::mem::transmute::<&mut [u8], &mut [Tile]>(grid.tiles) }
-    //     .chunks_exact(4)
-    //     .for_each(|chunk| println!("{:?}", chunk));
-
-    // let mut step = 1;
-    loop {
-        walker_1.step(&grid);
-        walker_2.step(&grid);
-
-        grid.mark_tile(walker_1.prev);
-        grid.mark_tile(walker_2.prev);
-
-        // step += 1;
-
-        if walker_1.current == walker_2.current {
-            break;
-        }
+    while walker_1.current != walker_2.current {
+        grid.mark_tile(walker_1.step(&grid));
+        grid.mark_tile(walker_2.step(&grid));
     }
-    // println!("Steps: {}", step);
 
     grid.mark_tile(walker_1.current);
-
-    // println!("Marked:");
-    // unsafe { std::mem::transmute::<&mut [u8], &mut [Tile]>(grid.tiles) }
-    //     .chunks_exact(grid.width)
-    //     .for_each(|chunk| {
-    //         println!(
-    //             "{}",
-    //             chunk
-    //                 .iter()
-    //                 .map(|t| t.to_unicode_char())
-    //                 .collect::<String>()
-    //         )
-    //     });
 
     let mut count = 0;
     for row in 0..grid.height {
@@ -107,16 +57,11 @@ pub fn part_2(tiles: &mut str) -> usize {
                 _ => {
                     if intersections % 2 == 1 {
                         count += 1;
-                        // println!("{}: {}", count, pos);
                     }
                 }
             }
         }
     }
-
-    // println!("Count: {}", count);
-
-    // println!("{}", grid.tiles);
 
     count
 }
@@ -124,14 +69,12 @@ pub fn part_2(tiles: &mut str) -> usize {
 #[derive(Debug)]
 struct Walker {
     pub current: i32,
-    pub prev: i32,
     pub dir: Direction,
 }
 
 impl Walker {
-    fn new(prev: i32, start: (i32, Direction)) -> Self {
+    fn new(start: (i32, Direction)) -> Self {
         Self {
-            prev,
             current: start.0,
             dir: start.1,
         }
@@ -140,9 +83,9 @@ impl Walker {
     fn step(&mut self, grid: &Grid) -> i32 {
         let (next, new_dir) = grid.next_connected_neighbour(self.current, self.dir);
         self.dir = new_dir;
-        self.prev = self.current;
+        let prev = self.current;
         self.current = next;
-        self.current
+        prev
     }
 }
 
@@ -235,21 +178,6 @@ impl<'g> Grid<'g> {
     }
 
     fn mark_tile(&mut self, idx: i32) {
-        unsafe {
-            self.tiles[idx as usize] =
-                *std::mem::transmute::<u8, Tile>(self.tiles[idx as usize]).mark() as u8;
-        }
-    }
-}
-
-pub fn tile_to_unicode_tile(c: char) -> char {
-    match c {
-        '|' => '│',
-        '-' => '─',
-        'L' => '└',
-        'J' => '┘',
-        'F' => '┌',
-        '7' => '┐',
-        _ => c,
+        self.tiles[idx as usize] = (self.tiles[idx as usize] | 0b1110) & 0b1111_1110;
     }
 }

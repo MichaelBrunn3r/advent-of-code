@@ -5,13 +5,6 @@ fn main() {
     println!("Part 2: {}", part_2(&mut aoc::read_input_to_string()));
 }
 
-pub fn redraw(input: &str) {
-    input
-        .lines()
-        .map(|line| line.chars().map(tile_to_unicode_tile).collect::<String>())
-        .for_each(|line| println!("{}", line));
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
