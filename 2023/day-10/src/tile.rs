@@ -50,9 +50,8 @@ impl Tile {
     }
 
     #[inline(always)]
-    pub fn mark(&mut self) -> &Self {
-        *self = unsafe { std::mem::transmute((*self as u8 | 0b1110) & 0b1111_1110) };
-        self
+    pub fn mark(tile: u8) -> u8 {
+        (tile | 0b1110) & 0b1111_1110
     }
 
     pub fn to_unicode_char(&self) -> char {
