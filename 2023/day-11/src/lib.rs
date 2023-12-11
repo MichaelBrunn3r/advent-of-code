@@ -49,10 +49,6 @@ fn count_distances(input: &str, expansion_rate: usize) -> usize {
         .into_iter()
         .flatten()
         .tuple_combinations()
-        .map(|(a, b)| {
-            let vert_dist = (a.0 as isize - b.0 as isize).abs();
-            let horiz_dist = (a.1 as isize - b.1 as isize).abs();
-            (vert_dist + horiz_dist) as usize
-        })
+        .map(|(a, b)| a.0.abs_diff(b.0) + a.1.abs_diff(b.1))
         .sum()
 }
