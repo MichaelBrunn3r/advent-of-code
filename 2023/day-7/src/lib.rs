@@ -33,7 +33,7 @@ fn count_winnings(
         .lines()
         .map(|line| {
             let hand_strength = labels_to_hand_strength(&line[..5], card_lut, occurences_lut);
-            let bet = line[6..].parse_u32_unchecked();
+            let bet: u32 = line[6..].parse_unsigned_unchecked();
             (hand_strength, bet)
         })
         .sorted_by_cached_key(|(hand_strength, _)| *hand_strength)
