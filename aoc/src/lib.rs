@@ -4,7 +4,12 @@ mod number;
 mod range;
 mod string;
 
-pub use iter::ProgressOptions;
+pub use assert::*;
+pub use iter::*;
+pub use number::*;
+pub use range::*;
+pub use string::*;
+
 use lazy_static::lazy_static;
 use std::path::PathBuf;
 

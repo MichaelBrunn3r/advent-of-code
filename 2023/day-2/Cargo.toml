@@ -3,8 +3,19 @@ name = "aoc-2023-2"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-lazy_static = {workspace = true}
 regex = {workspace = true}
+lazy_static = {workspace = true}
+aoc = { workspace = true }
+itertools = { workspace = true }
+rayon = { workspace = true }
+criterion = {workspace = true}
+rand = {workspace = true}
+
+[[bench]]
+name = "part_1"
+harness = false
+
+[[bench]]
+name = "part_2"
+harness = false
