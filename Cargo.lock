@@ -87,6 +87,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "aoc-2023-11"
+version = "0.1.0"
+dependencies = [
+ "aoc",
+ "criterion",
+ "itertools 0.12.0",
+ "lazy_static",
+ "rand",
+ "rayon",
+ "regex",
+]
+
+[[package]]
 name = "aoc-2023-2"
 version = "0.1.0"
 dependencies = [
