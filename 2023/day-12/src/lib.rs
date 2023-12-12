@@ -17,49 +17,79 @@ pub fn part_1(input: &str) -> usize {
         (ranges, groups)
     });
 
-    for (ranges, groups) in rows {
+    for (ranges, groups) in rows.skip(1).take(1) {
         let arrangements = count_arrangements(0, &groups, ranges);
         println!("#Arrangements: {}", arrangements);
-        break;
     }
 
     0
 }
 
-fn count_arrangements(idx: usize, groups: &[usize], ranges: Vec<Range<usize>>) -> usize {
-    let group = groups[idx];
-    println!("{}{} in={:?}", "    ".repeat(idx), group, ranges);
+fn count_arrangements(group_idx: usize, groups: &[usize], ranges: Vec<&[u8]>) -> usize {
+    let group = groups[group_idx];
+    println!(
+        "{}{} in={:?}",
+        "    ".repeat(group_idx),
+        group,
+        ranges.as_strs_unchecked()
+    );
 
     if ranges.len() == 0 {
         return 0;
-    } else if idx == groups.len() - 1 {
-        if ranges[0].len() >= group {
-            println!("{}  found", "    ".repeat(idx));
+    } else if group_idx == groups.len() - 1 {
+        let range = ranges[0];
+        if range.len() == group {
             return 1;
-        } else {
+        }
+
+        if range[0] != b'?' && range[range.len() - 1] != b'?' {
             return 0;
         }
+
+        println!("{}  found", "    ".repeat(group_idx));
+        return 1;
     }
 
     let mut arrangements = 0;
-    let matches = ranges.iter().positions(|r| r.len() >= group).collect_vec();
-    println!("{}  matches={:?}", "    ".repeat(idx), ranges);
-
-    for match_idx in matches {
+    for range_idx in ranges.iter().positions(|r| r.len() >= group) {
         let mut next_ranges = ranges.clone();
-        let matching_range = next_ranges.swap_remove(match_idx);
-        println!("{}  try: {:?}", "    ".repeat(idx), matching_range);
+        let range = next_ranges.swap_remove(range_idx);
+        println!(
+            "{}  try: {:?}",
+            "    ".repeat(group_idx),
+            range.as_str_unchecked()
+        );
 
-        if matching_range.len() == group {
-            arrangements += count_arrangements(idx + 1, &groups, next_ranges);
+        if range.len() == group {
+            arrangements += count_arrangements(group_idx + 1, &groups, next_ranges);
         } else {
-            for start in (matching_range.start)..(matching_range.end - group + 1) {
-                let mut next_ranges_sub = next_ranges.clone();
+            let mut sub_arrangements = 0;
+            for middle in 0..range.len() {
+                let start = middle.saturating_sub(1);
+                let end = (middle + group + 1).min(range.len());
 
-                let subrange =
-                    ((start.saturating_sub(1)).max(matching_range.start))..(start + group + 1);
-                println!("{}   subrange {:?}", "    ".repeat(idx), subrange);
-                let (left, right) = matching_range.without_unchecked(&subrange);
+                if (middle == start && range[start] != b'?')
+                    || (middle == end && range[end - 1] != b'?')
+                {
+                    continue;
+                }
+
+                println!(
+                    "{}   subrange {:?}",
+                    "    ".repeat(group_idx),
+                    range[start..end].as_str_unchecked()
+                );
+
+                let mut next_ranges_sub = next_ranges.clone();
+                let (left, right) = range.split_at_range_unchecked(&(start..end));
+
+                println!(
+                    "{}   left: {:?} right: {:?}",
+                    "    ".repeat(group_idx),
+                    left.as_str_unchecked(),
+                    right.as_str_unchecked()
+                );
+
                 if left.len() > 0 {
                     next_ranges_sub.push(left);
                 }
@@ -67,8 +97,20 @@ fn count_arrangements(idx: usize, groups: &[usize], ranges: Vec<Range<usize>>) -
                     next_ranges_sub.push(right);
                 }
 
-                arrangements += count_arrangements(idx + 1, &groups, next_ranges_sub);
+                let count = count_arrangements(group_idx + 1, &groups, next_ranges_sub);
+                // println!("{}   count: {}", "    ".repeat(group_idx), count);
+                if group == groups[group_idx + 1] {
+                    sub_arrangements = sub_arrangements.max(count);
+                } else {
+                    sub_arrangements += count;
+                }
             }
+            println!(
+                "{}  sub_arrangements: {}",
+                "    ".repeat(group_idx),
+                sub_arrangements
+            );
+            arrangements += sub_arrangements;
         }
     }
 
@@ -79,7 +121,7 @@ pub fn part_2(input: &str) -> usize {
     0
 }
 
-fn group_ranges(conditions: &[u8]) -> Vec<Range<usize>> {
+fn group_ranges(conditions: &[u8]) -> Vec<&[u8]> {
     let mut possible_ranges = vec![];
 
     let mut start = 0;
@@ -93,7 +135,7 @@ fn group_ranges(conditions: &[u8]) -> Vec<Range<usize>> {
         while end < conditions.len() && conditions[end] != b'.' {
             end += 1;
         }
-        possible_ranges.push(start..end);
+        possible_ranges.push(&conditions[start..end]);
         start = end + 1;
     }
 

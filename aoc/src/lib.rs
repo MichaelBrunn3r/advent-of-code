@@ -3,12 +3,14 @@ mod iter;
 mod number;
 mod range;
 mod string;
+mod u8;
 
 pub use assert::*;
 pub use iter::*;
 pub use number::*;
 pub use range::*;
 pub use string::*;
+pub use u8::*;
 
 use lazy_static::lazy_static;
 use std::path::PathBuf;
@@ -52,4 +54,5 @@ pub mod prelude {
     pub use crate::number::UnsignedExt;
     pub use crate::range::RangeExt;
     pub use crate::string::{CharExt, StrExt};
+    pub use crate::u8::{SliceOfU8SlicesExt, U8SliceExt};
 }
