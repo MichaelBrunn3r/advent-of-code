@@ -1,12 +1,20 @@
 use std::ops::Range;
 
-pub trait RangeExt {
+pub trait RangeExt<T> {
     fn overlaps(&self, other: &Self) -> bool;
+    fn without_unchecked(&self, other: &Self) -> (Range<T>, Range<T>);
 }
 
-impl RangeExt for Range<usize> {
+impl RangeExt<usize> for Range<usize> {
     fn overlaps(&self, other: &Self) -> bool {
         self.start < other.end && other.start < self.end
+    }
+
+    fn without_unchecked(&self, other: &Self) -> (Range<usize>, Range<usize>) {
+        let left = self.start..other.start;
+        let right = other.end..self.end;
+
+        (left, right)
     }
 }
 
