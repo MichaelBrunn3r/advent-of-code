@@ -6,7 +6,7 @@ const ASH: u8 = b'.';
 const ROCKS: u8 = b'#';
 
 pub fn part_1(input: &str) -> usize {
-    let possible_reflections = input.split("\n\n").map(|block| {
+    let blocks = input.split("\n\n").map(|block| {
         let num_cols = block.lines().next().unwrap().len();
         let (rows, cols) = parse_block(block.lines(), num_cols);
 
@@ -33,45 +33,48 @@ pub fn part_1(input: &str) -> usize {
         (rows, cols, row_reflections, col_reflections)
     });
 
-    sum_block_reflections(possible_reflections)
+    blocks
+        .map(|(rows, cols, row_reflections, col_reflections)| {
+            calc_block_value(rows, cols, row_reflections, col_reflections)
+        })
+        .sum()
 }
 
 pub fn part_2(input: &str) -> usize {
     0
 }
 
-fn sum_block_reflections(
-    blocks: impl Iterator<Item = (Vec<usize>, Vec<usize>, Vec<usize>, Vec<usize>)>,
+fn calc_block_value(
+    rows: Vec<usize>,
+    cols: Vec<usize>,
+    row_reflections: Vec<usize>,
+    col_reflections: Vec<usize>,
 ) -> usize {
-    blocks
-        .map(|(rows, cols, row_reflections, col_reflections)| {
-            'rows: for row_idx in row_reflections {
-                let dist = (rows.len() - row_idx).min(row_idx);
+    for row_idx in row_reflections {
+        if is_reflection(row_idx, &rows) {
+            return 100 * row_idx;
+        }
+    }
 
-                for i in 0..dist {
-                    if rows[row_idx - i - 1] != rows[row_idx + i] {
-                        continue 'rows;
-                    }
-                }
+    for col_idx in col_reflections {
+        if is_reflection(col_idx, &cols) {
+            return col_idx;
+        }
+    }
 
-                return 100 * row_idx;
-            }
+    0
+}
 
-            'cols: for col_idx in col_reflections {
-                let dist = (cols.len() - col_idx).min(col_idx);
+fn is_reflection(line_idx: usize, lines: &Vec<usize>) -> bool {
+    let dist = (lines.len() - line_idx).min(line_idx);
 
-                for i in 0..dist {
-                    if cols[col_idx - i - 1] != cols[col_idx + i] {
-                        continue 'cols;
-                    }
-                }
+    for i in 0..dist {
+        if lines[line_idx - i - 1] != lines[line_idx + i] {
+            return false;
+        }
+    }
 
-                return col_idx;
-            }
-
-            0
-        })
-        .sum()
+    return true;
 }
 
 fn parse_block<'a>(
