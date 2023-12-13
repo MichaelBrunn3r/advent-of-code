@@ -7,22 +7,8 @@ const ROCKS: u8 = b'#';
 
 pub fn part_1(input: &str) -> usize {
     let possible_reflections = input.split("\n\n").map(|block| {
-        let mut cols = vec![0; block.lines().next().unwrap().len()];
-
-        let rows = block
-            .lines()
-            .enumerate()
-            .map(|(row_idx, line)| {
-                line.bytes()
-                    .enumerate()
-                    .map(|(col_idx, c)| {
-                        let is_rocks = (c == ROCKS) as usize;
-                        cols[col_idx] += is_rocks << row_idx;
-                        is_rocks << col_idx
-                    })
-                    .sum::<usize>()
-            })
-            .collect_vec();
+        let num_cols = block.lines().next().unwrap().len();
+        let (rows, cols) = parse_block(block.lines(), num_cols);
 
         let mut row_reflections = vec![];
         rows.iter()
@@ -48,6 +34,10 @@ pub fn part_1(input: &str) -> usize {
     });
 
     sum_block_reflections(possible_reflections)
+}
+
+pub fn part_2(input: &str) -> usize {
+    0
 }
 
 fn sum_block_reflections(
@@ -84,6 +74,25 @@ fn sum_block_reflections(
         .sum()
 }
 
-pub fn part_2(input: &str) -> usize {
-    0
+fn parse_block<'a>(
+    lines: impl Iterator<Item = &'a str>,
+    num_cols: usize,
+) -> (Vec<usize>, Vec<usize>) {
+    let mut cols = vec![0; num_cols];
+
+    let rows = lines
+        .enumerate()
+        .map(|(row_idx, line)| {
+            line.bytes()
+                .enumerate()
+                .map(|(col_idx, c)| {
+                    let is_rocks = (c == ROCKS) as usize;
+                    cols[col_idx] += is_rocks << row_idx;
+                    is_rocks << col_idx
+                })
+                .sum::<usize>()
+        })
+        .collect_vec();
+
+    (rows, cols)
 }
