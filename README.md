@@ -14,6 +14,8 @@
 9. [Mirage Maintenance](./2023/day-9/README.md) [`Code`](./2023/day-9/src/lib.rs) `28µs/27µs`
 10. [Pipe Maze](./2023/day-10/README.md) [`Code`](./2023/day-10/src/lib.rs) `39µs/61µs`
 11. [Cosmic Expansion](./2023/day-11/README.md) [`Code`](./2023/day-11/src/lib.rs) `1.5ms/1.5ms`
+12. Hot Springs (WIP)
+13. [Point of Incidence](./2023/day-13/README.md) [`Code`](./2023/day-13/src/lib.rs) `69µs/71µs`
 
 ### 2022
 

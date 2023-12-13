@@ -9,49 +9,96 @@ pub fn part_1(input: &str) -> usize {
     let patterns = input.split("\n\n").map(|section| {
         let pattern = Pattern::parse(section);
 
-        let row_axes = pattern.rows.iter().duplicate_positions();
-        let col_axes = pattern.cols.iter().duplicate_positions();
+        let row_reflections = pattern.rows.iter().duplicate_positions();
+        let col_reflections = pattern.cols.iter().duplicate_positions();
 
-        (pattern, row_axes, col_axes)
+        (pattern, row_reflections, col_reflections)
     });
 
     patterns
-        .map(|(pattern, row_axes, col_axes)| calc_patterns_value(pattern, row_axes, col_axes))
+        .map(|(pattern, row_reflections, col_reflections)| {
+            for row_idx in row_reflections {
+                if pattern.rows.partialy_reflects_at(row_idx) {
+                    return 100 * row_idx;
+                }
+            }
+
+            for col_idx in col_reflections {
+                if pattern.cols.partialy_reflects_at(col_idx) {
+                    return col_idx;
+                }
+            }
+
+            0
+        })
         .sum()
 }
 
+// 9300 too low
 pub fn part_2(input: &str) -> usize {
-    0
+    let patterns = input.split("\n\n").map(|section| {
+        let pattern = Pattern::parse(section);
+
+        let row_reflections = duplicate_positions_or_smudged(&pattern.rows);
+        let col_reflections = duplicate_positions_or_smudged(&pattern.cols);
+
+        (pattern, row_reflections, col_reflections)
+    });
+
+    patterns
+        .enumerate()
+        .map(|(i, (pattern, row_reflections, col_reflections))| {
+            for row_idx in row_reflections {
+                if reflection_with_smudge_at(&pattern.rows, row_idx) {
+                    return 100 * row_idx;
+                }
+            }
+
+            for col_idx in col_reflections {
+                if reflection_with_smudge_at(&pattern.cols, col_idx) {
+                    return col_idx;
+                }
+            }
+
+            0
+        })
+        .sum()
 }
 
-fn calc_patterns_value(pattern: Pattern, row_axes: Vec<usize>, col_axes: Vec<usize>) -> usize {
-    for row_idx in row_axes {
-        if is_reflection(row_idx, &pattern.rows) {
-            return 100 * row_idx;
+fn duplicate_positions_or_smudged(lines: &[usize]) -> Vec<usize> {
+    let mut reflections = vec![];
+
+    for ((_, prev), (curr_idx, curr)) in lines.iter().enumerate().tuple_windows() {
+        let diff = (prev ^ curr).count_ones() as usize;
+
+        if diff <= 1 {
+            reflections.push(curr_idx);
         }
     }
 
-    for col_idx in col_axes {
-        if is_reflection(col_idx, &pattern.cols) {
-            return col_idx;
-        }
-    }
-
-    0
+    reflections
 }
 
-fn is_reflection(line_idx: usize, lines: &Vec<usize>) -> bool {
-    let dist = (lines.len() - line_idx).min(line_idx);
+fn reflection_with_smudge_at(lines: &[usize], idx: usize) -> bool {
+    let dist = (lines.len() - idx).min(idx);
 
+    let mut has_smudge = false;
     for i in 0..dist {
-        if lines[line_idx - i - 1] != lines[line_idx + i] {
-            return false;
+        let diff = (lines[idx - i - 1] ^ lines[idx + i]).count_ones() as usize;
+
+        if diff > 0 {
+            if !has_smudge && diff == 1 {
+                has_smudge = true;
+            } else {
+                return false;
+            }
         }
     }
 
-    return true;
+    return has_smudge;
 }
 
+#[derive(Debug)]
 struct Pattern {
     rows: Vec<usize>,
     cols: Vec<usize>,
