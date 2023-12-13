@@ -69,9 +69,9 @@ fn duplicate_positions_or_smudged(lines: &[usize]) -> Vec<usize> {
     let mut reflections = vec![];
 
     for ((_, prev), (curr_idx, curr)) in lines.iter().enumerate().tuple_windows() {
-        let diff = (prev ^ curr).count_ones() as usize;
+        let dist = prev.hamming_distance(curr);
 
-        if diff <= 1 {
+        if dist <= 1 {
             reflections.push(curr_idx);
         }
     }
@@ -84,10 +84,10 @@ fn reflection_with_smudge_at(lines: &[usize], idx: usize) -> bool {
 
     let mut has_smudge = false;
     for i in 0..dist {
-        let diff = (lines[idx - i - 1] ^ lines[idx + i]).count_ones() as usize;
+        let dist = lines[idx - i - 1].hamming_distance(&lines[idx + i]);
 
-        if diff > 0 {
-            if !has_smudge && diff == 1 {
+        if dist > 0 {
+            if !has_smudge && dist == 1 {
                 has_smudge = true;
             } else {
                 return false;
