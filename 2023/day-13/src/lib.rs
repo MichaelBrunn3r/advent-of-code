@@ -5,9 +5,6 @@ use regex::Regex;
 const ASH: u8 = b'.';
 const ROCKS: u8 = b'#';
 
-// 32810 too low
-// 33728
-// 34124 too high
 pub fn part_1(input: &str) -> usize {
     let possible_reflections = input.split("\n\n").map(|block| {
         let mut cols = vec![0; block.lines().next().unwrap().len()];
@@ -50,36 +47,41 @@ pub fn part_1(input: &str) -> usize {
         (rows, cols, row_reflections, col_reflections)
     });
 
-    let mut sum = 0;
-    'blocks: for (rows, cols, row_reflections, col_reflections) in possible_reflections {
-        'rows: for row_idx in row_reflections {
-            let dist = (rows.len() - row_idx).min(row_idx);
+    sum_block_reflections(possible_reflections)
+}
 
-            for i in 0..dist {
-                if rows[row_idx - i - 1] != rows[row_idx + i] {
-                    continue 'rows;
+fn sum_block_reflections(
+    blocks: impl Iterator<Item = (Vec<usize>, Vec<usize>, Vec<usize>, Vec<usize>)>,
+) -> usize {
+    blocks
+        .map(|(rows, cols, row_reflections, col_reflections)| {
+            'rows: for row_idx in row_reflections {
+                let dist = (rows.len() - row_idx).min(row_idx);
+
+                for i in 0..dist {
+                    if rows[row_idx - i - 1] != rows[row_idx + i] {
+                        continue 'rows;
+                    }
                 }
+
+                return 100 * row_idx;
             }
 
-            sum += 100 * row_idx;
-            continue 'blocks;
-        }
+            'cols: for col_idx in col_reflections {
+                let dist = (cols.len() - col_idx).min(col_idx);
 
-        'cols: for col_idx in col_reflections {
-            let dist = (cols.len() - col_idx).min(col_idx);
-
-            for i in 0..dist {
-                if cols[col_idx - i - 1] != cols[col_idx + i] {
-                    continue 'cols;
+                for i in 0..dist {
+                    if cols[col_idx - i - 1] != cols[col_idx + i] {
+                        continue 'cols;
+                    }
                 }
+
+                return col_idx;
             }
 
-            sum += col_idx;
-            continue 'blocks;
-        }
-    }
-
-    sum
+            0
+        })
+        .sum()
 }
 
 pub fn part_2(input: &str) -> usize {
