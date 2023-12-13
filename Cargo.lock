@@ -28,6 +28,7 @@ name = "aoc"
 version = "0.1.0"
 dependencies = [
  "gcd",
+ "itertools 0.12.0",
  "lazy_static",
  "rand",
 ]

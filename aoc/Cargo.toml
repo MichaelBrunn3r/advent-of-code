@@ -9,3 +9,4 @@ edition = "2021"
 lazy_static = {workspace = true}
 rand = {workspace = true}
 gcd = {workspace = true}
+itertools = {workspace = true}

@@ -37,7 +37,7 @@ bench:
 
 alias b1 := bench1
 bench1:
-    cargo bench -p aoc-{{today}} --bench part_1
+    cargo bench -p aoc-{{today}} --bench part_1 -- --noplot
 
 alias b2 := bench2
 bench2:

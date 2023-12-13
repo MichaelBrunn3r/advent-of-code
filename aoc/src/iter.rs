@@ -1,52 +1,25 @@
 use crate::prelude::*;
+use itertools::Itertools;
 
 pub trait IteratorExt<Item> {
-    fn progress(self, options: ProgressOptions) -> Box<dyn Iterator<Item = Item>>;
+    fn duplicate_positions(self) -> Vec<usize>;
 }
 
-impl<Item, Iter: Iterator<Item = Item> + 'static> IteratorExt<Item> for Iter {
-    fn progress(self, options: ProgressOptions) -> Box<dyn Iterator<Item = Item>> {
-        let mut i = 0;
-        let mut prev_percentage = 0.0;
-        Box::new(self.into_iter().inspect(move |_| {
-            i += 1;
+impl<Item, Iter: Iterator<Item = Item>> IteratorExt<Item> for Iter
+where
+    Item: PartialEq + Clone,
+{
+    fn duplicate_positions(self) -> Vec<usize> {
+        let mut reflections = vec![];
 
-            let percentage = i as f32 / options.max as f32;
-            if !(percentage - prev_percentage > 0.001) {
-                return;
-            }
-            prev_percentage = percentage;
+        self.enumerate()
+            .tuple_windows()
+            .for_each(|((_, prev), (curr_idx, curr))| {
+                if prev == curr {
+                    reflections.push(curr_idx);
+                }
+            });
 
-            let percentage_points = (percentage * 100.0).floor() as usize;
-            print!(
-                "\r{}{} {:.1}%",
-                options.full_char.repeat(percentage_points),
-                options.empty_char.repeat(100 - percentage_points),
-                percentage * 100.0
-            );
-            std::io::Write::flush(&mut std::io::stdout()).unwrap();
-        }))
-    }
-}
-
-pub struct ProgressOptions {
-    max: usize,
-    empty_char: char,
-    full_char: char,
-}
-
-impl From<usize> for ProgressOptions {
-    fn from(max: usize) -> Self {
-        Self::new(max)
-    }
-}
-
-impl ProgressOptions {
-    pub fn new(max: usize) -> Self {
-        Self {
-            max,
-            empty_char: '▁',
-            full_char: '█',
-        }
+        reflections
     }
 }
