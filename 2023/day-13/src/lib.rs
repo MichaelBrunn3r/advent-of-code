@@ -10,33 +10,14 @@ pub fn part_1(input: &str) -> usize {
         let num_cols = block.lines().next().unwrap().len();
         let (rows, cols) = parse_block(block.lines(), num_cols);
 
-        let mut row_reflections = vec![];
-        rows.iter()
-            .enumerate()
-            .tuple_windows()
-            .for_each(|((_, prev), (curr_idx, curr))| {
-                if prev == curr {
-                    row_reflections.push(curr_idx);
-                }
-            });
+        let row_axes = find_reflection_axes(rows.iter());
+        let col_axes = find_reflection_axes(cols.iter());
 
-        let mut col_reflections = vec![];
-        cols.iter()
-            .enumerate()
-            .tuple_windows()
-            .for_each(|((_, prev), (curr_idx, curr))| {
-                if prev == curr {
-                    col_reflections.push(curr_idx);
-                }
-            });
-
-        (rows, cols, row_reflections, col_reflections)
+        (rows, cols, row_axes, col_axes)
     });
 
     blocks
-        .map(|(rows, cols, row_reflections, col_reflections)| {
-            calc_block_value(rows, cols, row_reflections, col_reflections)
-        })
+        .map(|(rows, cols, row_axes, col_axes)| calc_block_value(rows, cols, row_axes, col_axes))
         .sum()
 }
 
@@ -44,19 +25,34 @@ pub fn part_2(input: &str) -> usize {
     0
 }
 
+fn find_reflection_axes<'a>(lines: impl Iterator<Item = &'a usize>) -> Vec<usize> {
+    let mut reflections = vec![];
+
+    lines
+        .enumerate()
+        .tuple_windows()
+        .for_each(|((_, prev), (curr_idx, curr))| {
+            if prev == curr {
+                reflections.push(curr_idx);
+            }
+        });
+
+    reflections
+}
+
 fn calc_block_value(
     rows: Vec<usize>,
     cols: Vec<usize>,
-    row_reflections: Vec<usize>,
-    col_reflections: Vec<usize>,
+    row_axes: Vec<usize>,
+    col_axes: Vec<usize>,
 ) -> usize {
-    for row_idx in row_reflections {
+    for row_idx in row_axes {
         if is_reflection(row_idx, &rows) {
             return 100 * row_idx;
         }
     }
 
-    for col_idx in col_reflections {
+    for col_idx in col_axes {
         if is_reflection(col_idx, &cols) {
             return col_idx;
         }
