@@ -118,14 +118,14 @@ fn tilt_south(platform: &mut [u8], rows: usize, cols: usize) {
                 SPHERE => {
                     platform[pos] = EMPTY;
                     platform[row_stops[col] * cols + col] = SPHERE;
-                    row_stops[col] = row_stops[col].saturating_sub(1);
+                    row_stops[col] = row_stops[col].wrapping_sub(1);
                 }
                 CUBE => {
-                    row_stops[col] = row.saturating_sub(1);
+                    row_stops[col] = row.wrapping_sub(1);
                 }
                 _ => {}
             }
-            pos = pos.saturating_sub(1);
+            pos = pos.wrapping_sub(1);
         }
     }
 }
@@ -165,15 +165,15 @@ fn tilt_east(platform: &mut [u8], rows: usize, cols: usize) {
                 SPHERE => {
                     platform[pos] = EMPTY;
                     platform[row_start + stop - 1] = SPHERE;
-                    stop = stop.saturating_sub(1);
+                    stop = stop.wrapping_sub(1);
                 }
                 CUBE => {
                     stop = col;
                 }
                 _ => {}
             }
-            pos = pos.saturating_sub(1);
+            pos = pos.wrapping_sub(1);
         }
-        row_start = row_start.saturating_sub(cols);
+        row_start = row_start.wrapping_sub(cols);
     }
 }
