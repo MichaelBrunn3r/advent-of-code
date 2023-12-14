@@ -14,22 +14,18 @@ pub fn part_1(input: &str) -> usize {
     tilt_north_and_calc_load(input.as_bytes(), input.find('\n').unwrap())
 }
 
+// 56317 too low
 // 96325 too high
-pub fn part_2(mut input: &mut str) -> usize {
+pub fn part_2(input: &mut str) -> usize {
     let size = input.find('\n').unwrap();
     let platform = unsafe { input.as_bytes_mut() };
 
     let (spins, cycle_len) = spin_until_repeating(platform, size);
-    println!("{} spins, cycle length {}", spins, cycle_len);
 
-    let spins_left = (1_000_000_000 - spins) % (cycle_len - 1);
-    println!("{} spins left", spins_left);
-    // spin(platform, size, size + 1);
-    // spin(platform, size, size + 1);
+    let spins_left = (1_000_000_000 - spins) % cycle_len;
     for _ in 0..spins_left {
         spin(platform, size, size + 1);
     }
-    // println!("{}", platform.as_str_unchecked());
 
     calc_load(platform, size)
 }
@@ -93,7 +89,7 @@ pub fn spin(platform: &mut [u8], rows: usize, cols: usize) {
     tilt_east(platform, rows, cols);
 }
 
-fn tilt_north(platform: &mut [u8], rows: usize, cols: usize) {
+pub fn tilt_north(platform: &mut [u8], rows: usize, cols: usize) {
     let mut row_stops = vec![0; cols];
 
     let mut pos = 0;
