@@ -13,8 +13,12 @@ pub fn part_1(input: &str) -> usize {
     let mut current_stops = vec![num_rows + 1; num_cols];
     let mut total_load = 0;
 
-    for (line, load) in input.lines().zip((1..num_rows + 1).rev()) {
-        for (col, c) in line.as_bytes().iter().enumerate() {
+    for (line, load) in input
+        .as_bytes()
+        .chunks_exact(num_cols + 1)
+        .zip((1..num_rows + 1).rev())
+    {
+        for (col, c) in line.iter().enumerate() {
             match *c {
                 ROUND_ROCK => {
                     current_stops[col] -= 1;
