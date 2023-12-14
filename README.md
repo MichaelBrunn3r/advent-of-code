@@ -16,7 +16,7 @@
 11. [Cosmic Expansion](./2023/day-11/README.md) [`Code`](./2023/day-11/src/lib.rs) `1.5ms/1.5ms`
 12. Hot Springs (WIP)
 13. [Point of Incidence](./2023/day-13/README.md) [`Code`](./2023/day-13/src/lib.rs) `69µs/71µs`
-14. [Parabolic Reflector Dish](./2023/day-14/README.md) [`Code`](./2023/day-14/src/lib.rs) `4µs/886µs`
+14. [Parabolic Reflector Dish](./2023/day-14/README.md) [`Code`](./2023/day-14/src/lib.rs) `4µs/10ms`
 
 ### 2022
 
