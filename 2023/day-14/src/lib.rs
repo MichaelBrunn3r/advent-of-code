@@ -1,10 +1,5 @@
-use std::collections::hash_map::DefaultHasher;
-use std::collections::{HashMap, HashSet};
-use std::hash::Hash;
-
 use aoc::prelude::*;
-use itertools::Itertools;
-use regex::Regex;
+use std::collections::HashMap;
 
 const SPHERE: u8 = b'O';
 const CUBE: u8 = b'#';
@@ -20,9 +15,9 @@ pub fn part_2(input: &mut str) -> usize {
     let size = input.find('\n').unwrap();
     let platform = unsafe { input.as_bytes_mut() };
 
-    let (spins, cycle_len) = spin_until_repeating(platform, size);
+    let (spins, cycle_period) = spin_until_first_cycle_period(platform, size);
 
-    let spins_left = (1_000_000_000 - spins) % cycle_len;
+    let spins_left = (1_000_000_000 - spins) % cycle_period;
     for _ in 0..spins_left {
         spin(platform, size, size + 1);
     }
@@ -69,7 +64,7 @@ pub fn tilt_north_and_calc_load(platform: &[u8], size: usize) -> usize {
     total_load
 }
 
-fn spin_until_repeating(platform: &mut [u8], size: usize) -> (usize, usize) {
+fn spin_until_first_cycle_period(platform: &mut [u8], size: usize) -> (usize, usize) {
     let mut after_spin_states = HashMap::new();
     let mut i = 0;
     loop {
