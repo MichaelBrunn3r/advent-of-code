@@ -38,6 +38,11 @@ impl<'i> Iterator for SplitIter<'i> {
                 self.pos += 3;
                 return Some(result);
             }
+            4 => {
+                let result = &self.input[self.pos..self.pos + 4];
+                self.pos += 4;
+                return Some(result);
+            }
             _ => {}
         }
 
