@@ -2,7 +2,7 @@ use aoc::prelude::*;
 
 pub fn part_1(input: &str) -> usize {
     SplitIter::new(&input.as_bytes()[..input.len() - 1])
-        .map(|s| hash(s) as usize)
+        .map(|s| hash(s) % 256 as usize)
         .sum()
 }
 
@@ -15,11 +15,13 @@ pub fn part_2(input: &str) -> usize {
         // '[a-z]+=\d': 2016, '[a-z]+-': 1984
         if is_add_operation {
             let label = &step[..step.len() - 2];
+            let label_hash = hash(label);
             let focal_len = step[step.len() - 1] - b'0';
-            boxes[hash(label) as usize].add_lens(label.as_str_unchecked(), focal_len);
+            boxes[label_hash % 256].add_lens(label_hash + label[0] as usize, focal_len);
         } else {
             let label = &step[..step.len() - 1];
-            boxes[hash(label) as usize].remove_lens(label.as_str_unchecked());
+            let label_hash = hash(label);
+            boxes[label_hash % 256].remove_lens(label_hash + label[0] as usize);
         }
     });
 
@@ -37,18 +39,18 @@ pub fn part_2(input: &str) -> usize {
 }
 
 #[inline(always)]
-fn hash(input: &[u8]) -> u8 {
+fn hash(input: &[u8]) -> usize {
     input
         .iter()
-        .fold(0u8, |acc, &c| (acc.wrapping_add(c)).wrapping_mul(17))
+        .fold(0usize, |acc, &c| ((acc + c as usize) * 17))
 }
 
 #[derive(Debug, Clone)]
-struct Box<'b> {
-    lenses: Vec<(&'b str, u8)>,
+struct Box {
+    lenses: Vec<(usize, u8)>,
 }
 
-impl<'b> Box<'b> {
+impl Box {
     fn new() -> Self {
         Self {
             // Measures max 6 lenses per box
@@ -56,16 +58,16 @@ impl<'b> Box<'b> {
         }
     }
 
-    fn add_lens(&mut self, label: &'b str, focal_len: u8) {
-        if let Some(pos) = self.lenses.iter().position(|&(l, _)| l == label) {
+    fn add_lens(&mut self, label_hash: usize, focal_len: u8) {
+        if let Some(pos) = self.lenses.iter().position(|&(h, _)| h == label_hash) {
             self.lenses[pos].1 = focal_len;
         } else {
-            self.lenses.push((label, focal_len));
+            self.lenses.push((label_hash, focal_len));
         }
     }
 
-    fn remove_lens(&mut self, label: &str) {
-        if let Some(pos) = self.lenses.iter().position(|&(l, _)| l == label) {
+    fn remove_lens(&mut self, label_hash: usize) {
+        if let Some(pos) = self.lenses.iter().position(|&(h, _)| h == label_hash) {
             self.lenses.remove(pos);
         }
     }
