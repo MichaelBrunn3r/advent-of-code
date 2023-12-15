@@ -50,7 +50,10 @@ struct Box<'b> {
 
 impl<'b> Box<'b> {
     fn new() -> Self {
-        Self { lenses: Vec::new() }
+        Self {
+            // Measures max 6 lenses per box
+            lenses: Vec::with_capacity(6),
+        }
     }
 
     fn add_lens(&mut self, label: &'b str, focal_len: u8) {
