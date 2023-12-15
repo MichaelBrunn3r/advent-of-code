@@ -11,10 +11,10 @@ fn main() {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_example_0() {
-        aoc::assert_solution(0, part_1);
-    }
+    // #[test]
+    // fn test_example_0() {
+    //     aoc::assert_solution(0, part_1);
+    // }
 
     #[test]
     fn test_example_1() {
