@@ -7,7 +7,7 @@ pub fn part_1(input: &str) -> usize {
 }
 
 pub fn part_2(input: &str) -> usize {
-    let mut boxes = vec![Box::new(); 256];
+    let mut boxes = vec![Box::<7>::new(); 256];
 
     SplitIter::new(&input.as_bytes()[..input.len() - 1]).for_each(|step| {
         let is_add_operation = step[step.len() - 1] != b'-';
@@ -28,9 +28,9 @@ pub fn part_2(input: &str) -> usize {
     boxes
         .iter()
         .zip(1..boxes.len() + 1)
-        .filter(|(b, _)| !b.lenses.is_empty())
+        .filter(|(b, _)| !b.is_empty())
         .flat_map(|(b, box_num)| {
-            b.lenses
+            b.lenses[0..b.len]
                 .iter()
                 .zip(1..b.lenses.len() + 1)
                 .map(move |(&(_, focal_len), pos)| box_num * pos * focal_len as usize)
@@ -46,15 +46,16 @@ fn hash(input: &[u8]) -> usize {
 }
 
 #[derive(Debug, Clone)]
-struct Box {
-    lenses: Vec<(usize, u8)>,
+struct Box<const N: usize> {
+    lenses: [(usize, u8); N],
+    len: usize,
 }
 
-impl Box {
-    fn new() -> Self {
+impl<const N: usize> Box<N> {
+    const fn new() -> Self {
         Self {
-            // Measures max 6 lenses per box
-            lenses: Vec::with_capacity(6),
+            lenses: [(0, 0); N],
+            len: 0,
         }
     }
 
@@ -62,14 +63,23 @@ impl Box {
         if let Some(pos) = self.lenses.iter().position(|&(h, _)| h == label_hash) {
             self.lenses[pos].1 = focal_len;
         } else {
-            self.lenses.push((label_hash, focal_len));
+            self.lenses[self.len] = (label_hash, focal_len);
+            self.len += 1;
         }
     }
 
     fn remove_lens(&mut self, label_hash: usize) {
         if let Some(pos) = self.lenses.iter().position(|&(h, _)| h == label_hash) {
-            self.lenses.remove(pos);
+            for i in pos..self.len {
+                self.lenses[i] = self.lenses[i + 1];
+            }
+            self.len -= 1;
         }
+    }
+
+    #[inline(always)]
+    fn is_empty(&self) -> bool {
+        self.len == 0
     }
 }
 
