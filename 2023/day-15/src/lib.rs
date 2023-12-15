@@ -1,18 +1,71 @@
 use aoc::prelude::*;
-use itertools::Itertools;
-use regex::Regex;
 
 pub fn part_1(input: &str) -> usize {
     SplitIter::new(&input.as_bytes()[..input.len() - 1])
-        .map(|step| {
-            step.into_iter()
-                .fold(0u8, |acc, &c| (acc.wrapping_add(c)).wrapping_mul(17)) as usize
-        })
+        .map(|s| hash(s) as usize)
         .sum()
 }
 
 pub fn part_2(input: &str) -> usize {
-    0
+    let mut boxes = vec![Box::new(); 256];
+
+    SplitIter::new(&input.as_bytes()[..input.len() - 1]).for_each(|step| {
+        let is_add_operation = step[step.len() - 1] != b'-';
+
+        // '[a-z]+=\d': 2016, '[a-z]+-': 1984
+        if is_add_operation {
+            let label = &step[..step.len() - 2];
+            let focal_len = step[step.len() - 1] - b'0';
+            boxes[hash(label) as usize].add_lens(label.as_str_unchecked(), focal_len);
+        } else {
+            let label = &step[..step.len() - 1];
+            boxes[hash(label) as usize].remove_lens(label.as_str_unchecked());
+        }
+    });
+
+    boxes
+        .iter()
+        .zip(1..boxes.len() + 1)
+        .filter(|(b, _)| !b.lenses.is_empty())
+        .flat_map(|(b, box_num)| {
+            b.lenses
+                .iter()
+                .zip(1..b.lenses.len() + 1)
+                .map(move |(&(_, focal_len), pos)| box_num * pos * focal_len as usize)
+        })
+        .sum()
+}
+
+#[inline(always)]
+fn hash(input: &[u8]) -> u8 {
+    input
+        .iter()
+        .fold(0u8, |acc, &c| (acc.wrapping_add(c)).wrapping_mul(17))
+}
+
+#[derive(Debug, Clone)]
+struct Box<'b> {
+    lenses: Vec<(&'b str, u8)>,
+}
+
+impl<'b> Box<'b> {
+    fn new() -> Self {
+        Self { lenses: Vec::new() }
+    }
+
+    fn add_lens(&mut self, label: &'b str, focal_len: u8) {
+        if let Some(pos) = self.lenses.iter().position(|&(l, _)| l == label) {
+            self.lenses[pos].1 = focal_len;
+        } else {
+            self.lenses.push((label, focal_len));
+        }
+    }
+
+    fn remove_lens(&mut self, label: &str) {
+        if let Some(pos) = self.lenses.iter().position(|&(l, _)| l == label) {
+            self.lenses.remove(pos);
+        }
+    }
 }
 
 struct SplitIter<'i> {
