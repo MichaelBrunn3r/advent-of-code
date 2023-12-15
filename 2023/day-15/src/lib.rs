@@ -1,4 +1,7 @@
+use std::arch::x86_64::{__m256i, _mm256_mullo_epi16, _mm256_set_epi16, _mm256_storeu_si256};
+
 use aoc::prelude::*;
+use itertools::Itertools;
 
 pub fn part_1(input: &str) -> usize {
     SplitIter::new(&input.as_bytes()[..input.len() - 1])
@@ -134,5 +137,88 @@ impl<'i> Iterator for SplitIter<'i> {
         let result = &self.input[self.pos..self.pos + comma_offset];
         self.pos += comma_offset + 1;
         Some(result)
+    }
+}
+
+pub fn part_2_avx(input: &str) -> usize {
+    let mut boxes = vec![Box::<7>::new(); 256];
+
+    SplitIter::new(&input.as_bytes()[..input.len() - 1]).for_each(|step| {
+        let is_add_operation = step[step.len() - 1] != b'-';
+
+        // '[a-z]+=\d': 2016, '[a-z]+-': 1984
+        if is_add_operation {
+            let label = &step[..step.len() - 2];
+            let label_hash = hash(label);
+            let focal_len = step[step.len() - 1] - b'0';
+            boxes[label_hash % 256].add_lens(label_hash + label[0] as usize, focal_len);
+        } else {
+            let label = &step[..step.len() - 1];
+            let label_hash = hash(label);
+            boxes[label_hash % 256].remove_lens(label_hash + label[0] as usize);
+        }
+    });
+
+    let data = boxes
+        .iter()
+        .zip(1..boxes.len() + 1)
+        .filter(|(b, _)| !b.is_empty())
+        .flat_map(|(b, box_num)| {
+            b.lenses[0..b.len]
+                .iter()
+                .zip(1..b.lenses.len() + 1)
+                .map(move |(&(_, focal_len), pos)| [box_num, pos, focal_len as usize])
+        })
+        .collect_vec();
+
+    let iter = data.chunks_exact(16);
+
+    let mut sum = iter
+        .remainder()
+        .iter()
+        .map(|[box_num, pos, focal_len]| box_num * pos * *focal_len as usize)
+        .sum::<usize>();
+
+    sum += iter
+        .map(|chunk| {
+            let box_nums = chunk_to_m256i(0, &chunk);
+            let lens_pos = chunk_to_m256i(1, &chunk);
+            let focal_lens = chunk_to_m256i(2, &chunk);
+
+            let res = unsafe { _mm256_mullo_epi16(box_nums, lens_pos) };
+            let res = unsafe { _mm256_mullo_epi16(res, focal_lens) };
+
+            let mut result_array: [i16; 16] = unsafe { std::mem::zeroed() };
+            unsafe {
+                _mm256_storeu_si256(result_array.as_mut_ptr() as *mut __m256i, res);
+            }
+
+            result_array.iter().sum::<i16>() as usize
+        })
+        .sum::<usize>();
+
+    sum
+}
+
+fn chunk_to_m256i(idx: usize, chunk: &[[usize; 3]]) -> __m256i {
+    unsafe {
+        _mm256_set_epi16(
+            chunk[15][idx] as i16,
+            chunk[14][idx] as i16,
+            chunk[13][idx] as i16,
+            chunk[12][idx] as i16,
+            chunk[11][idx] as i16,
+            chunk[10][idx] as i16,
+            chunk[9][idx] as i16,
+            chunk[8][idx] as i16,
+            chunk[7][idx] as i16,
+            chunk[6][idx] as i16,
+            chunk[5][idx] as i16,
+            chunk[4][idx] as i16,
+            chunk[3][idx] as i16,
+            chunk[2][idx] as i16,
+            chunk[1][idx] as i16,
+            chunk[0][idx] as i16,
+        )
     }
 }
