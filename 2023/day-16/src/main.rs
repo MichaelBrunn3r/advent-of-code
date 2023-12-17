@@ -35,4 +35,9 @@ mod tests {
     fn test_example_4() {
         aoc::assert_solution(4, part_1);
     }
+
+    #[test]
+    fn test_example_5() {
+        aoc::assert_solution(5, part_1);
+    }
 }
