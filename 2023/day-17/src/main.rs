@@ -2,8 +2,8 @@ use aoc_2023_17::*;
 
 fn main() {
     let input = aoc::read_input_to_string();
-    println!("Part 1: {}", part_1(&mut aoc::read_input_to_string()));
-    // println!("Part 1: {}", part_1(&mut aoc::read_example_to_string(0)));
+    // println!("Part 1: {}", part_1(&mut aoc::read_input_to_string()));
+    println!("Part 1: {}", part_1(&mut aoc::read_example_to_string(0)));
     println!("Part 2: {}", part_2(&input));
 }
 
