@@ -16,6 +16,10 @@ alias rd := run-day
 run-day year day:
     cargo run -p aoc-{{year}}-{{day}}
 
+alias rdn := run-day-nightly
+run-day-nightly year day:
+    cargo +nightly run -p aoc-{{year}}-{{day}}
+
 # Test
 
 alias t := test
@@ -71,6 +75,10 @@ bench-day year day:
 alias bd1 := bench1-day
 bench1-day year day:
     cargo bench -p aoc-{{year}}-{{day}} --bench part_1
+
+alias bd1n := bench1-day-nightly
+bench1-day-nightly year day:
+    cargo +nightly bench -p aoc-{{year}}-{{day}} --bench part_1
 
 alias bd2 := bench2-day
 bench2-day year day:
