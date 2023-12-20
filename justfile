@@ -46,6 +46,10 @@ alias u := update
 update:
     nu aoc.nu update
 
+alias ud := update-day
+update-day year day:
+    nu aoc.nu update {{day}} {{year}}
+
 # Bench
 
 alias b := bench
