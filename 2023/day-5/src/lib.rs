@@ -72,7 +72,7 @@ pub fn part_2(input: &str) -> usize {
                 let maps: Vec<&RangeToRangeMap> = map_section
                     .maps
                     .iter()
-                    .filter(|m| seed_range.overlaps(&m.from))
+                    .filter(|m| seed_range.intersects(&m.from))
                     .collect();
 
                 if maps.is_empty() {
@@ -173,7 +173,7 @@ impl RangeToRangeMap {
         &self,
         mut range: Range<usize>,
     ) -> (Option<Range<usize>>, Range<usize>, Option<Range<usize>>) {
-        if !range.overlaps(&self.from) {
+        if !range.intersects(&self.from) {
             return (None, range, None);
         }
 
