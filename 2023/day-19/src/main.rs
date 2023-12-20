@@ -1,3 +1,5 @@
+#![allow(unused_imports, unused_variables)]
+
 use aoc_2023_19::*;
 
 fn main() {

@@ -1,8 +1,9 @@
-use std::{collections::HashMap, str::FromStr};
+#![allow(unused_imports, unused_variables)]
 
 use aoc::prelude::*;
 use itertools::Itertools;
 use regex::Regex;
+use std::collections::HashMap;
 
 pub fn part_1(input: &str) -> usize {
     let (workflows, parts) = input.split_once("\n\n").unwrap();
