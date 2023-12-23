@@ -98,51 +98,27 @@ pub fn parse_part(mut line: &[u8]) -> Part {
     // Remove brackets
     line = &line[1..line.len() - 1];
 
-    let pos_comma = if line[6] == b',' {
-        6
-    } else if line[5] == b',' {
-        5
-    } else if line[4] == b',' {
-        4
-    } else {
-        3
-    };
-    let x = line[2..pos_comma]
-        .as_str_unchecked()
-        .parse_unsigned_unchecked();
-    line = &line[pos_comma + 1..];
+    let mut part = Part([0, 0, 0, 0]);
 
-    let pos_comma = if line[6] == b',' {
-        6
-    } else if line[5] == b',' {
-        5
-    } else if line[4] == b',' {
-        4
-    } else {
-        3
-    };
-    let m = line[2..pos_comma]
-        .as_str_unchecked()
-        .parse_unsigned_unchecked();
-    line = &line[pos_comma + 1..];
+    for i in 0..3 {
+        let pos_comma = if line[6] == b',' {
+            6
+        } else if line[5] == b',' {
+            5
+        } else if line[4] == b',' {
+            4
+        } else {
+            3
+        };
+        part.0[i] = line[2..pos_comma]
+            .as_str_unchecked()
+            .parse_unsigned_unchecked();
+        line = &line[pos_comma + 1..];
+    }
 
-    let pos_comma = if line[6] == b',' {
-        6
-    } else if line[5] == b',' {
-        5
-    } else if line[4] == b',' {
-        4
-    } else {
-        3
-    };
-    let a = line[2..pos_comma]
-        .as_str_unchecked()
-        .parse_unsigned_unchecked();
-    line = &line[pos_comma + 1..];
-
-    let s = line[2..line.len()]
+    part.0[3] = line[2..line.len()]
         .as_str_unchecked()
         .parse_unsigned_unchecked();
 
-    Part { x, m, a, s }
+    part
 }

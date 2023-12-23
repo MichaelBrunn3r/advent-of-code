@@ -35,7 +35,7 @@ pub fn part_1(input: &str) -> usize {
                 }
             }
         })
-        .map(|part| part.total_rating())
+        .map(|part| part.0.iter().sum::<usize>())
         .sum::<usize>()
 }
 
@@ -125,10 +125,10 @@ struct Rule<'a> {
 impl<'a> Rule<'a> {
     fn is_met(&self, part: &Part) -> bool {
         match self.rating {
-            Rating::X => self.condition.is_met(part.x),
-            Rating::M => self.condition.is_met(part.m),
-            Rating::A => self.condition.is_met(part.a),
-            Rating::S => self.condition.is_met(part.s),
+            Rating::X => self.condition.is_met(part.x()),
+            Rating::M => self.condition.is_met(part.m()),
+            Rating::A => self.condition.is_met(part.a()),
+            Rating::S => self.condition.is_met(part.s()),
             Rating::Any => true,
         }
     }
@@ -167,31 +167,26 @@ enum OnMet<'a> {
     Continue(&'a str),
 }
 
-#[derive(Debug)]
-struct Part {
-    x: usize,
-    m: usize,
-    a: usize,
-    s: usize,
-}
+struct Part([usize; 4]);
 
 impl Part {
-    fn total_rating(&self) -> usize {
-        self.x + self.m + self.a + self.s
+    #[inline(always)]
+    fn x(&self) -> usize {
+        self.0[0]
     }
-}
 
-impl From<&str> for Part {
-    fn from(line: &str) -> Self {
-        let mut parts = line[1..line.len() - 1]
-            .split(',')
-            .map(|part| part.split_once('=').unwrap().1.parse::<usize>().unwrap());
+    #[inline(always)]
+    fn m(&self) -> usize {
+        self.0[1]
+    }
 
-        let x = parts.next().unwrap();
-        let m = parts.next().unwrap();
-        let a = parts.next().unwrap();
-        let s = parts.next().unwrap();
+    #[inline(always)]
+    fn a(&self) -> usize {
+        self.0[2]
+    }
 
-        Self { x, m, a, s }
+    #[inline(always)]
+    fn s(&self) -> usize {
+        self.0[3]
     }
 }
