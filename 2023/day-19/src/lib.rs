@@ -3,7 +3,10 @@
 use aoc::prelude::*;
 use itertools::Itertools;
 use regex::Regex;
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    ops::{Range, RangeInclusive},
+};
 
 pub fn part_1(input: &str) -> usize {
     let (workflows, parts) = input.split_once("\n\n").unwrap();
@@ -39,7 +42,105 @@ pub fn part_1(input: &str) -> usize {
 }
 
 pub fn part_2(input: &str) -> usize {
-    0
+    let workflows = input
+        .split("\n\n")
+        .next()
+        .unwrap()
+        .lines()
+        .map(|line| {
+            let (name, conditions) = line[0..line.len() - 1].split_once('{').unwrap();
+            let conditions = conditions.split(',').map(Rule::parse_str).collect_vec();
+
+            (name, conditions)
+        })
+        .collect::<HashMap<&str, Vec<Rule>>>();
+
+    let mut stack = vec![("in", [1..=4000, 1..=4000, 1..=4000, 1..=4000])];
+    let mut accepted = vec![];
+
+    while !stack.is_empty() {
+        let (name, ranges) = stack.pop().unwrap();
+        let workflow = workflows.get(name).unwrap();
+
+        for rule in workflow {
+            match rule.rating {
+                Rating::Any => match rule.on_met {
+                    OnMet::Accept => {
+                        accepted.push(ranges.clone());
+                    }
+                    OnMet::Continue(name) => {
+                        stack.push((name, ranges.clone()));
+                    }
+                    _ => {}
+                },
+                Rating::X | Rating::M | Rating::A | Rating::S => {
+                    let idx = rule.rating as usize;
+
+                    let mut new_ranges = ranges.clone();
+                    match rule.condition {
+                        Condition::LessThan(n) => {
+                            new_ranges[idx] = *new_ranges[idx].start()..=n - 1;
+                        }
+                        Condition::GreaterThan(n) => {
+                            new_ranges[idx] = n + 1..=*new_ranges[idx].end();
+                        }
+                        _ => {}
+                    }
+                    match rule.on_met {
+                        OnMet::Accept => {
+                            accepted.push(new_ranges);
+                        }
+                        OnMet::Continue(name) => {
+                            stack.push((name, new_ranges));
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+    }
+
+    println!("{:?}", accepted);
+    // println!("{}", xmas_ranges_intersect(&accepted[0], &accepted[1]));
+    // println!("{:?}", accepted[1]);
+    // println!("{:?}", accepted[2]);
+    // println!("{:?}", xmas_ranges_intersection(&accepted[1], &accepted[2]));
+
+    // a            [1..=4000, 1..=1800, 1..=4000, 1..=4000]
+    // b            [1..=4000, 1..=4000, 1..=4000, 3449..=4000]
+    // intersection [1..=4000, 1..=1800, 1..=4000, 3449..=4000]
+    // => a         [1..=4000, 1..=1800, 1..=4000, 1..=4000]
+
+    accepted
+        .iter()
+        .map(|ranges| {
+            ranges
+                .iter()
+                .map(|range| range.end() - range.start() + 1)
+                .product::<usize>()
+        })
+        .sum()
+}
+
+fn xmas_ranges_intersect(a: &[RangeInclusive<usize>; 4], b: &[RangeInclusive<usize>; 4]) -> bool {
+    for i in 0..4 {
+        if !a[i].intersects(&b[i]) {
+            return false;
+        }
+    }
+    true
+}
+
+fn xmas_ranges_intersection(
+    a: &[RangeInclusive<usize>; 4],
+    b: &[RangeInclusive<usize>; 4],
+) -> [RangeInclusive<usize>; 4] {
+    [
+        a[0].intersection(&b[0]),
+        a[1].intersection(&b[1]),
+        a[2].intersection(&b[2]),
+        a[3].intersection(&b[3]),
+    ]
 }
 
 fn apply_workflow<'a>(workflow: &'a [Rule], part: &Part) -> &'a OnMet<'a> {
@@ -113,12 +214,12 @@ impl<'a> Rule<'a> {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 enum Rating {
-    X,
-    M,
-    A,
-    S,
+    X = 0,
+    M = 1,
+    A = 2,
+    S = 3,
     Any,
 }
 

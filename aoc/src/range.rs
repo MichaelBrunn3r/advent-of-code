@@ -1,4 +1,4 @@
-use std::ops::{Range, RangeInclusive};
+use std::ops::{self, Range, RangeInclusive};
 
 pub trait RangeExt<T>
 where
@@ -6,11 +6,12 @@ where
 {
     fn intersects(&self, other: &Self) -> bool;
     fn without_unchecked(&self, other: &Self) -> (Self, Self);
+    fn intersection(&self, other: &Self) -> Self;
 }
 
 impl<T> RangeExt<T> for Range<T>
 where
-    T: PartialOrd + Copy,
+    T: PartialOrd + Copy + Ord,
 {
     fn intersects(&self, other: &Self) -> bool {
         self.start < other.end && other.start < self.end
@@ -22,11 +23,15 @@ where
 
         (left, right)
     }
+
+    fn intersection(&self, other: &Self) -> Self {
+        self.start.min(other.start)..self.end.max(other.end)
+    }
 }
 
 impl<T> RangeExt<T> for RangeInclusive<T>
 where
-    T: PartialOrd + Copy,
+    T: PartialOrd + Copy + Ord,
 {
     fn intersects(&self, other: &Self) -> bool {
         self.start() <= other.end() && other.start() <= self.end()
@@ -37,6 +42,10 @@ where
         let right = *other.end()..=*self.end();
 
         (left, right)
+    }
+
+    fn intersection(&self, other: &Self) -> Self {
+        *self.start().max(other.start())..=*self.end().min(other.end())
     }
 }
 
