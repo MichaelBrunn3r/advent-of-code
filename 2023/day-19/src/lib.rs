@@ -59,39 +59,42 @@ pub fn part_2(input: &str) -> usize {
     let mut accepted = vec![];
 
     while !stack.is_empty() {
-        let (name, ranges) = stack.pop().unwrap();
+        let (name, mut xmas_ranges) = stack.pop().unwrap();
         let workflow = workflows.get(name).unwrap();
 
         for rule in workflow {
             match rule.rating {
                 Rating::Any => match rule.on_met {
                     OnMet::Accept => {
-                        accepted.push(ranges.clone());
+                        accepted.push(xmas_ranges.clone());
                     }
-                    OnMet::Continue(name) => {
-                        stack.push((name, ranges.clone()));
+                    OnMet::Continue(workflow) => {
+                        stack.push((workflow, xmas_ranges.clone()));
                     }
                     _ => {}
                 },
                 Rating::X | Rating::M | Rating::A | Rating::S => {
-                    let idx = rule.rating as usize;
+                    let rating_idx = rule.rating as usize;
 
-                    let mut new_ranges = ranges.clone();
+                    let mut new_ranges = xmas_ranges.clone();
                     match rule.condition {
                         Condition::LessThan(n) => {
-                            new_ranges[idx] = *new_ranges[idx].start()..=n - 1;
+                            new_ranges[rating_idx] = *new_ranges[rating_idx].start()..=n - 1;
+                            xmas_ranges[rating_idx] = n..=*xmas_ranges[rating_idx].end();
                         }
                         Condition::GreaterThan(n) => {
-                            new_ranges[idx] = n + 1..=*new_ranges[idx].end();
+                            new_ranges[rating_idx] = n + 1..=*new_ranges[rating_idx].end();
+                            xmas_ranges[rating_idx] = *xmas_ranges[rating_idx].start()..=n;
                         }
                         _ => {}
                     }
+
                     match rule.on_met {
                         OnMet::Accept => {
                             accepted.push(new_ranges);
                         }
-                        OnMet::Continue(name) => {
-                            stack.push((name, new_ranges));
+                        OnMet::Continue(workflow) => {
+                            stack.push((workflow, new_ranges));
                         }
                         _ => {}
                     }
@@ -100,47 +103,15 @@ pub fn part_2(input: &str) -> usize {
         }
     }
 
-    println!("{:?}", accepted);
-    // println!("{}", xmas_ranges_intersect(&accepted[0], &accepted[1]));
-    // println!("{:?}", accepted[1]);
-    // println!("{:?}", accepted[2]);
-    // println!("{:?}", xmas_ranges_intersection(&accepted[1], &accepted[2]));
-
-    // a            [1..=4000, 1..=1800, 1..=4000, 1..=4000]
-    // b            [1..=4000, 1..=4000, 1..=4000, 3449..=4000]
-    // intersection [1..=4000, 1..=1800, 1..=4000, 3449..=4000]
-    // => a         [1..=4000, 1..=1800, 1..=4000, 1..=4000]
-
     accepted
         .iter()
-        .map(|ranges| {
-            ranges
+        .map(|xmas_ranges| {
+            xmas_ranges
                 .iter()
                 .map(|range| range.end() - range.start() + 1)
                 .product::<usize>()
         })
         .sum()
-}
-
-fn xmas_ranges_intersect(a: &[RangeInclusive<usize>; 4], b: &[RangeInclusive<usize>; 4]) -> bool {
-    for i in 0..4 {
-        if !a[i].intersects(&b[i]) {
-            return false;
-        }
-    }
-    true
-}
-
-fn xmas_ranges_intersection(
-    a: &[RangeInclusive<usize>; 4],
-    b: &[RangeInclusive<usize>; 4],
-) -> [RangeInclusive<usize>; 4] {
-    [
-        a[0].intersection(&b[0]),
-        a[1].intersection(&b[1]),
-        a[2].intersection(&b[2]),
-        a[3].intersection(&b[3]),
-    ]
 }
 
 fn apply_workflow<'a>(workflow: &'a [Rule], part: &Part) -> &'a OnMet<'a> {

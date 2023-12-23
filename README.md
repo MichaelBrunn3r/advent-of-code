@@ -17,7 +17,15 @@
 12. Hot Springs (WIP)
 13. [Point of Incidence](./2023/day-13/README.md) [`Code`](./2023/day-13/src/lib.rs) `69µs/71µs`
 14. [Parabolic Reflector Dish](./2023/day-14/README.md) [`Code`](./2023/day-14/src/lib.rs) `4µs/10ms`
-15. [Lens Library](./2023/day-15/README.md) [`Code`](./2023/day-15/src/lib.rs) `14µs/45µs`
+15. [Lens Library](./2023/day-15/README.md) [`Code`](./2023/day-15/src/lib.rs)
+16. The Floor Will Be Lava (WIP)
+17. Clumsy Crucible (WIP)
+18. Lavaduct Lagoon (WIP)
+19. [Aplenty](./2023/day-19/README.md) [`Code`](./2023/day-19/src/lib.rs) `191µs/189µs`
+20. Pulse Propagation (WIP)
+21. Step Counter (WIP)
+22. Sand Slabs (WIP)
+23. A Long Walk (WIP)
 
 ### 2022
 
