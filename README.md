@@ -21,7 +21,7 @@
 16. The Floor Will Be Lava (WIP)
 17. Clumsy Crucible (WIP)
 18. Lavaduct Lagoon (WIP)
-19. [Aplenty](./2023/day-19/README.md) [`Code`](./2023/day-19/src/lib.rs) `112µs/111µs`
+19. [Aplenty](./2023/day-19/README.md) [`Code`](./2023/day-19/src/lib.rs) `112µs/93µs`
 20. Pulse Propagation (WIP)
 21. Step Counter (WIP)
 22. Sand Slabs (WIP)

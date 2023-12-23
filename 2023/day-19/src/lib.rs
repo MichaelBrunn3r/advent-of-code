@@ -40,20 +40,19 @@ pub fn part_1(input: &str) -> usize {
 }
 
 pub fn part_2(input: &str) -> usize {
-    let workflows = input
-        .split("\n\n")
-        .next()
-        .unwrap()
-        .lines()
-        .map(|line| parse_workflow(&line.as_bytes()))
+    let workflows = input.as_bytes()[..input.find("\n\n").unwrap()]
+        .split(|&b| b == b'\n')
+        .map(|line| parse_workflow(line))
         .collect::<HashMap<&str, Vec<Rule>>>();
 
-    let mut stack = vec![("in", [1..=4000, 1..=4000, 1..=4000, 1..=4000])];
+    let mut stack = vec![(
+        workflows.get("in").unwrap(),
+        [1..=4000, 1..=4000, 1..=4000, 1..=4000],
+    )];
     let mut accepted = vec![];
 
     while !stack.is_empty() {
-        let (name, mut xmas_ranges) = stack.pop().unwrap();
-        let workflow = workflows.get(name).unwrap();
+        let (workflow, mut xmas_ranges) = stack.pop().unwrap();
 
         for rule in workflow {
             match rule.rating {
@@ -62,7 +61,7 @@ pub fn part_2(input: &str) -> usize {
                         accepted.push(xmas_ranges.clone());
                     }
                     OnMet::Continue(workflow) => {
-                        stack.push((workflow, xmas_ranges.clone()));
+                        stack.push((workflows.get(workflow).unwrap(), xmas_ranges.clone()));
                     }
                     _ => {}
                 },
@@ -87,7 +86,7 @@ pub fn part_2(input: &str) -> usize {
                             accepted.push(new_ranges);
                         }
                         OnMet::Continue(workflow) => {
-                            stack.push((workflow, new_ranges));
+                            stack.push((workflows.get(workflow).unwrap(), new_ranges));
                         }
                         _ => {}
                     }
