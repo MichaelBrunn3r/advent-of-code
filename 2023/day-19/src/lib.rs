@@ -21,10 +21,9 @@ pub fn part_1(input: &str) -> usize {
         .collect::<HashMap<&str, Vec<Rule>>>();
     let first_workflow = workflows.get("in").unwrap();
 
-    let parts = parts.lines().map(Part::from).collect_vec();
-
     parts
-        .iter()
+        .lines()
+        .map(Part::from)
         .filter(|part| {
             let mut current_workflow = first_workflow;
             loop {
