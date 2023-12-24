@@ -2,10 +2,9 @@
 
 mod parse;
 
-use crate::parse::parse_workflow;
 use aoc::prelude::*;
 use itertools::Itertools;
-use parse::parse_part;
+use parse::{parse_part, WorkflowParser};
 use regex::Regex;
 use std::{
     collections::HashMap,
@@ -14,10 +13,7 @@ use std::{
 
 pub fn part_1(input: &str) -> usize {
     let (workflows, parts) = input.split_once("\n\n").unwrap();
-    let workflows = workflows
-        .lines()
-        .map(|line| parse_workflow(&line.as_bytes()))
-        .collect::<HashMap<&str, Vec<Rule>>>();
+    let workflows = WorkflowParser::new(input.as_bytes()).collect::<HashMap<&str, Vec<Rule>>>();
     let first_workflow = workflows.get("in").unwrap();
 
     parts
@@ -40,10 +36,7 @@ pub fn part_1(input: &str) -> usize {
 }
 
 pub fn part_2(input: &str) -> usize {
-    let workflows = input.as_bytes()[..input.find("\n\n").unwrap()]
-        .split(|&b| b == b'\n')
-        .map(|line| parse_workflow(line))
-        .collect::<HashMap<&str, Vec<Rule>>>();
+    let workflows = WorkflowParser::new(input.as_bytes()).collect::<HashMap<&str, Vec<Rule>>>();
 
     let mut stack = vec![(
         workflows.get("in").unwrap(),
@@ -115,7 +108,7 @@ fn apply_workflow<'a>(workflow: &'a [Rule], part: &Part) -> &'a OnMet<'a> {
 }
 
 #[derive(Debug)]
-struct Rule<'a> {
+pub struct Rule<'a> {
     rating: Rating,
     condition: Condition,
     on_met: OnMet<'a>,
@@ -134,7 +127,7 @@ impl<'a> Rule<'a> {
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
-enum Rating {
+pub enum Rating {
     X = 0,
     M = 1,
     A = 2,
@@ -143,7 +136,7 @@ enum Rating {
 }
 
 #[derive(Debug)]
-enum Condition {
+pub enum Condition {
     LessThan(usize),
     GreaterThan(usize),
     Any,
@@ -160,13 +153,13 @@ impl Condition {
 }
 
 #[derive(Debug)]
-enum OnMet<'a> {
+pub enum OnMet<'a> {
     Accept,
     Reject,
     Continue(&'a str),
 }
 
-struct Part([usize; 4]);
+pub struct Part([usize; 4]);
 
 impl Part {
     #[inline(always)]
