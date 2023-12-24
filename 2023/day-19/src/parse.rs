@@ -150,31 +150,69 @@ impl<'a> Iterator for WorkflowParser<'a> {
     }
 }
 
-pub fn parse_part(mut line: &[u8]) -> Part {
-    // Remove brackets
-    line = &line[1..line.len() - 1];
+pub struct PartParser<'a> {
+    data: &'a [u8],
+}
 
-    let mut part = Part([0, 0, 0, 0]);
+impl PartParser<'_> {
+    pub fn new(data: &[u8]) -> PartParser {
+        PartParser { data }
+    }
 
-    for i in 0..3 {
-        let pos_comma = if line[6] == b',' {
+    #[inline(always)]
+    fn _find_rating_separator(&mut self) -> usize {
+        if self.data[6] == b',' {
             6
-        } else if line[5] == b',' {
+        } else if self.data[5] == b',' {
             5
-        } else if line[4] == b',' {
+        } else if self.data[4] == b',' {
             4
         } else {
             3
-        };
-        part.0[i] = line[2..pos_comma]
-            .as_str_unchecked()
-            .parse_unsigned_unchecked();
-        line = &line[pos_comma + 1..];
+        }
     }
 
-    part.0[3] = line[2..line.len()]
-        .as_str_unchecked()
-        .parse_unsigned_unchecked();
+    #[inline(always)]
+    fn _find_part_terminator(&mut self) -> usize {
+        if self.data[6] == b'}' {
+            6
+        } else if self.data[5] == b'}' {
+            5
+        } else if self.data[4] == b'}' {
+            4
+        } else {
+            3
+        }
+    }
+}
 
-    part
+impl<'a> Iterator for PartParser<'a> {
+    type Item = Part;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.data.len() == 0 {
+            return None;
+        }
+
+        self.data = &self.data[1..]; // Skip '{'
+
+        let mut part = Part([0, 0, 0, 0]);
+
+        for i in 0..3 {
+            let rating_sep = self._find_rating_separator();
+            part.0[i] = self.data[2..rating_sep]
+                .as_str_unchecked()
+                .parse_unsigned_unchecked();
+            self.data = &self.data[rating_sep + 1..];
+        }
+
+        let part_terminator = self._find_part_terminator();
+        part.0[3] = self.data[2..part_terminator]
+            .as_str_unchecked()
+            .parse_unsigned_unchecked();
+
+        self.data = &self.data[part_terminator + 2..]; // Skip '}\n'
+
+        Some(part)
+    }
 }

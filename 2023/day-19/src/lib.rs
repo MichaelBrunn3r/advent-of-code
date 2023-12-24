@@ -4,7 +4,7 @@ mod parse;
 
 use aoc::prelude::*;
 use itertools::Itertools;
-use parse::{parse_part, WorkflowParser};
+use parse::{PartParser, WorkflowParser};
 use regex::Regex;
 use std::{
     collections::HashMap,
@@ -13,12 +13,11 @@ use std::{
 
 pub fn part_1(input: &str) -> usize {
     let (workflows, parts) = input.split_once("\n\n").unwrap();
+
     let workflows = WorkflowParser::new(input.as_bytes()).collect::<HashMap<&str, Vec<Rule>>>();
     let first_workflow = workflows.get("in").unwrap();
 
-    parts
-        .lines()
-        .map(|line| parse_part(&line.as_bytes()))
+    PartParser::new(parts.as_bytes())
         .filter(|part| {
             let mut current_workflow = first_workflow;
             loop {
@@ -159,6 +158,7 @@ pub enum OnMet<'a> {
     Continue(&'a str),
 }
 
+#[derive(Debug)]
 pub struct Part([usize; 4]);
 
 impl Part {
