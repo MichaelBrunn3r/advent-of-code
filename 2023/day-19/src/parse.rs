@@ -1,6 +1,7 @@
 use aoc::{StrExt, U8SliceExt};
 
 use crate::{Condition, OnMet, Part, Rating, Rule};
+use core::num;
 
 pub struct WorkflowParser<'a> {
     pub data: &'a [u8],
@@ -51,7 +52,7 @@ impl WorkflowParser<'_> {
 }
 
 impl<'a> Iterator for WorkflowParser<'a> {
-    type Item = (&'a str, Vec<Rule<'a>>);
+    type Item = (&'a str, [Rule<'a>; 4]);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.data[0] == b'\n' {
@@ -61,36 +62,44 @@ impl<'a> Iterator for WorkflowParser<'a> {
         let name = self.data[..self._find_rules_separator()].as_str_unchecked();
         self.data = &self.data[name.len() + 1..]; // Skip name and '{'
 
-        let mut rules = vec![];
+        let mut rules: [Rule; 4] = [Rule {
+            rating: Rating::Any,
+            condition: Condition::Any,
+            on_met: OnMet::Reject,
+        }; 4];
+        let mut num_rules = 0;
 
         loop {
             if self.data[1] != b'<' && self.data[1] != b'>' {
                 match self.data[0] {
                     b'R' => {
-                        rules.push(Rule {
+                        rules[num_rules] = Rule {
                             rating: Rating::Any,
                             condition: Condition::Any,
                             on_met: OnMet::Reject,
-                        });
+                        };
+                        num_rules += 1;
                         self.data = &self.data[3..]; // Skip '}\n'
                     }
                     b'A' => {
-                        rules.push(Rule {
+                        rules[num_rules] = Rule {
                             rating: Rating::Any,
                             condition: Condition::Any,
                             on_met: OnMet::Accept,
-                        });
+                        };
+                        num_rules += 1;
                         self.data = &self.data[3..]; // Skip '}\n'
                     }
                     _ => {
                         let rules_terminator = self._find_rules_terminator();
-                        rules.push(Rule {
+                        rules[num_rules] = Rule {
                             rating: Rating::Any,
                             condition: Condition::Any,
                             on_met: OnMet::Continue(
                                 self.data[..rules_terminator].as_str_unchecked(),
                             ),
-                        });
+                        };
+                        num_rules += 1;
                         self.data = &self.data[rules_terminator + 2..]; // Skip '<on_met>}\n'
                     }
                 }
@@ -139,11 +148,12 @@ impl<'a> Iterator for WorkflowParser<'a> {
                 }
             };
 
-            rules.push(Rule {
+            rules[num_rules] = Rule {
                 rating,
                 condition,
                 on_met,
-            });
+            };
+            num_rules += 1;
         }
 
         Some((name, rules))

@@ -14,7 +14,7 @@ use std::{
 pub fn part_1(input: &str) -> usize {
     let (workflows, parts) = input.split_once("\n\n").unwrap();
 
-    let workflows = WorkflowParser::new(input.as_bytes()).collect::<HashMap<&str, Vec<Rule>>>();
+    let workflows = WorkflowParser::new(input.as_bytes()).collect::<HashMap<&str, [Rule; 4]>>();
     let first_workflow = workflows.get("in").unwrap();
 
     PartParser::new(parts.as_bytes())
@@ -35,7 +35,7 @@ pub fn part_1(input: &str) -> usize {
 }
 
 pub fn part_2(input: &str) -> usize {
-    let workflows = WorkflowParser::new(input.as_bytes()).collect::<HashMap<&str, Vec<Rule>>>();
+    let workflows = WorkflowParser::new(input.as_bytes()).collect::<HashMap<&str, [Rule; 4]>>();
 
     let mut stack = vec![(
         workflows.get("in").unwrap(),
@@ -98,7 +98,7 @@ pub fn part_2(input: &str) -> usize {
         .sum()
 }
 
-fn apply_workflow<'a>(workflow: &'a [Rule], part: &Part) -> &'a OnMet<'a> {
+fn apply_workflow<'a>(workflow: &'a [Rule; 4], part: &Part) -> &'a OnMet<'a> {
     &workflow
         .iter()
         .find(|rule| rule.is_met(part))
@@ -106,7 +106,7 @@ fn apply_workflow<'a>(workflow: &'a [Rule], part: &Part) -> &'a OnMet<'a> {
         .on_met
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Rule<'a> {
     rating: Rating,
     condition: Condition,
@@ -134,7 +134,7 @@ pub enum Rating {
     Any,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum Condition {
     LessThan(usize),
     GreaterThan(usize),
@@ -151,7 +151,7 @@ impl Condition {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum OnMet<'a> {
     Accept,
     Reject,
