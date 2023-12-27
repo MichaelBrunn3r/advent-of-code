@@ -2,14 +2,29 @@ use aoc::{StrExt, U8SliceExt};
 
 use crate::{Condition, OnMet, Part, Rating, Rule};
 use core::num;
+use std::collections::HashMap;
 
 pub struct WorkflowParser<'a> {
     pub data: &'a [u8],
+    pub workflows: HashMap<&'a str, (usize, usize)>,
+    current_workflow: (&'a str, usize),
+    num_rules: usize,
 }
 
 impl WorkflowParser<'_> {
     pub fn new(data: &[u8]) -> WorkflowParser {
-        WorkflowParser { data }
+        let mut parser = WorkflowParser {
+            data,
+            workflows: HashMap::new(),
+            current_workflow: ("", 0),
+            num_rules: 0,
+        };
+
+        let name = data[..parser._find_rules_separator()].as_str_unchecked();
+        parser.data = &parser.data[name.len() + 1..]; // Skip name and '{'
+        parser.current_workflow = (name, parser.num_rules);
+
+        parser
     }
 
     #[inline(always)]
@@ -52,111 +67,105 @@ impl WorkflowParser<'_> {
 }
 
 impl<'a> Iterator for WorkflowParser<'a> {
-    type Item = (&'a str, [Rule<'a>; 4]);
+    type Item = Rule<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.data[0] == b'\n' {
             return None;
         }
 
-        let name = self.data[..self._find_rules_separator()].as_str_unchecked();
-        self.data = &self.data[name.len() + 1..]; // Skip name and '{'
-
-        let mut rules: [Rule; 4] = [Rule {
-            rating: Rating::Any,
-            condition: Condition::Any,
-            on_met: OnMet::Reject,
-        }; 4];
-        let mut num_rules = 0;
-
-        loop {
-            if self.data[1] != b'<' && self.data[1] != b'>' {
-                match self.data[0] {
-                    b'R' => {
-                        rules[num_rules] = Rule {
-                            rating: Rating::Any,
-                            condition: Condition::Any,
-                            on_met: OnMet::Reject,
-                        };
-                        num_rules += 1;
-                        self.data = &self.data[3..]; // Skip '}\n'
-                    }
-                    b'A' => {
-                        rules[num_rules] = Rule {
-                            rating: Rating::Any,
-                            condition: Condition::Any,
-                            on_met: OnMet::Accept,
-                        };
-                        num_rules += 1;
-                        self.data = &self.data[3..]; // Skip '}\n'
-                    }
-                    _ => {
-                        let rules_terminator = self._find_rules_terminator();
-                        rules[num_rules] = Rule {
-                            rating: Rating::Any,
-                            condition: Condition::Any,
-                            on_met: OnMet::Continue(
-                                self.data[..rules_terminator].as_str_unchecked(),
-                            ),
-                        };
-                        num_rules += 1;
-                        self.data = &self.data[rules_terminator + 2..]; // Skip '<on_met>}\n'
-                    }
-                }
-                break;
-            }
-
-            let rating = match self._next_byte_unchecked() {
-                b'x' => Rating::X,
-                b'm' => Rating::M,
-                b'a' => Rating::A,
-                b's' => Rating::S,
-                _ => unreachable!("Invalid rating"),
-            };
-
-            let condition_type = self._next_byte_unchecked();
-
-            let on_met_sep = self._find_on_met_separator();
-            let condition_value: usize = self.data[..on_met_sep]
-                .as_str_unchecked()
-                .parse_unsigned_unchecked();
-            self.data = &self.data[on_met_sep + 1..];
-
-            let condition = match condition_type {
-                b'<' => Condition::LessThan(condition_value),
-                b'>' => Condition::GreaterThan(condition_value),
-                _ => unreachable!("Invalid condition"),
-            };
-
-            let on_met = match self.data[0] {
-                b'A' => {
-                    self.data = &self.data[2..];
-                    OnMet::Accept
-                }
+        self.num_rules += 1;
+        if self.data[1] != b'<' && self.data[1] != b'>' {
+            let rule = match self.data[0] {
                 b'R' => {
-                    self.data = &self.data[2..];
-                    OnMet::Reject
+                    self.data = &self.data[3..]; // Skip '}\n'
+                    Some(Rule {
+                        rating: Rating::Any,
+                        condition: Condition::Any,
+                        on_met: OnMet::Reject,
+                    })
+                }
+                b'A' => {
+                    self.data = &self.data[3..]; // Skip '}\n'
+                    Some(Rule {
+                        rating: Rating::Any,
+                        condition: Condition::Any,
+                        on_met: OnMet::Accept,
+                    })
                 }
                 _ => {
-                    // Get name. Name lengths: [3: 310, 2: 229]
-                    let pos_comma = if self.data[3] == b',' { 3 } else { 2 };
-
-                    let on_met_workflow = self.data[..pos_comma].as_str_unchecked();
-                    self.data = &self.data[pos_comma + 1..];
-
-                    OnMet::Continue(on_met_workflow)
+                    let rules_terminator = self._find_rules_terminator();
+                    let on_met = OnMet::Continue(self.data[..rules_terminator].as_str_unchecked());
+                    self.data = &self.data[rules_terminator + 2..]; // Skip '<on_met>}\n'
+                    Some(Rule {
+                        rating: Rating::Any,
+                        condition: Condition::Any,
+                        on_met,
+                    })
                 }
             };
 
-            rules[num_rules] = Rule {
-                rating,
-                condition,
-                on_met,
-            };
-            num_rules += 1;
+            self.workflows.insert(
+                self.current_workflow.0,
+                (self.current_workflow.1, self.num_rules),
+            );
+
+            if self.data[0] != b'\n' {
+                let name = self.data[..self._find_rules_separator()].as_str_unchecked();
+                self.data = &self.data[name.len() + 1..]; // Skip name and '{'
+                self.current_workflow = (name, self.num_rules);
+            }
+
+            return rule;
         }
 
-        Some((name, rules))
+        let rating = match self._next_byte_unchecked() {
+            b'x' => Rating::X,
+            b'm' => Rating::M,
+            b'a' => Rating::A,
+            b's' => Rating::S,
+            _ => unreachable!("Invalid rating"),
+        };
+
+        let condition_type = self._next_byte_unchecked();
+
+        let on_met_sep = self._find_on_met_separator();
+        let condition_value: usize = self.data[..on_met_sep]
+            .as_str_unchecked()
+            .parse_unsigned_unchecked();
+        self.data = &self.data[on_met_sep + 1..];
+
+        let condition = match condition_type {
+            b'<' => Condition::LessThan(condition_value),
+            b'>' => Condition::GreaterThan(condition_value),
+            _ => unreachable!("Invalid condition"),
+        };
+
+        let on_met = match self.data[0] {
+            b'A' => {
+                self.data = &self.data[2..];
+                OnMet::Accept
+            }
+            b'R' => {
+                self.data = &self.data[2..];
+                OnMet::Reject
+            }
+            _ => {
+                // Get name. Name lengths: [3: 310, 2: 229]
+                let pos_comma = if self.data[3] == b',' { 3 } else { 2 };
+
+                let on_met_workflow = self.data[..pos_comma].as_str_unchecked();
+                self.data = &self.data[pos_comma + 1..];
+
+                OnMet::Continue(on_met_workflow)
+            }
+        };
+
+        Some(Rule {
+            rating,
+            condition,
+            on_met,
+        })
     }
 }
 

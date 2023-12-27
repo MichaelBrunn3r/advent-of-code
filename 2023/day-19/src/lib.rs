@@ -1,27 +1,26 @@
-#![allow(unused_imports, unused_variables)]
+#![allow(unused_variables)]
 
 mod parse;
-
-use aoc::prelude::*;
-use itertools::Itertools;
 use parse::{PartParser, WorkflowParser};
-use regex::Regex;
-use std::{
-    collections::HashMap,
-    ops::{Range, RangeInclusive},
-};
 
 pub fn part_1(input: &str) -> usize {
-    let (workflows, parts) = input.split_once("\n\n").unwrap();
+    let (_, parts) = input.split_once("\n\n").unwrap();
 
-    let workflows = WorkflowParser::new(input.as_bytes()).collect::<HashMap<&str, [Rule; 4]>>();
+    let mut parser = WorkflowParser::new(input.as_bytes());
+    let mut rules = Vec::with_capacity(1650);
+    while let Some(rule) = parser.next() {
+        rules.push(rule)
+    }
+
+    let workflows = parser.workflows;
     let first_workflow = workflows.get("in").unwrap();
 
     PartParser::new(parts.as_bytes())
         .filter(|part| {
             let mut current_workflow = first_workflow;
             loop {
-                match apply_workflow(&current_workflow, &part) {
+                let rules = &rules[current_workflow.0..current_workflow.1];
+                match apply_workflow(rules, &part) {
                     OnMet::Accept => return true,
                     OnMet::Reject => return false,
                     OnMet::Continue(workflow) => {
@@ -35,7 +34,13 @@ pub fn part_1(input: &str) -> usize {
 }
 
 pub fn part_2(input: &str) -> usize {
-    let workflows = WorkflowParser::new(input.as_bytes()).collect::<HashMap<&str, [Rule; 4]>>();
+    let mut parser = WorkflowParser::new(input.as_bytes());
+    let mut rules = Vec::with_capacity(1650);
+    while let Some(rule) = parser.next() {
+        rules.push(rule)
+    }
+
+    let workflows = parser.workflows;
 
     let mut stack = vec![(
         workflows.get("in").unwrap(),
@@ -46,7 +51,7 @@ pub fn part_2(input: &str) -> usize {
     while !stack.is_empty() {
         let (workflow, mut xmas_ranges) = stack.pop().unwrap();
 
-        for rule in workflow {
+        for rule in &rules[workflow.0..workflow.1] {
             match rule.rating {
                 Rating::Any => match rule.on_met {
                     OnMet::Accept => {
@@ -98,7 +103,7 @@ pub fn part_2(input: &str) -> usize {
         .sum()
 }
 
-fn apply_workflow<'a>(workflow: &'a [Rule; 4], part: &Part) -> &'a OnMet<'a> {
+fn apply_workflow<'a>(workflow: &'a [Rule], part: &Part) -> &'a OnMet<'a> {
     &workflow
         .iter()
         .find(|rule| rule.is_met(part))
