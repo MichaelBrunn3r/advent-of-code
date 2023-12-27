@@ -4,8 +4,6 @@ mod parse;
 use parse::{PartParser, WorkflowParser};
 
 pub fn part_1(input: &str) -> usize {
-    let (_, parts) = input.split_once("\n\n").unwrap();
-
     let mut parser = WorkflowParser::new(input.as_bytes());
     let mut rules = Vec::with_capacity(1650);
     while let Some(rule) = parser.next() {
@@ -15,7 +13,7 @@ pub fn part_1(input: &str) -> usize {
     let workflows = parser.workflows;
     let first_workflow = workflows.get("in").unwrap();
 
-    PartParser::new(parts.as_bytes())
+    PartParser::new(&parser.data[1..])
         .filter(|part| {
             let mut current_workflow = first_workflow;
             loop {
