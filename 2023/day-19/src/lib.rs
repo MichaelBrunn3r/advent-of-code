@@ -11,18 +11,20 @@ pub fn part_1(input: &str) -> usize {
     }
 
     let workflows = parser.workflows;
-    let first_workflow = workflows.get("in").unwrap();
+    let workflow_in_id = *parser.name_to_id.get("in").unwrap();
 
     PartParser::new(&parser.data[1..])
         .filter(|part| {
-            let mut current_workflow = first_workflow;
+            let mut current_workflow = workflows[workflow_in_id as usize];
             loop {
-                let rules = &rules[current_workflow.0..current_workflow.1];
-                match apply_workflow(rules, &part) {
+                let rules = &rules[current_workflow.0 as usize..current_workflow.1 as usize];
+                let matching_rule = rules.iter().find(|rule| rule.is_met(part)).unwrap();
+
+                match matching_rule.on_met {
                     OnMet::Accept => return true,
                     OnMet::Reject => return false,
-                    OnMet::Continue(workflow) => {
-                        current_workflow = workflows.get(workflow).unwrap();
+                    OnMet::Continue => {
+                        current_workflow = workflows[matching_rule.on_met_workflow as usize];
                     }
                 }
             }
@@ -41,22 +43,25 @@ pub fn part_2(input: &str) -> usize {
     let workflows = parser.workflows;
 
     let mut stack = vec![(
-        workflows.get("in").unwrap(),
+        workflows[*parser.name_to_id.get("in").unwrap() as usize],
         [1..=4000, 1..=4000, 1..=4000, 1..=4000],
     )];
     let mut accepted = vec![];
 
     while !stack.is_empty() {
-        let (workflow, mut xmas_ranges) = stack.pop().unwrap();
+        let (workflow_id, mut xmas_ranges) = stack.pop().unwrap();
 
-        for rule in &rules[workflow.0..workflow.1] {
+        for rule in &rules[workflow_id.0 as usize..workflow_id.1 as usize] {
             match rule.rating {
                 Rating::Any => match rule.on_met {
                     OnMet::Accept => {
                         accepted.push(xmas_ranges.clone());
                     }
-                    OnMet::Continue(workflow) => {
-                        stack.push((workflows.get(workflow).unwrap(), xmas_ranges.clone()));
+                    OnMet::Continue => {
+                        stack.push((
+                            workflows[rule.on_met_workflow as usize],
+                            xmas_ranges.clone(),
+                        ));
                     }
                     _ => {}
                 },
@@ -80,8 +85,8 @@ pub fn part_2(input: &str) -> usize {
                         OnMet::Accept => {
                             accepted.push(new_ranges);
                         }
-                        OnMet::Continue(workflow) => {
-                            stack.push((workflows.get(workflow).unwrap(), new_ranges));
+                        OnMet::Continue => {
+                            stack.push((workflows[rule.on_met_workflow as usize], new_ranges));
                         }
                         _ => {}
                     }
@@ -101,22 +106,22 @@ pub fn part_2(input: &str) -> usize {
         .sum()
 }
 
-fn apply_workflow<'a>(workflow: &'a [Rule], part: &Part) -> &'a OnMet<'a> {
-    &workflow
-        .iter()
-        .find(|rule| rule.is_met(part))
-        .unwrap()
-        .on_met
+#[derive(Debug, Clone, Copy)]
+pub struct Rule {
+    rating: Rating,
+    condition: Condition,
+    on_met: OnMet,
+    on_met_workflow: u16,
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct Rule<'a> {
-    rating: Rating,
-    condition: Condition,
-    on_met: OnMet<'a>,
+pub enum OnMet {
+    Accept,
+    Reject,
+    Continue,
 }
 
-impl<'a> Rule<'a> {
+impl Rule {
     fn is_met(&self, part: &Part) -> bool {
         match self.rating {
             Rating::X => self.condition.is_met(part.x()),
@@ -152,13 +157,6 @@ impl Condition {
             Self::Any => true,
         }
     }
-}
-
-#[derive(Debug, Clone, Copy)]
-pub enum OnMet<'a> {
-    Accept,
-    Reject,
-    Continue(&'a str),
 }
 
 #[derive(Debug)]

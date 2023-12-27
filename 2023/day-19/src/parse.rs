@@ -5,16 +5,18 @@ use std::collections::HashMap;
 
 pub struct WorkflowParser<'a> {
     pub data: &'a [u8],
-    pub workflows: HashMap<&'a str, (usize, usize)>,
+    pub workflows: [(u16, u16); 1650],
+    pub name_to_id: HashMap<&'a str, u16>,
     current_workflow: (&'a str, usize),
     num_rules: usize,
 }
 
-impl WorkflowParser<'_> {
+impl<'p> WorkflowParser<'p> {
     pub fn new(data: &[u8]) -> WorkflowParser {
         let mut parser = WorkflowParser {
             data,
-            workflows: HashMap::new(),
+            name_to_id: HashMap::with_capacity(1650),
+            workflows: [(0, 0); 1650],
             current_workflow: ("", 0),
             num_rules: 0,
         };
@@ -24,6 +26,16 @@ impl WorkflowParser<'_> {
         parser.current_workflow = (name, parser.num_rules);
 
         parser
+    }
+
+    fn _name_to_id(&mut self, name: &'p str) -> u16 {
+        if let Some(idx) = self.name_to_id.get(name) {
+            return *idx;
+        }
+
+        let idx = self.name_to_id.len();
+        self.name_to_id.insert(name, idx as u16);
+        idx as u16
     }
 
     #[inline(always)]
@@ -66,7 +78,7 @@ impl WorkflowParser<'_> {
 }
 
 impl<'a> Iterator for WorkflowParser<'a> {
-    type Item = Rule<'a>;
+    type Item = Rule;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.data[0] == b'\n' {
@@ -78,36 +90,38 @@ impl<'a> Iterator for WorkflowParser<'a> {
             let rule = match self.data[0] {
                 b'R' => {
                     self.data = &self.data[3..]; // Skip '}\n'
-                    Some(Rule {
+                    Rule {
                         rating: Rating::Any,
                         condition: Condition::Any,
                         on_met: OnMet::Reject,
-                    })
+                        on_met_workflow: u16::MAX,
+                    }
                 }
                 b'A' => {
                     self.data = &self.data[3..]; // Skip '}\n'
-                    Some(Rule {
+                    Rule {
                         rating: Rating::Any,
                         condition: Condition::Any,
                         on_met: OnMet::Accept,
-                    })
+                        on_met_workflow: u16::MAX,
+                    }
                 }
                 _ => {
                     let rules_terminator = self._find_rules_terminator();
-                    let on_met = OnMet::Continue(self.data[..rules_terminator].as_str_unchecked());
+                    let on_met_id =
+                        self._name_to_id(self.data[..rules_terminator].as_str_unchecked());
                     self.data = &self.data[rules_terminator + 2..]; // Skip '<on_met>}\n'
-                    Some(Rule {
+                    Rule {
                         rating: Rating::Any,
                         condition: Condition::Any,
-                        on_met,
-                    })
+                        on_met: OnMet::Continue,
+                        on_met_workflow: on_met_id,
+                    }
                 }
             };
 
-            self.workflows.insert(
-                self.current_workflow.0,
-                (self.current_workflow.1, self.num_rules),
-            );
+            let id = self._name_to_id(self.current_workflow.0);
+            self.workflows[id as usize] = (self.current_workflow.1 as u16, self.num_rules as u16);
 
             if self.data[0] != b'\n' {
                 let name = self.data[..self._find_rules_separator()].as_str_unchecked();
@@ -115,7 +129,7 @@ impl<'a> Iterator for WorkflowParser<'a> {
                 self.current_workflow = (name, self.num_rules);
             }
 
-            return rule;
+            return Some(rule);
         }
 
         let rating = match self._next_byte_unchecked() {
@@ -140,23 +154,23 @@ impl<'a> Iterator for WorkflowParser<'a> {
             _ => unreachable!("Invalid condition"),
         };
 
-        let on_met = match self.data[0] {
+        let (on_met, on_met_id) = match self.data[0] {
             b'A' => {
                 self.data = &self.data[2..];
-                OnMet::Accept
+                (OnMet::Accept, u16::MAX)
             }
             b'R' => {
                 self.data = &self.data[2..];
-                OnMet::Reject
+                (OnMet::Reject, u16::MAX)
             }
             _ => {
                 // Get name. Name lengths: [3: 310, 2: 229]
                 let pos_comma = if self.data[3] == b',' { 3 } else { 2 };
 
-                let on_met_workflow = self.data[..pos_comma].as_str_unchecked();
+                let on_met_id = self._name_to_id(self.data[..pos_comma].as_str_unchecked());
                 self.data = &self.data[pos_comma + 1..];
 
-                OnMet::Continue(on_met_workflow)
+                (OnMet::Continue, on_met_id)
             }
         };
 
@@ -164,6 +178,7 @@ impl<'a> Iterator for WorkflowParser<'a> {
             rating,
             condition,
             on_met,
+            on_met_workflow: on_met_id,
         })
     }
 }
