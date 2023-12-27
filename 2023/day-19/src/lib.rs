@@ -97,7 +97,7 @@ pub fn part_2(input: &str) -> usize {
         .map(|xmas_ranges| {
             xmas_ranges
                 .iter()
-                .map(|range| range.end() - range.start() + 1)
+                .map(|range| (range.end() - range.start() + 1) as usize)
                 .product::<usize>()
         })
         .sum()
@@ -141,16 +141,16 @@ pub enum Rating {
 
 #[derive(Debug, Clone, Copy)]
 pub enum Condition {
-    LessThan(usize),
-    GreaterThan(usize),
+    LessThan(u16),
+    GreaterThan(u16),
     Any,
 }
 
 impl Condition {
     fn is_met(&self, value: usize) -> bool {
         match self {
-            Self::LessThan(n) => value < *n,
-            Self::GreaterThan(n) => value > *n,
+            Self::LessThan(n) => value < *n as usize,
+            Self::GreaterThan(n) => value > *n as usize,
             Self::Any => true,
         }
     }

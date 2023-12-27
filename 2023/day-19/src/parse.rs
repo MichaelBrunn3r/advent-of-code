@@ -1,7 +1,6 @@
 use aoc::{StrExt, U8SliceExt};
 
 use crate::{Condition, OnMet, Part, Rating, Rule};
-use core::num;
 use std::collections::HashMap;
 
 pub struct WorkflowParser<'a> {
@@ -130,7 +129,7 @@ impl<'a> Iterator for WorkflowParser<'a> {
         let condition_type = self._next_byte_unchecked();
 
         let on_met_sep = self._find_on_met_separator();
-        let condition_value: usize = self.data[..on_met_sep]
+        let condition_value = self.data[..on_met_sep]
             .as_str_unchecked()
             .parse_unsigned_unchecked();
         self.data = &self.data[on_met_sep + 1..];
