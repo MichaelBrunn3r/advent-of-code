@@ -27,7 +27,7 @@ pub fn part_1(input: &str) -> usize {
                 }
             }
         })
-        .map(|part| part.0.iter().sum::<usize>())
+        .map(|part| part.0.iter().sum::<u16>() as usize)
         .sum::<usize>()
 }
 
@@ -145,10 +145,10 @@ pub enum Condition {
 }
 
 impl Condition {
-    fn is_met(&self, value: usize) -> bool {
+    fn is_met(&self, value: u16) -> bool {
         match self {
-            Self::LessThan(n) => value < *n as usize,
-            Self::GreaterThan(n) => value > *n as usize,
+            Self::LessThan(n) => value < *n,
+            Self::GreaterThan(n) => value > *n,
             Self::Any => true,
         }
     }
@@ -162,26 +162,26 @@ pub enum OnMet<'a> {
 }
 
 #[derive(Debug)]
-pub struct Part([usize; 4]);
+pub struct Part([u16; 4]);
 
 impl Part {
     #[inline(always)]
-    fn x(&self) -> usize {
+    fn x(&self) -> u16 {
         self.0[0]
     }
 
     #[inline(always)]
-    fn m(&self) -> usize {
+    fn m(&self) -> u16 {
         self.0[1]
     }
 
     #[inline(always)]
-    fn a(&self) -> usize {
+    fn a(&self) -> u16 {
         self.0[2]
     }
 
     #[inline(always)]
-    fn s(&self) -> usize {
+    fn s(&self) -> u16 {
         self.0[3]
     }
 }
