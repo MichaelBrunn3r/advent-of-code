@@ -24,7 +24,7 @@ pub fn part_1(input: &str) -> usize {
                     OnMet::Accept => return true,
                     OnMet::Reject => return false,
                     OnMet::Continue => {
-                        current_workflow = workflows[matching_rule.on_met_workflow as usize];
+                        current_workflow = workflows[matching_rule.on_met_id as usize];
                     }
                 }
             }
@@ -58,10 +58,7 @@ pub fn part_2(input: &str) -> usize {
                         accepted.push(xmas_ranges.clone());
                     }
                     OnMet::Continue => {
-                        stack.push((
-                            workflows[rule.on_met_workflow as usize],
-                            xmas_ranges.clone(),
-                        ));
+                        stack.push((workflows[rule.on_met_id as usize], xmas_ranges.clone()));
                     }
                     _ => {}
                 },
@@ -78,7 +75,6 @@ pub fn part_2(input: &str) -> usize {
                             new_ranges[rating_idx] = n + 1..=*new_ranges[rating_idx].end();
                             xmas_ranges[rating_idx] = *xmas_ranges[rating_idx].start()..=n;
                         }
-                        _ => {}
                     }
 
                     match rule.on_met {
@@ -86,7 +82,7 @@ pub fn part_2(input: &str) -> usize {
                             accepted.push(new_ranges);
                         }
                         OnMet::Continue => {
-                            stack.push((workflows[rule.on_met_workflow as usize], new_ranges));
+                            stack.push((workflows[rule.on_met_id as usize], new_ranges));
                         }
                         _ => {}
                     }
@@ -111,7 +107,7 @@ pub struct Rule {
     rating: Rating,
     condition: Condition,
     on_met: OnMet,
-    on_met_workflow: u16,
+    on_met_id: u16,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -142,19 +138,40 @@ pub enum Rating {
     Any,
 }
 
+impl Rating {
+    #[inline(always)]
+    fn from_ascii_char(c: u8) -> Self {
+        const LUT: [Rating; 121] = Rating::_create_lut();
+        LUT[c as usize]
+    }
+
+    const fn _create_lut() -> [Rating; 121] {
+        let mut lut = [Rating::Any; 121];
+        lut[b'x' as usize] = Rating::X;
+        lut[b'm' as usize] = Rating::M;
+        lut[b'a' as usize] = Rating::A;
+        lut[b's' as usize] = Rating::S;
+        lut
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
+#[repr(u8)]
 pub enum Condition {
-    LessThan(u16),
-    GreaterThan(u16),
-    Any,
+    LessThan(u16) = b'<',
+    GreaterThan(u16) = b'>',
 }
 
 impl Condition {
+    #[inline(always)]
+    fn from_ascii_char(c: u8, value: u32) -> Self {
+        unsafe { std::mem::transmute(c as u32 | value << 16) }
+    }
+
     fn is_met(&self, value: u16) -> bool {
         match self {
             Self::LessThan(n) => value < *n,
             Self::GreaterThan(n) => value > *n,
-            Self::Any => true,
         }
     }
 }

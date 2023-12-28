@@ -92,18 +92,18 @@ impl<'a> Iterator for WorkflowParser<'a> {
                     self.data = &self.data[3..]; // Skip '}\n'
                     Rule {
                         rating: Rating::Any,
-                        condition: Condition::Any,
+                        condition: Condition::LessThan(4001),
                         on_met: OnMet::Reject,
-                        on_met_workflow: u16::MAX,
+                        on_met_id: u16::MAX,
                     }
                 }
                 b'A' => {
                     self.data = &self.data[3..]; // Skip '}\n'
                     Rule {
                         rating: Rating::Any,
-                        condition: Condition::Any,
+                        condition: Condition::LessThan(4001),
                         on_met: OnMet::Accept,
-                        on_met_workflow: u16::MAX,
+                        on_met_id: u16::MAX,
                     }
                 }
                 _ => {
@@ -113,9 +113,9 @@ impl<'a> Iterator for WorkflowParser<'a> {
                     self.data = &self.data[rules_terminator + 2..]; // Skip '<on_met>}\n'
                     Rule {
                         rating: Rating::Any,
-                        condition: Condition::Any,
+                        condition: Condition::LessThan(0),
                         on_met: OnMet::Continue,
-                        on_met_workflow: on_met_id,
+                        on_met_id,
                     }
                 }
             };
@@ -132,27 +132,17 @@ impl<'a> Iterator for WorkflowParser<'a> {
             return Some(rule);
         }
 
-        let rating = match self._next_byte_unchecked() {
-            b'x' => Rating::X,
-            b'm' => Rating::M,
-            b'a' => Rating::A,
-            b's' => Rating::S,
-            _ => unreachable!("Invalid rating"),
-        };
+        let rating = Rating::from_ascii_char(self._next_byte_unchecked());
 
         let condition_type = self._next_byte_unchecked();
 
         let on_met_sep = self._find_on_met_separator();
-        let condition_value = self.data[..on_met_sep]
+        let condition_value: u32 = self.data[..on_met_sep]
             .as_str_unchecked()
             .parse_unsigned_unchecked();
         self.data = &self.data[on_met_sep + 1..];
 
-        let condition = match condition_type {
-            b'<' => Condition::LessThan(condition_value),
-            b'>' => Condition::GreaterThan(condition_value),
-            _ => unreachable!("Invalid condition"),
-        };
+        let condition = Condition::from_ascii_char(condition_type, condition_value);
 
         let (on_met, on_met_id) = match self.data[0] {
             b'A' => {
@@ -178,7 +168,7 @@ impl<'a> Iterator for WorkflowParser<'a> {
             rating,
             condition,
             on_met,
-            on_met_workflow: on_met_id,
+            on_met_id,
         })
     }
 }
