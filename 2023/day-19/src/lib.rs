@@ -119,13 +119,7 @@ pub enum OnMet {
 
 impl Rule {
     fn is_met(&self, part: &Part) -> bool {
-        match self.rating {
-            Rating::X => self.condition.is_met(part.x()),
-            Rating::M => self.condition.is_met(part.m()),
-            Rating::A => self.condition.is_met(part.a()),
-            Rating::S => self.condition.is_met(part.s()),
-            Rating::Any => true,
-        }
+        self.condition.is_met(part.0[self.rating as usize & 0b11])
     }
 }
 
@@ -135,7 +129,7 @@ pub enum Rating {
     M = 1,
     A = 2,
     S = 3,
-    Any,
+    Any = 4,
 }
 
 impl Rating {
@@ -178,25 +172,3 @@ impl Condition {
 
 #[derive(Debug)]
 pub struct Part([u16; 4]);
-
-impl Part {
-    #[inline(always)]
-    fn x(&self) -> u16 {
-        self.0[0]
-    }
-
-    #[inline(always)]
-    fn m(&self) -> u16 {
-        self.0[1]
-    }
-
-    #[inline(always)]
-    fn a(&self) -> u16 {
-        self.0[2]
-    }
-
-    #[inline(always)]
-    fn s(&self) -> u16 {
-        self.0[3]
-    }
-}

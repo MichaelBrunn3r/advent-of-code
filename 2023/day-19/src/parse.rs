@@ -113,7 +113,7 @@ impl<'a> Iterator for WorkflowParser<'a> {
                     self.data = &self.data[rules_terminator + 2..]; // Skip '<on_met>}\n'
                     Rule {
                         rating: Rating::Any,
-                        condition: Condition::LessThan(0),
+                        condition: Condition::LessThan(4001),
                         on_met: OnMet::Continue,
                         on_met_id,
                     }
