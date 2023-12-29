@@ -1,0 +1,61 @@
+digraph aoc {
+    broadcaster -> vl, cs, cn, ml
+    "zp" -> vl, lk, rd, kb, xl
+    "vl" -> lv, zp
+    "lv" -> zp, rd
+    "rd" -> lk
+    "lk" -> hc
+    "hc" -> kb, zp
+    "kb" -> pc
+    "pc" -> rz, zp
+    "rz" -> zp, fr
+    "fr" -> zp, mr
+    "mr" -> zp, jd
+    "jd" -> zp, mf
+    "mf" -> zp
+    "pp" -> ln, ml, xt, bq, nb
+    "sj" -> xp, qq, cn, fd, sn
+    "rg" -> cs, zb, cp, vz, gp
+    "rq" -> ch, sj
+    "nf" -> sm, rg
+    "xt" -> bc
+    "nt" -> kq, sj
+    "ml" -> pp, xt
+    "sq" -> kl, sj
+    "jg" -> fl, rg
+    "xl" -> df
+    "kl" -> mb, sj
+    "nd" -> rg, jg
+    "kk" -> rg, bj
+    "nb" -> qj
+    "pr" -> pp
+    "fl" -> nf, rg
+    "tb" -> pk, pp
+    "bh" -> pp, pr
+    "nh" -> sj, rq
+    "cp" -> kk
+    "ln" -> df
+    "xp" -> df
+    "bc" -> nb, pp
+    "lj" -> rg
+    "vz" -> nd
+    "gp" -> df
+    "hd" -> pp, bq
+    "fq" -> pp, bh
+    "pk" -> fq, pp
+    "cs" -> zb, rg
+    "sn" -> fd
+    "kq" -> sj, qq
+    "zb" -> vz
+    "qj" -> pp, hd
+    "fd" -> nt
+    "df" -> rx
+    "bq" -> tb
+    "cn" -> sn, sj
+    "qq" -> sq
+    "mb" -> sj, nh
+    "sm" -> rg, cp
+    "ch" -> sj
+    "bj" -> lj, rg
+
+}
