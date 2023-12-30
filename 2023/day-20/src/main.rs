@@ -5,8 +5,7 @@ use aoc_2023_20::*;
 fn main() {
     let input = aoc::read_input_to_string();
     println!("Part 1: {}", part_1(&input));
-    // println!("Part 1: {}", part_1(&aoc::read_example_to_string(1)));
-    println!("Part 2: {}", part_2(&input));
+    // println!("Part 2: {}", part_2(&input));
 }
 
 #[cfg(test)]

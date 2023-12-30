@@ -4,6 +4,7 @@ mod parse;
 
 use aoc::prelude::*;
 use arrayvec::ArrayVec;
+use core::num;
 use itertools::Itertools;
 use parse::ModuleParser;
 use regex::Regex;
@@ -14,13 +15,13 @@ use std::{
 };
 
 pub fn part_1(input: &str) -> usize {
-    let (mut modules, broadcaster_outputs) = parse_input(input);
+    let (mut modules, broadcaster_outputs, _) = parse_input(input);
 
     let mut num_pulses = [0, 0];
 
+    let mut queue = VecDeque::new();
     for i in 0..1000 {
-        let mut queue =
-            VecDeque::from_iter(broadcaster_outputs.iter().map(|output| (LOW, *output)));
+        queue.extend(broadcaster_outputs.iter().map(|output| (LOW, *output)));
 
         // Low pulse from the button to the broadcaster
         num_pulses[0] += 1;
@@ -48,10 +49,45 @@ pub fn part_1(input: &str) -> usize {
 }
 
 pub fn part_2(input: &str) -> usize {
-    0
+    let (mut modules, broadcaster_outputs, rx_id) = parse_input(input);
+
+    let mut num_btn_presses = 0;
+    'outer: loop {
+        num_btn_presses += 1;
+
+        if num_btn_presses % 1_000_000 == 0 {
+            println!("num_btn_presses: {}", num_btn_presses);
+        }
+
+        let mut queue =
+            VecDeque::from_iter(broadcaster_outputs.iter().map(|output| (LOW, *output)));
+
+        while !queue.is_empty() {
+            let (pulse_in, output) = queue.pop_front().unwrap();
+
+            if pulse_in == LOW && output.id == rx_id {
+                break 'outer;
+            }
+
+            let module = &mut modules[output.id as usize];
+
+            if let Some(pulse_out) = module.receive(pulse_in, output.input_idx) {
+                let outputs = match module {
+                    Module::FlipFlop(_, outputs) => outputs,
+                    Module::Conjunction(_, outputs) => outputs,
+                };
+
+                for output in outputs.iter() {
+                    queue.push_back((pulse_out, *output));
+                }
+            }
+        }
+    }
+
+    num_btn_presses
 }
 
-fn parse_input(input: &str) -> (ArrayVec<Module, 64>, ArrayVec<Output, 5>) {
+fn parse_input(input: &str) -> (ArrayVec<Module, 64>, ArrayVec<Output, 5>, u8) {
     let mut parser = ModuleParser::new(input.as_bytes());
     let mut modules: ArrayVec<Module, 64> = ArrayVec::new();
     unsafe { modules.set_len(64) };
@@ -68,10 +104,13 @@ fn parse_input(input: &str) -> (ArrayVec<Module, 64>, ArrayVec<Output, 5>) {
 
     // The parser does not create an "rx" module, because it has no outputs.
     // Instead we have to add it manually
-    if let Some(meta) = parser.name_to_module_meta.get("rx".as_bytes()) {
+    let rx_id = if let Some(meta) = parser.name_to_module_meta.get("rx".as_bytes()) {
         unsafe { modules.set_len(modules.len().max(meta.id as usize + 1)) }
         modules[meta.id as usize] = Module::FlipFlop(OFF, ArrayVec::new());
-    }
+        meta.id
+    } else {
+        0
+    };
 
     for (name, meta) in parser.name_to_module_meta {
         match &mut modules[meta.id as usize] {
@@ -84,7 +123,7 @@ fn parse_input(input: &str) -> (ArrayVec<Module, 64>, ArrayVec<Output, 5>) {
         }
     }
 
-    (modules, parser.broadcaster_outputs)
+    (modules, parser.broadcaster_outputs, rx_id)
 }
 
 pub type Pulse = bool;
