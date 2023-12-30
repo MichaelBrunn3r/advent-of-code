@@ -8,12 +8,7 @@ pub struct ModuleParser<'p> {
     data: &'p [u8],
     pub broadcaster_outputs: ArrayVec<Output, 5>,
     pub name_to_module_meta: HashMap<&'p [u8], ModuleMeta>,
-}
-
-#[derive(Debug)]
-pub struct ModuleMeta {
-    pub id: u8,
-    pub num_inputs: u8,
+    pub conjunctions: ArrayVec<u8, 9>,
 }
 
 impl<'p> ModuleParser<'p> {
@@ -22,6 +17,7 @@ impl<'p> ModuleParser<'p> {
             data,
             broadcaster_outputs: ArrayVec::new(),
             name_to_module_meta: HashMap::new(),
+            conjunctions: ArrayVec::new(),
         }
     }
 
@@ -93,8 +89,17 @@ impl<'p> Iterator for ModuleParser<'p> {
         let outputs = self.parse_outputs();
         match module_type {
             b'%' => Some((id, Module::FlipFlop(OFF, outputs))),
-            b'&' => Some((id, Module::Conjunction(0b1111_1111_1111_1111, outputs))),
+            b'&' => {
+                self.conjunctions.push(id);
+                Some((id, Module::Conjunction(0b1111_1111_1111_1111, outputs)))
+            }
             _ => unreachable!(),
         }
     }
+}
+
+#[derive(Debug)]
+pub struct ModuleMeta {
+    pub id: u8,
+    pub num_inputs: u8,
 }
