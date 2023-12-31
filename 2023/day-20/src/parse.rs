@@ -1,4 +1,4 @@
-use crate::{Module, Output, OFF};
+use crate::Module;
 use aoc::U8SliceExt;
 use arrayvec::ArrayVec;
 use core::num;
@@ -6,22 +6,22 @@ use std::collections::{hash_map::Entry, HashMap};
 
 pub struct ModuleParser<'p> {
     data: &'p [u8],
-    pub broadcaster_outputs: ArrayVec<Output, 5>,
-    pub name_to_module_meta: HashMap<&'p [u8], ModuleMeta>,
-    pub conjunctions: ArrayVec<u8, 9>,
+    pub modules: HashMap<&'p str, Module<'p>>,
+    pub broadcaster_outputs: ArrayVec<&'p str, 5>,
+    pub cycle_conjunctions: ArrayVec<&'p str, 4>,
 }
 
 impl<'p> ModuleParser<'p> {
     pub fn new(data: &'p [u8]) -> Self {
         Self {
             data,
+            modules: HashMap::new(),
             broadcaster_outputs: ArrayVec::new(),
-            name_to_module_meta: HashMap::new(),
-            conjunctions: ArrayVec::new(),
+            cycle_conjunctions: ArrayVec::new(),
         }
     }
 
-    fn num_outputs(&mut self) -> usize {
+    fn count_module_outputs(&mut self) -> usize {
         if self.data[2] == b'\n' {
             1
         } else if self.data[6] == b'\n' {
@@ -35,65 +35,56 @@ impl<'p> ModuleParser<'p> {
         }
     }
 
-    fn parse_outputs(&mut self) -> ArrayVec<Output, 5> {
+    fn parse_module_outputs(&mut self, num_outputs: usize) -> ArrayVec<&'p str, 5> {
         let mut outputs = ArrayVec::new();
-        for i in 0..self.num_outputs() - 1 {
-            let meta = self.name_to_meta(&self.data[..2]);
-            outputs.push(Output {
-                id: meta.id,
-                input_idx: meta.num_inputs,
-            });
-            meta.num_inputs += 1;
+        for i in 0..num_outputs - 1 {
+            outputs.push(self.data[..2].as_str_unchecked());
             self.data = &self.data["aa, ".len()..];
         }
 
         // Last output has no comma and ends with a newline
-        let meta = self.name_to_meta(&self.data[..2]);
-        outputs.push(Output {
-            id: meta.id,
-            input_idx: meta.num_inputs,
-        });
-        meta.num_inputs += 1;
+        outputs.push(self.data[..2].as_str_unchecked());
         self.data = &self.data["aa\n".len()..];
 
         outputs
     }
 
-    fn name_to_meta(&mut self, name: &'p [u8]) -> &mut ModuleMeta {
-        let id = self.name_to_module_meta.len() as u8;
-        self.name_to_module_meta
-            .entry(name)
-            .or_insert_with(|| ModuleMeta { id, num_inputs: 0 })
+    fn parse_broadcaster(&mut self) {
+        self.data = &self.data["broadcaster -> ".len()..];
+        let num_module_outputs = self.count_module_outputs();
+        self.broadcaster_outputs = self.parse_module_outputs(num_module_outputs);
     }
-}
 
-impl<'p> Iterator for ModuleParser<'p> {
-    type Item = (u8, Module);
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.data.is_empty() {
-            return None;
-        }
-
-        let mut module_type = self.data[0];
-
-        if module_type == b'b' {
-            self.data = &self.data["broadcaster -> ".len()..];
-            self.broadcaster_outputs = self.parse_outputs();
-            module_type = self.data[0];
-        }
-
-        let id = self.name_to_meta(&self.data[1..3]).id;
-        self.data = &self.data["%aa -> ".len()..];
-
-        let outputs = self.parse_outputs();
-        match module_type {
-            b'%' => Some((id, Module::FlipFlop(OFF, outputs))),
-            b'&' => {
-                self.conjunctions.push(id);
-                Some((id, Module::Conjunction(0b1111_1111_1111_1111, outputs)))
+    pub fn parse(&mut self) {
+        loop {
+            if self.data.is_empty() {
+                break;
             }
-            _ => unreachable!(),
+
+            if self.data[0] == b'b' {
+                self.parse_broadcaster();
+            };
+
+            let module_type = self.data[0];
+
+            let name = &self.data[1..3].as_str_unchecked();
+            self.data = &self.data["%aa -> ".len()..];
+
+            let num_module_outputs = self.count_module_outputs();
+            match module_type {
+                b'%' => {
+                    let module = Module::FlipFlop(self.parse_module_outputs(num_module_outputs));
+                    self.modules.insert(name, module);
+                }
+                b'&' => {
+                    let module = Module::Conjunction(self.parse_module_outputs(num_module_outputs));
+                    if num_module_outputs > 1 {
+                        self.cycle_conjunctions.push(name);
+                        self.modules.insert(name, module);
+                    }
+                }
+                _ => unreachable!(),
+            }
         }
     }
 }
