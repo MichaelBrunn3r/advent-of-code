@@ -14,44 +14,86 @@ use std::{
     ops,
 };
 
-const NUM_FFS_PER_CYCLE: usize = 12; // FF = FlipFlop
-const MAX_CYCLE_LEN: usize = 4096;
-const NUM_NOT_CONNECTED_FFS_PER_CYCLE: usize = 4;
+// L = low pulse, H = high pulse, FF = FlipFlop
+const N: usize = 1000;
+const NUM_CYCLES: usize = 4;
+const NUM_FFS_PER_CYCLE: u32 = 12;
+const NUM_NOT_CONNECTED_FFS_PER_CYCLE: usize = 3;
+const NUM_L_TO_BROADCASTER: usize = N;
+const NUM_L_FROM_BROADCASTER: usize = NUM_CYCLES * N;
+const NUM_L_BETWEEN_COUNTER_FFS: usize = N - N.count_ones() as usize;
+const NUM_H_BETWEEN_COUNTER_FFS: usize = N;
+const NUM_L_TO_CYCLE_CONJ: usize = calc_l_to_cycle_conjunction(N);
+const NUM_H_TO_CYCLE_CONJ: usize = calc_h_to_cycle_conjunction(N);
 
 pub fn part_1(input: &str) -> usize {
-    // let (mut modules, rx_id, broadcaster_outputs, _) = parse_input(input);
+    let mut num_low =
+        NUM_L_TO_BROADCASTER + NUM_L_FROM_BROADCASTER + NUM_CYCLES * NUM_L_BETWEEN_COUNTER_FFS;
+    let mut num_high = NUM_CYCLES * NUM_H_BETWEEN_COUNTER_FFS;
 
-    // let mut num_pulses = [0, 0];
+    let mut parser = ModuleParser::new(input.as_bytes());
+    parser.parse();
 
-    // let mut queue = VecDeque::new();
-    // for i in 0..1000 {
-    //     queue.extend(broadcaster_outputs.iter().map(|output| (LOW, *output)));
+    let (num_l_to_from_cycle_conjunctions, num_h_to_from_cycle_conjunctions) = parser
+        .broadcaster_outputs
+        .iter()
+        .map(|broadcast_output| {
+            // Each broadcast output is the first FlipFlop in a cycle
+            let start = parser.modules.get(broadcast_output).unwrap();
+            let start_outputs = start.outputs();
 
-    //     // Low pulse from the button to the broadcaster
-    //     num_pulses[0] += 1;
+            // Find the conjunction of the cycle
+            let (cycle_conj, mut next) = if parser.cycle_conjunctions.contains(&start_outputs[0]) {
+                (start_outputs[0], start_outputs[1])
+            } else {
+                (start_outputs[1], start_outputs[0])
+            };
 
-    //     while !queue.is_empty() {
-    //         let (pulse_in, output) = queue.pop_front().unwrap();
-    //         num_pulses[pulse_in as usize] += 1;
+            let mut num_l_to_cycle_conj = NUM_L_TO_CYCLE_CONJ;
+            let mut num_h_to_cycle_conj = NUM_H_TO_CYCLE_CONJ;
 
-    //         let module = &mut modules[output.id as usize];
+            let mut num_visited_not_connected_ffs = 0;
+            for bit_idx in 2..=NUM_FFS_PER_CYCLE {
+                let module = parser.modules.get(next).unwrap();
+                let outputs = module.outputs();
 
-    //         if let Some(pulse_out) = module.receive(pulse_in, output.input_idx) {
-    //             let outputs = match module {
-    //                 Module::FlipFlop(_, outputs) => outputs,
-    //                 Module::Conjunction(_, outputs) => outputs,
-    //             };
+                if outputs.len() == 1 {
+                    num_l_to_cycle_conj -= N / 2usize.pow(bit_idx);
+                    num_h_to_cycle_conj -= round_integer_division(N, 2usize.pow(bit_idx));
 
-    //             for output in outputs.iter() {
-    //                 queue.push_back((pulse_out, *output));
-    //             }
-    //         }
-    //     }
-    // }
+                    num_visited_not_connected_ffs += 1;
+                    if num_visited_not_connected_ffs == NUM_NOT_CONNECTED_FFS_PER_CYCLE {
+                        break;
+                    }
+                }
 
-    // num_pulses[0] * num_pulses[1]
-    0
+                next = if outputs[0] == cycle_conj {
+                    outputs[1]
+                } else {
+                    outputs[0]
+                };
+            }
+
+            let num_pulses_to_cycle_conj = num_l_to_cycle_conj + num_h_to_cycle_conj;
+
+            let num_l_from_cycle_conj = num_pulses_to_cycle_conj;
+            let num_h_from_cycle_conj = 6 * num_pulses_to_cycle_conj;
+
+            (
+                num_l_to_cycle_conj + num_l_from_cycle_conj,
+                num_h_to_cycle_conj + num_h_from_cycle_conj,
+            )
+        })
+        .reduce(|(acc_l, acc_h), (l, h)| (acc_l + l, acc_h + h))
+        .unwrap();
+
+    num_low += num_l_to_from_cycle_conjunctions;
+    num_high += num_h_to_from_cycle_conjunctions;
+
+    num_low * num_high
 }
+
+const MAX_CYCLE_PERIOD: usize = 2usize.pow(NUM_FFS_PER_CYCLE);
 
 pub fn part_2(input: &str) -> usize {
     let mut parser = ModuleParser::new(input.as_bytes());
@@ -72,18 +114,18 @@ pub fn part_2(input: &str) -> usize {
                 (start_outputs[1], start_outputs[0])
             };
 
-            let mut sum_not_connected = 1usize;
-            let mut num_not_connected_ffs = 1usize; // FF = FlipFlop
+            let mut cycle_period = MAX_CYCLE_PERIOD - 1;
+            let mut num_visited_not_connected_ffs = 0usize; // FF = FlipFlop
 
             for bit_idx in 1..=NUM_FFS_PER_CYCLE {
                 let module = parser.modules.get(next).unwrap();
                 let outputs = module.outputs();
 
                 if outputs.len() == 1 {
-                    sum_not_connected += 1 << bit_idx;
-                    num_not_connected_ffs += 1;
+                    cycle_period -= 1 << bit_idx;
 
-                    if num_not_connected_ffs == NUM_NOT_CONNECTED_FFS_PER_CYCLE {
+                    num_visited_not_connected_ffs += 1;
+                    if num_visited_not_connected_ffs == NUM_NOT_CONNECTED_FFS_PER_CYCLE {
                         break;
                     }
                 }
@@ -95,10 +137,40 @@ pub fn part_2(input: &str) -> usize {
                 };
             }
 
-            MAX_CYCLE_LEN - sum_not_connected
+            cycle_period
         })
         .reduce(|a, b| a.lcm(b))
         .unwrap()
+}
+
+const fn calc_l_to_cycle_conjunction(n: usize) -> usize {
+    let mut sum = 0usize;
+    let mut i = 1;
+    while i <= 10 {
+        sum += N / 2usize.pow(i);
+        i += 1;
+    }
+    sum
+}
+
+const fn calc_h_to_cycle_conjunction(n: usize) -> usize {
+    let mut sum = 0usize;
+    let mut i = 1;
+    while i <= 10 {
+        sum += round_integer_division(N, 2usize.pow(i));
+        i += 1;
+    }
+    sum
+}
+
+const fn round_integer_division(numerator: usize, denominator: usize) -> usize {
+    let div = (numerator * 10) / denominator;
+
+    if div % 10 >= 5 {
+        (div / 10) + 1
+    } else {
+        div / 10
+    }
 }
 
 pub enum Module<'m> {

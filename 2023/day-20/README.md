@@ -4,7 +4,7 @@
 
 ## Benchmarks (i5-1240P, with parsing, no I/O)
 
-- Part 1: `170.06 µs`
+- Part 1: `2.8690 µs`
 - Part 2: `2.8706 µs`
 
 ## Explanation
@@ -62,8 +62,8 @@ $\rightarrow \sum_H = \sum_{i=1..10} round(n/2^i) = 1000$
 **BUT:** In each cycle, there are 3 FFs that are not connected to the conjunction
 
 - `zp`:
-  - $\sum_L = \sum_{i=1..10\wedge i \not\in [3,4,6]} \lceil n/2^i \rceil = 994 - 202 = 792$
-  - $\sum_H = \sum_{i=1..10\wedge i \not\in [3,4,6]} \lceil n/2^i \rceil = 1000 - 204 = 796$
+  - $\sum_L = \sum_{i=1..10\wedge i \not\in [3,4,6]} \lfloor n/2^i \rfloor = 994 - 202 = 792$
+  - $\sum_H = \sum_{i=1..10\wedge i \not\in [3,4,6]} round(n/2^i) = 1000 - 204 = 796$
   - $\sum_{zp} = 792 + 796 = 1588$
 - `pp`:
   - $\sum_L = 994 - 319 = 675$
