@@ -37,9 +37,9 @@ pub fn part_1(input: &str) -> usize {
     let (num_l_to_from_cycle_conjunctions, num_h_to_from_cycle_conjunctions) = parser
         .broadcaster_outputs
         .iter()
-        .map(|broadcast_output| {
+        .map(|&broadcast_output| {
             // Each broadcast output is the first FlipFlop in a cycle
-            let start = parser.modules.get(broadcast_output).unwrap();
+            let start = &parser.modules[broadcast_output];
             let start_outputs = start.outputs();
 
             // Find the conjunction of the cycle
@@ -54,7 +54,7 @@ pub fn part_1(input: &str) -> usize {
 
             let mut num_visited_not_connected_ffs = 0;
             for bit_idx in 2..=NUM_FFS_PER_CYCLE {
-                let module = parser.modules.get(next).unwrap();
+                let module = &parser.modules[next];
                 let outputs = module.outputs();
 
                 if outputs.len() == 1 {
@@ -102,9 +102,9 @@ pub fn part_2(input: &str) -> usize {
     parser
         .broadcaster_outputs
         .iter()
-        .map(|broadcast_output| {
+        .map(|&broadcast_output| {
             // Each broadcast output is the first FlipFlop in a cycle
-            let start = parser.modules.get(broadcast_output).unwrap();
+            let start = &parser.modules[broadcast_output];
             let start_outputs = start.outputs();
 
             // Find the conjunction of the cycle
@@ -118,7 +118,7 @@ pub fn part_2(input: &str) -> usize {
             let mut num_visited_not_connected_ffs = 0usize; // FF = FlipFlop
 
             for bit_idx in 1..=NUM_FFS_PER_CYCLE {
-                let module = parser.modules.get(next).unwrap();
+                let module = &parser.modules[next];
                 let outputs = module.outputs();
 
                 if outputs.len() == 1 {
@@ -173,13 +173,13 @@ const fn round_integer_division(numerator: usize, denominator: usize) -> usize {
     }
 }
 
-pub enum Module<'m> {
-    FlipFlop(ArrayVec<&'m str, 5>),
-    Conjunction(ArrayVec<&'m str, 5>),
+pub enum Module {
+    FlipFlop(ArrayVec<usize, 5>),
+    Conjunction(ArrayVec<usize, 5>),
 }
 
-impl<'m> Module<'m> {
-    fn outputs(&self) -> &[&'m str] {
+impl Module {
+    fn outputs(&self) -> &[usize] {
         match self {
             Module::FlipFlop(outputs) => outputs,
             Module::Conjunction(outputs) => outputs,

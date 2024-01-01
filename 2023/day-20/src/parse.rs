@@ -6,16 +6,16 @@ use std::collections::{hash_map::Entry, HashMap};
 
 pub struct ModuleParser<'p> {
     data: &'p [u8],
-    pub modules: HashMap<&'p str, Module<'p>>,
-    pub broadcaster_outputs: ArrayVec<&'p str, 5>,
-    pub cycle_conjunctions: ArrayVec<&'p str, 4>,
+    pub modules: [Module; 676],
+    pub broadcaster_outputs: ArrayVec<usize, 5>,
+    pub cycle_conjunctions: ArrayVec<usize, 4>,
 }
 
 impl<'p> ModuleParser<'p> {
     pub fn new(data: &'p [u8]) -> Self {
         Self {
             data,
-            modules: HashMap::new(),
+            modules: unsafe { std::mem::zeroed() },
             broadcaster_outputs: ArrayVec::new(),
             cycle_conjunctions: ArrayVec::new(),
         }
@@ -35,15 +35,15 @@ impl<'p> ModuleParser<'p> {
         }
     }
 
-    fn parse_module_outputs(&mut self, num_outputs: usize) -> ArrayVec<&'p str, 5> {
+    fn parse_module_outputs(&mut self, num_outputs: usize) -> ArrayVec<usize, 5> {
         let mut outputs = ArrayVec::new();
         for i in 0..num_outputs - 1 {
-            outputs.push(self.data[..2].as_str_unchecked());
+            outputs.push(self.hash(&self.data[..2]));
             self.data = &self.data["aa, ".len()..];
         }
 
         // Last output has no comma and ends with a newline
-        outputs.push(self.data[..2].as_str_unchecked());
+        outputs.push(self.hash(&self.data[..2]));
         self.data = &self.data["aa\n".len()..];
 
         outputs
@@ -53,6 +53,10 @@ impl<'p> ModuleParser<'p> {
         self.data = &self.data["broadcaster -> ".len()..];
         let num_module_outputs = self.count_module_outputs();
         self.broadcaster_outputs = self.parse_module_outputs(num_module_outputs);
+    }
+
+    fn hash(&self, name: &[u8]) -> usize {
+        (name[0] - b'a') as usize + ((name[1] - b'a') as usize) * 26
     }
 
     pub fn parse(&mut self) {
@@ -67,20 +71,20 @@ impl<'p> ModuleParser<'p> {
 
             let module_type = self.data[0];
 
-            let name = &self.data[1..3].as_str_unchecked();
+            let hash = self.hash(&self.data[1..3]);
             self.data = &self.data["%aa -> ".len()..];
 
             let num_module_outputs = self.count_module_outputs();
             match module_type {
                 b'%' => {
                     let module = Module::FlipFlop(self.parse_module_outputs(num_module_outputs));
-                    self.modules.insert(name, module);
+                    self.modules[hash] = module;
                 }
                 b'&' => {
                     let module = Module::Conjunction(self.parse_module_outputs(num_module_outputs));
                     if num_module_outputs > 1 {
-                        self.cycle_conjunctions.push(name);
-                        self.modules.insert(name, module);
+                        self.cycle_conjunctions.push(hash);
+                        self.modules[hash] = module;
                     }
                 }
                 _ => unreachable!(),
