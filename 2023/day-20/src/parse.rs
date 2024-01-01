@@ -1,14 +1,27 @@
-use crate::Module;
 use aoc::U8SliceExt;
 use arrayvec::ArrayVec;
 use core::num;
 use std::collections::{hash_map::Entry, HashMap};
 
+pub enum Module {
+    FlipFlop(ArrayVec<u16, 5>),
+    Conjunction(ArrayVec<u16, 5>),
+}
+
+impl Module {
+    pub fn outputs(&self) -> &[u16] {
+        match self {
+            Module::FlipFlop(outputs) => outputs,
+            Module::Conjunction(outputs) => outputs,
+        }
+    }
+}
+
 pub struct ModuleParser<'p> {
     data: &'p [u8],
     pub modules: [Module; 676],
-    pub broadcaster_outputs: ArrayVec<usize, 5>,
-    pub cycle_conjunctions: ArrayVec<usize, 4>,
+    pub broadcaster_outputs: ArrayVec<u16, 5>,
+    pub cycle_conjunctions: ArrayVec<u16, 4>,
 }
 
 impl<'p> ModuleParser<'p> {
@@ -35,7 +48,7 @@ impl<'p> ModuleParser<'p> {
         }
     }
 
-    fn parse_module_outputs(&mut self, num_outputs: usize) -> ArrayVec<usize, 5> {
+    fn parse_module_outputs(&mut self, num_outputs: usize) -> ArrayVec<u16, 5> {
         let mut outputs = ArrayVec::new();
         for i in 0..num_outputs - 1 {
             outputs.push(self.hash(&self.data[..2]));
@@ -55,8 +68,8 @@ impl<'p> ModuleParser<'p> {
         self.broadcaster_outputs = self.parse_module_outputs(num_module_outputs);
     }
 
-    fn hash(&self, name: &[u8]) -> usize {
-        (name[0] - b'a') as usize + ((name[1] - b'a') as usize) * 26
+    fn hash(&self, name: &[u8]) -> u16 {
+        (name[0] - b'a') as u16 + ((name[1] - b'a') as u16) * 26
     }
 
     pub fn parse(&mut self) {
@@ -78,13 +91,13 @@ impl<'p> ModuleParser<'p> {
             match module_type {
                 b'%' => {
                     let module = Module::FlipFlop(self.parse_module_outputs(num_module_outputs));
-                    self.modules[hash] = module;
+                    self.modules[hash as usize] = module;
                 }
                 b'&' => {
                     let module = Module::Conjunction(self.parse_module_outputs(num_module_outputs));
                     if num_module_outputs > 1 {
                         self.cycle_conjunctions.push(hash);
-                        self.modules[hash] = module;
+                        self.modules[hash as usize] = module;
                     }
                 }
                 _ => unreachable!(),

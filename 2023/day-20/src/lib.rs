@@ -39,7 +39,7 @@ pub fn part_1(input: &str) -> usize {
         .iter()
         .map(|&broadcast_output| {
             // Each broadcast output is the first FlipFlop in a cycle
-            let start = &parser.modules[broadcast_output];
+            let start = &parser.modules[broadcast_output as usize];
             let start_outputs = start.outputs();
 
             // Find the conjunction of the cycle
@@ -54,7 +54,7 @@ pub fn part_1(input: &str) -> usize {
 
             let mut num_visited_not_connected_ffs = 0;
             for bit_idx in 2..=NUM_FFS_PER_CYCLE {
-                let module = &parser.modules[next];
+                let module = &parser.modules[next as usize];
                 let outputs = module.outputs();
 
                 if outputs.len() == 1 {
@@ -104,7 +104,7 @@ pub fn part_2(input: &str) -> usize {
         .iter()
         .map(|&broadcast_output| {
             // Each broadcast output is the first FlipFlop in a cycle
-            let start = &parser.modules[broadcast_output];
+            let start = &parser.modules[broadcast_output as usize];
             let start_outputs = start.outputs();
 
             // Find the conjunction of the cycle
@@ -118,7 +118,7 @@ pub fn part_2(input: &str) -> usize {
             let mut num_visited_not_connected_ffs = 0usize; // FF = FlipFlop
 
             for bit_idx in 1..=NUM_FFS_PER_CYCLE {
-                let module = &parser.modules[next];
+                let module = &parser.modules[next as usize];
                 let outputs = module.outputs();
 
                 if outputs.len() == 1 {
@@ -170,19 +170,5 @@ const fn round_integer_division(numerator: usize, denominator: usize) -> usize {
         (div / 10) + 1
     } else {
         div / 10
-    }
-}
-
-pub enum Module {
-    FlipFlop(ArrayVec<usize, 5>),
-    Conjunction(ArrayVec<usize, 5>),
-}
-
-impl Module {
-    fn outputs(&self) -> &[usize] {
-        match self {
-            Module::FlipFlop(outputs) => outputs,
-            Module::Conjunction(outputs) => outputs,
-        }
     }
 }
