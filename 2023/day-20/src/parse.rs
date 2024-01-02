@@ -44,26 +44,31 @@ impl<'p> ModuleParser<'p> {
         }
     }
 
-    fn parse_module_outputs<const N: usize>(&mut self, num_outputs: usize) -> ArrayVec<u16, N> {
-        let mut outputs = ArrayVec::new();
+    fn parse_module_outputs_inplace<const N: usize>(
+        num_outputs: usize,
+        outputs: &mut ArrayVec<u16, N>,
+        mut data: &'p [u8],
+    ) -> &'p [u8] {
+        outputs.clear();
         for i in 0..num_outputs - 1 {
-            outputs.push(self.hash(&self.data[..2]));
-            self.data = &self.data["aa, ".len()..];
+            unsafe { outputs.push_unchecked(Self::hash(&data[..2])) };
+            data = &data["aa, ".len()..];
         }
 
         // Last output has no comma and ends with a newline
-        outputs.push(self.hash(&self.data[..2]));
-        self.data = &self.data["aa\n".len()..];
+        unsafe { outputs.push_unchecked(Self::hash(&data[..2])) };
+        data = &data["aa\n".len()..];
 
-        outputs
+        data
     }
 
     fn parse_broadcaster(&mut self) {
         self.data = &self.data["broadcaster -> ".len()..];
-        self.broadcaster_outputs = self.parse_module_outputs(4);
+        self.data =
+            Self::parse_module_outputs_inplace::<5>(4, &mut self.broadcaster_outputs, self.data);
     }
 
-    fn hash(&self, name: &[u8]) -> u16 {
+    fn hash(name: &[u8]) -> u16 {
         (name[0] - b'a') as u16 + (((name[1] - b'a') as u16) << 5)
     }
 
@@ -79,21 +84,22 @@ impl<'p> ModuleParser<'p> {
             let module_type = self.data[0];
 
             let name = &self.data[1..3];
-            let hash = self.hash(name);
+            let hash = Self::hash(name);
             self.data = &self.data["%aa -> ".len()..];
 
             match module_type {
                 b'%' => {
                     let num_module_outputs = self.count_flipflip_outputs();
-                    let module = FlipFlop {
-                        outputs: self.parse_module_outputs::<2>(num_module_outputs),
-                    };
-                    self.modules[hash as usize] = module;
+                    self.data = Self::parse_module_outputs_inplace::<2>(
+                        num_module_outputs,
+                        &mut self.modules[hash as usize].outputs,
+                        self.data,
+                    );
                 }
                 b'&' => {
                     let num_module_outputs = self.count_conjunction_outputs();
                     if num_module_outputs == 5 {
-                        self.cycle_conjunctions.push(hash); // Only store cycle conjunctions
+                        unsafe { self.cycle_conjunctions.push_unchecked(hash) }; // Only store cycle conjunctions
                         self.data = &self.data["aa, bb, cc, dd, ee\n".len()..]; // Skip outputs
                     } else {
                         self.data = &self.data["aa\n".len()..]; // Skip other conjunctions
