@@ -20,3 +20,7 @@ harness = false
 [[bench]]
 name = "part_2"
 harness = false
+
+[[bench]]
+name = "parse"
+harness = false

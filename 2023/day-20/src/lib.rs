@@ -1,6 +1,6 @@
 #![allow(unused_imports, unused_variables)]
 
-mod parse;
+pub mod parse;
 
 use aoc::prelude::*;
 use arrayvec::ArrayVec;

@@ -87,3 +87,7 @@ bench1-day-nightly year day:
 alias bd2 := bench2-day
 bench2-day year day:
     cargo bench -p aoc-{{year}}-{{day}} --bench part_2
+
+alias bdp := bench-parse-day
+bench-parse-day year day:
+    cargo bench -p aoc-{{year}}-{{day}} --bench parse
