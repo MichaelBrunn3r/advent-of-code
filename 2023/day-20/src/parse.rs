@@ -3,25 +3,15 @@ use arrayvec::ArrayVec;
 use core::num;
 use std::collections::{hash_map::Entry, HashMap};
 
-static mut MODULES: [Module; 858] = unsafe { std::mem::zeroed() };
+static mut MODULES: [FlipFlop; 858] = unsafe { std::mem::zeroed() };
 
-pub enum Module {
-    FlipFlop(ArrayVec<u16, 5>),
-    Conjunction(ArrayVec<u16, 5>),
-}
-
-impl Module {
-    pub fn outputs(&self) -> &[u16] {
-        match self {
-            Module::FlipFlop(outputs) => outputs,
-            Module::Conjunction(outputs) => outputs,
-        }
-    }
+pub struct FlipFlop {
+    pub outputs: ArrayVec<u16, 2>,
 }
 
 pub struct ModuleParser<'p> {
     data: &'p [u8],
-    pub modules: &'p mut [Module; 858],
+    pub modules: &'p mut [FlipFlop; 858],
     pub broadcaster_outputs: ArrayVec<u16, 5>,
     pub cycle_conjunctions: ArrayVec<u16, 4>,
 }
@@ -54,7 +44,7 @@ impl<'p> ModuleParser<'p> {
         }
     }
 
-    fn parse_module_outputs(&mut self, num_outputs: usize) -> ArrayVec<u16, 5> {
+    fn parse_module_outputs<const N: usize>(&mut self, num_outputs: usize) -> ArrayVec<u16, N> {
         let mut outputs = ArrayVec::new();
         for i in 0..num_outputs - 1 {
             outputs.push(self.hash(&self.data[..2]));
@@ -95,15 +85,18 @@ impl<'p> ModuleParser<'p> {
             match module_type {
                 b'%' => {
                     let num_module_outputs = self.count_flipflip_outputs();
-                    let module = Module::FlipFlop(self.parse_module_outputs(num_module_outputs));
+                    let module = FlipFlop {
+                        outputs: self.parse_module_outputs::<2>(num_module_outputs),
+                    };
                     self.modules[hash as usize] = module;
                 }
                 b'&' => {
                     let num_module_outputs = self.count_conjunction_outputs();
-                    let module = Module::Conjunction(self.parse_module_outputs(num_module_outputs));
-                    if num_module_outputs > 1 {
-                        self.cycle_conjunctions.push(hash);
-                        self.modules[hash as usize] = module;
+                    if num_module_outputs == 5 {
+                        self.cycle_conjunctions.push(hash); // Only store cycle conjunctions
+                        self.data = &self.data["aa, bb, cc, dd, ee\n".len()..]; // Skip outputs
+                    } else {
+                        self.data = &self.data["aa\n".len()..]; // Skip other conjunctions
                     }
                 }
                 _ => unreachable!(),

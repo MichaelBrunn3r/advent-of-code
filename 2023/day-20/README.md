@@ -4,9 +4,9 @@
 
 ## Benchmarks (i5-1240P, with parsing, no I/O)
 
-- Part 1: `378.57 ns`
-- Part 2: `338.40 ns`
-- Parsing: `318.17 ns`
+- Part 1: `332.78 ns`
+- Part 2: `284.55 ns`
+- Parsing: `271.63 ns`
 
 ## Explanation
 

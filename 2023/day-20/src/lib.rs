@@ -40,13 +40,12 @@ pub fn part_1(input: &str) -> usize {
         .map(|&broadcast_output| {
             // Each broadcast output is the first FlipFlop in a cycle
             let start = &parser.modules[broadcast_output as usize];
-            let start_outputs = start.outputs();
 
             // Find the conjunction of the cycle
-            let (cycle_conj, mut next) = if parser.cycle_conjunctions.contains(&start_outputs[0]) {
-                (start_outputs[0], start_outputs[1])
+            let (cycle_conj, mut next) = if parser.cycle_conjunctions.contains(&start.outputs[0]) {
+                (start.outputs[0], start.outputs[1])
             } else {
-                (start_outputs[1], start_outputs[0])
+                (start.outputs[1], start.outputs[0])
             };
 
             let mut num_l_to_cycle_conj = NUM_L_TO_CYCLE_CONJ;
@@ -54,10 +53,9 @@ pub fn part_1(input: &str) -> usize {
 
             let mut num_visited_not_connected_ffs = 0;
             for bit_idx in 2..=NUM_FFS_PER_CYCLE {
-                let module = &parser.modules[next as usize];
-                let outputs = module.outputs();
+                let flipflop = &parser.modules[next as usize];
 
-                if outputs.len() == 1 {
+                if flipflop.outputs.len() == 1 {
                     num_l_to_cycle_conj -= N / 2usize.pow(bit_idx);
                     num_h_to_cycle_conj -= round_integer_division(N, 2usize.pow(bit_idx));
 
@@ -67,10 +65,10 @@ pub fn part_1(input: &str) -> usize {
                     }
                 }
 
-                next = if outputs[0] == cycle_conj {
-                    outputs[1]
+                next = if flipflop.outputs[0] == cycle_conj {
+                    flipflop.outputs[1]
                 } else {
-                    outputs[0]
+                    flipflop.outputs[0]
                 };
             }
 
@@ -105,23 +103,21 @@ pub fn part_2(input: &str) -> usize {
         .map(|&broadcast_output| {
             // Each broadcast output is the first FlipFlop in a cycle
             let start = &parser.modules[broadcast_output as usize];
-            let start_outputs = start.outputs();
 
             // Find the conjunction of the cycle
-            let (cycle_conj, mut next) = if parser.cycle_conjunctions.contains(&start_outputs[0]) {
-                (start_outputs[0], start_outputs[1])
+            let (cycle_conj, mut next) = if parser.cycle_conjunctions.contains(&start.outputs[0]) {
+                (start.outputs[0], start.outputs[1])
             } else {
-                (start_outputs[1], start_outputs[0])
+                (start.outputs[1], start.outputs[0])
             };
 
             let mut cycle_period = MAX_CYCLE_PERIOD - 1;
             let mut num_visited_not_connected_ffs = 0usize; // FF = FlipFlop
 
             for bit_idx in 1..=NUM_FFS_PER_CYCLE {
-                let module = &parser.modules[next as usize];
-                let outputs = module.outputs();
+                let flipflop = &parser.modules[next as usize];
 
-                if outputs.len() == 1 {
+                if flipflop.outputs.len() == 1 {
                     cycle_period -= 1 << bit_idx;
 
                     num_visited_not_connected_ffs += 1;
@@ -130,10 +126,10 @@ pub fn part_2(input: &str) -> usize {
                     }
                 }
 
-                next = if outputs[0] == cycle_conj {
-                    outputs[1]
+                next = if flipflop.outputs[0] == cycle_conj {
+                    flipflop.outputs[1]
                 } else {
-                    outputs[0]
+                    flipflop.outputs[0]
                 };
             }
 
