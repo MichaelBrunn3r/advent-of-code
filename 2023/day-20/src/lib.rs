@@ -139,8 +139,7 @@ pub fn part_2(input: &str) -> usize {
 
             cycle_period
         })
-        .reduce(|a, b| a.lcm(b))
-        .unwrap()
+        .product() // Product = LCM, because cycle periods are co-prime
 }
 
 const fn calc_l_to_cycle_conjunction(n: usize) -> usize {

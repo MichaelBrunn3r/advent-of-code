@@ -5,7 +5,7 @@
 ## Benchmarks (i5-1240P, with parsing, no I/O)
 
 - Part 1: `650.82 ns`
-- Part 2: `674.96 ns`
+- Part 2: `656.97 ns`
 
 ## Explanation
 
@@ -120,6 +120,8 @@ $\rightarrow$ We need to find the LCM of all cycle periods
 Each cycle has a shorter cycle period than $2^{12}$, because some FFs are not connected to the conjunction\
 $\rightarrow$ We sum up the power of 2 each not-connected FF represents and subtract that from $2^{12}$
 
-**Example:** Cycle `zp`\
+Example: Cycle `zp`\
  Sum of not-connected: $2^0 + 2^2 + 2^3 + 2^5 = 1 + 4 + 8 + 32 = 45$\
  $\rightarrow$ Cycle period $= 2^{12} - 45 = 4051$
+
+All cycle periods turn out to be co-prime $\rightarrow$ We can use the product of all cycle periods instead of LCM
