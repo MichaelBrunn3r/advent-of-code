@@ -34,17 +34,21 @@ impl<'p> ModuleParser<'p> {
         }
     }
 
-    fn count_module_outputs(&mut self) -> usize {
+    fn count_conjunction_outputs(&mut self) -> usize {
+        // #Outputs: {1:5, 4:4}
         if self.data[2] == b'\n' {
             1
-        } else if self.data[6] == b'\n' {
-            2
-        } else if self.data[18] == b'\n' {
-            5
-        } else if self.data[14] == b'\n' {
-            4
         } else {
-            3
+            5
+        }
+    }
+
+    fn count_flipflip_outputs(&mut self) -> usize {
+        // #Outputs: {1:16, 2:32}
+        if self.data[2] == b'\n' {
+            1
+        } else {
+            2
         }
     }
 
@@ -64,8 +68,7 @@ impl<'p> ModuleParser<'p> {
 
     fn parse_broadcaster(&mut self) {
         self.data = &self.data["broadcaster -> ".len()..];
-        let num_module_outputs = self.count_module_outputs();
-        self.broadcaster_outputs = self.parse_module_outputs(num_module_outputs);
+        self.broadcaster_outputs = self.parse_module_outputs(4);
     }
 
     fn hash(&self, name: &[u8]) -> u16 {
@@ -81,19 +84,20 @@ impl<'p> ModuleParser<'p> {
             if self.data[0] == b'b' {
                 self.parse_broadcaster();
             };
-
             let module_type = self.data[0];
 
-            let hash = self.hash(&self.data[1..3]);
+            let name = &self.data[1..3];
+            let hash = self.hash(name);
             self.data = &self.data["%aa -> ".len()..];
 
-            let num_module_outputs = self.count_module_outputs();
             match module_type {
                 b'%' => {
+                    let num_module_outputs = self.count_flipflip_outputs();
                     let module = Module::FlipFlop(self.parse_module_outputs(num_module_outputs));
                     self.modules[hash as usize] = module;
                 }
                 b'&' => {
+                    let num_module_outputs = self.count_conjunction_outputs();
                     let module = Module::Conjunction(self.parse_module_outputs(num_module_outputs));
                     if num_module_outputs > 1 {
                         self.cycle_conjunctions.push(hash);
