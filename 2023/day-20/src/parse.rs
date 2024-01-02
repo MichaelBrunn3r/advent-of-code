@@ -3,7 +3,7 @@ use arrayvec::ArrayVec;
 use core::num;
 use std::collections::{hash_map::Entry, HashMap};
 
-static mut MODULES: [Module; 676] = unsafe { std::mem::zeroed() };
+static mut MODULES: [Module; 858] = unsafe { std::mem::zeroed() };
 
 pub enum Module {
     FlipFlop(ArrayVec<u16, 5>),
@@ -21,7 +21,7 @@ impl Module {
 
 pub struct ModuleParser<'p> {
     data: &'p [u8],
-    pub modules: &'p mut [Module; 676],
+    pub modules: &'p mut [Module; 858],
     pub broadcaster_outputs: ArrayVec<u16, 5>,
     pub cycle_conjunctions: ArrayVec<u16, 4>,
 }
@@ -74,7 +74,7 @@ impl<'p> ModuleParser<'p> {
     }
 
     fn hash(&self, name: &[u8]) -> u16 {
-        (name[0] - b'a') as u16 + ((name[1] - b'a') as u16) * 26
+        (name[0] - b'a') as u16 + (((name[1] - b'a') as u16) << 5)
     }
 
     pub fn parse(&mut self) {
