@@ -8,6 +8,7 @@ use core::num;
 use itertools::Itertools;
 use parse::ModuleParser;
 use regex::Regex;
+use std::arch::asm;
 use std::{
     collections::{HashMap, VecDeque},
     fmt::Formatter,
@@ -56,8 +57,21 @@ pub fn part_1(input: &str) -> usize {
                 let flipflop = &parser.modules[next as usize];
 
                 if flipflop.outputs.len() == 1 {
-                    num_l_to_cycle_conj -= N / 2usize.pow(bit_idx);
-                    num_h_to_cycle_conj -= round_integer_division(N, 2usize.pow(bit_idx));
+                    num_l_to_cycle_conj -= N >> bit_idx;
+
+                    // Calculates: `num_h_to_cycle_conj -= round(N / 2^bit_idx)`
+                    // Divide by shifting right and then round by adding the carry bit.
+                    // Carry=1 indicates remainder >= 0.5, in which case we need to round up.
+                    let n = N;
+                    unsafe {
+                        asm!(
+                            "shr {n}, cl",
+                            "sbb {num_h_to_cycle_conj}, {n}",
+                            n = in(reg) n,
+                            in("ecx") bit_idx,
+                            num_h_to_cycle_conj = inout(reg) num_h_to_cycle_conj,
+                        );
+                    }
 
                     num_visited_not_connected_ffs += 1;
                     if num_visited_not_connected_ffs == NUM_NOT_CONNECTED_FFS_PER_CYCLE {
@@ -152,18 +166,8 @@ const fn calc_h_to_cycle_conjunction(n: usize) -> usize {
     let mut sum = 0usize;
     let mut i = 1;
     while i <= 10 {
-        sum += round_integer_division(N, 2usize.pow(i));
+        sum += (n >> i) + (n & 1 << (i - 1) != 0) as usize;
         i += 1;
     }
     sum
-}
-
-const fn round_integer_division(numerator: usize, denominator: usize) -> usize {
-    let div = (numerator * 10) / denominator;
-
-    if div % 10 >= 5 {
-        (div / 10) + 1
-    } else {
-        div / 10
-    }
 }
