@@ -76,14 +76,6 @@ alias bd := bench-day
 bench-day year day benchmark:
     cargo bench -p aoc-{{year}}-{{day}} --bench {{benchmark}}
 
-alias bd1 := bench1-day
-bench1-day year day:
-    cargo bench -p aoc-{{year}}-{{day}} --bench part_1
-
-alias bd1n := bench1-day-nightly
-bench1-day-nightly year day:
-    cargo +nightly bench -p aoc-{{year}}-{{day}} --bench part_1
-
-alias bd2 := bench2-day
-bench2-day year day:
-    cargo bench -p aoc-{{year}}-{{day}} --bench part_2
+alias bdn := bench-day-nightly
+bench-day-nightly year day benchmark:
+    cargo +nightly bench -p aoc-{{year}}-{{day}} --bench {{benchmark}}
