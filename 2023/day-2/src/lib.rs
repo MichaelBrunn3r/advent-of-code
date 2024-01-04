@@ -1,11 +1,14 @@
+use parse::GameIterator;
+
+pub mod parse;
+
 pub fn part_1(input: &str) -> usize {
-    let games = input.split('\n').map(|line| parse_game(line));
-    let possible_games = games.filter(|game| {
-        game.reveals
+    let possible_games = GameIterator::new(input.as_ptr()).filter(|(_, reveals)| {
+        reveals
             .iter()
             .all(|reveal| reveal.red <= 12 && reveal.green <= 13 && reveal.blue <= 14)
     });
-    possible_games.map(|game| game.gid as usize).sum()
+    possible_games.map(|(gid, _)| gid).sum()
 }
 
 pub fn part_2(input: &str) -> usize {
