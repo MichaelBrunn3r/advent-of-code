@@ -15,61 +15,55 @@ pub fn part_1(input: &str) -> usize {
                 data = data.offset(10);
             }
 
-            'reveals: loop {
-                'sets: for _ in 0..3 {
-                    // #AmountDigits = {1:956, 2:288}
-                    if *data.offset(1) == b' ' {
-                        match *data.offset("1 ".len() as isize) {
-                            b'r' => {
-                                data = data.offset("1 red".len() as isize);
-                            }
-                            b'g' => {
-                                data = data.offset("1 green".len() as isize);
-                            }
-                            b'b' => {
-                                data = data.offset("1 blue".len() as isize);
-                            }
-                            _ => {}
+            'game: loop {
+                // #AmountDigits = {1:956, 2:288}
+                if *data.offset(1) == b' ' {
+                    match *data.offset("1 ".len() as isize) {
+                        b'r' => {
+                            data = data.offset("1 red".len() as isize);
                         }
-                    } else {
-                        let mut amount = *data - b'0';
-                        amount = amount * 10 + (*data.offset(1) - b'0');
-
-                        match *data.offset("12 ".len() as isize) {
-                            b'r' => {
-                                if amount > 12 {
-                                    is_game_valid = false;
-                                }
-                                data = data.offset("12 red".len() as isize);
-                            }
-                            b'g' => {
-                                if amount > 13 {
-                                    is_game_valid = false;
-                                }
-                                data = data.offset("12 green".len() as isize);
-                            }
-                            b'b' => {
-                                if amount > 14 {
-                                    is_game_valid = false;
-                                }
-                                data = data.offset("12 blue".len() as isize);
-                            }
-                            _ => {}
+                        b'g' => {
+                            data = data.offset("1 green".len() as isize);
                         }
+                        b'b' => {
+                            data = data.offset("1 blue".len() as isize);
+                        }
+                        _ => {}
                     }
+                } else {
+                    let mut amount = *data - b'0';
+                    amount = amount * 10 + (*data.offset(1) - b'0');
 
-                    match *data {
-                        b';' => {
-                            data = data.offset("; ".len() as isize);
-                            break 'sets;
+                    match *data.offset("12 ".len() as isize) {
+                        b'r' => {
+                            if amount > 12 {
+                                is_game_valid = false;
+                            }
+                            data = data.offset("12 red".len() as isize);
                         }
-                        b',' => {
-                            data = data.offset(", ".len() as isize);
+                        b'g' => {
+                            if amount > 13 {
+                                is_game_valid = false;
+                            }
+                            data = data.offset("12 green".len() as isize);
                         }
-                        _ => {
-                            data = data.offset("\n".len() as isize);
-                            break 'reveals;
+                        b'b' => {
+                            if amount > 14 {
+                                is_game_valid = false;
+                            }
+                            data = data.offset("12 blue".len() as isize);
                         }
+                        _ => {}
+                    }
+                }
+
+                match *data {
+                    b'\n' => {
+                        data = data.offset("\n".len() as isize);
+                        break 'game;
+                    }
+                    _ => {
+                        data = data.offset(", ".len() as isize);
                     }
                 }
             }
@@ -83,20 +77,21 @@ pub fn part_1(input: &str) -> usize {
 }
 
 pub fn part_2(input: &str) -> usize {
-    let games = input.split('\n').map(|line| parse_game(line));
-    games
-        .map(|game| {
-            let max_red = game.reveals.iter().map(|reveal| reveal.red).max().unwrap();
-            let max_green = game
-                .reveals
-                .iter()
-                .map(|reveal| reveal.green)
-                .max()
-                .unwrap();
-            let max_blue = game.reveals.iter().map(|reveal| reveal.blue).max().unwrap();
-            (max_red * max_green * max_blue) as usize
-        })
-        .sum()
+    // let games = input.split('\n').map(|line| parse_game(line));
+    // games
+    //     .map(|game| {
+    //         let max_red = game.reveals.iter().map(|reveal| reveal.red).max().unwrap();
+    //         let max_green = game
+    //             .reveals
+    //             .iter()
+    //             .map(|reveal| reveal.green)
+    //             .max()
+    //             .unwrap();
+    //         let max_blue = game.reveals.iter().map(|reveal| reveal.blue).max().unwrap();
+    //         (max_red * max_green * max_blue) as usize
+    //     })
+    //     .sum()
+    0
 }
 
 fn parse_game(line: &str) -> Game {
