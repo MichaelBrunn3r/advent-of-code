@@ -111,45 +111,43 @@ pub fn part_2(input: &str) -> usize {
     let parser = unsafe { &mut PARSER };
     parser.parse(input.as_bytes());
 
-    parser
-        .broadcaster_outputs
-        .iter()
-        .map(|&broadcast_output| {
-            // Each broadcast output is the first FlipFlop in a cycle
-            let start = &parser.modules[broadcast_output as usize];
+    let mut result = 1;
+    for broadcast_output in parser.broadcaster_outputs {
+        // Each broadcast output is the first FlipFlop in a cycle
+        let start = &parser.modules[broadcast_output as usize];
 
-            // Find the conjunction of the cycle
-            let (cycle_conj, mut next) = if parser.cycle_conjunctions.contains(&start.outputs[0]) {
-                (start.outputs[0], start.outputs[1])
-            } else {
-                (start.outputs[1], start.outputs[0])
-            };
+        // Find the conjunction of the cycle
+        let (cycle_conj, mut next) = if parser.cycle_conjunctions.contains(&start.outputs[0]) {
+            (start.outputs[0], start.outputs[1])
+        } else {
+            (start.outputs[1], start.outputs[0])
+        };
 
-            let mut cycle_period = MAX_CYCLE_PERIOD - 1;
-            let mut num_visited_not_connected_ffs = 0usize; // FF = FlipFlop
+        let mut cycle_period = MAX_CYCLE_PERIOD - 1;
+        let mut num_visited_not_connected_ffs = 0usize; // FF = FlipFlop
 
-            for bit_idx in 1..=NUM_FFS_PER_CYCLE {
-                let flipflop = &parser.modules[next as usize];
+        for bit_idx in 1..=NUM_FFS_PER_CYCLE {
+            let flipflop = &parser.modules[next as usize];
 
-                if flipflop.outputs[1] == 0 {
-                    cycle_period -= 1 << bit_idx;
+            if flipflop.outputs[1] == 0 {
+                cycle_period -= 1 << bit_idx;
 
-                    num_visited_not_connected_ffs += 1;
-                    if num_visited_not_connected_ffs == NUM_NOT_CONNECTED_FFS_PER_CYCLE {
-                        break;
-                    }
+                num_visited_not_connected_ffs += 1;
+                if num_visited_not_connected_ffs == NUM_NOT_CONNECTED_FFS_PER_CYCLE {
+                    break;
                 }
-
-                next = if flipflop.outputs[0] == cycle_conj {
-                    flipflop.outputs[1]
-                } else {
-                    flipflop.outputs[0]
-                };
             }
 
-            cycle_period
-        })
-        .product() // Product = LCM, because cycle periods are co-prime
+            next = if flipflop.outputs[0] == cycle_conj {
+                flipflop.outputs[1]
+            } else {
+                flipflop.outputs[0]
+            };
+        }
+
+        result *= cycle_period
+    }
+    result
 }
 
 const fn calc_l_to_cycle_conjunction(n: usize) -> usize {
