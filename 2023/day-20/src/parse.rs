@@ -73,10 +73,9 @@ impl ModuleParser {
         self.reset();
         let mut data = data.as_ptr();
 
-        loop {
+        for _ in 0..58 {
             unsafe {
                 match *data {
-                    b'\n' => break,
                     b'b' => {
                         data = data.offset("broadcaster -> ".len() as isize);
                         data = Self::parse_module_outputs_inplace::<4>(
@@ -117,10 +116,4 @@ impl ModuleParser {
             }
         }
     }
-}
-
-#[derive(Debug)]
-pub struct ModuleMeta {
-    pub id: u8,
-    pub num_inputs: u8,
 }
