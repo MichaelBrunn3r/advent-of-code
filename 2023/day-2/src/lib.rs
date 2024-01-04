@@ -1,14 +1,69 @@
-use parse::GameIterator;
-
-pub mod parse;
-
 pub fn part_1(input: &str) -> usize {
-    let possible_games = GameIterator::new(input.as_ptr()).filter(|(_, reveals)| {
-        reveals
-            .iter()
-            .all(|reveal| reveal.red <= 12 && reveal.green <= 13 && reveal.blue <= 14)
-    });
-    possible_games.map(|(gid, _)| gid).sum()
+    let mut data = input.as_ptr();
+    let mut sum = 0;
+
+    for gid in 1..=100 {
+        let mut is_game_valid = true;
+
+        unsafe {
+            // #GidDigits = {1:9, 2:90, 3:1}
+            if gid < 10 {
+                data = data.offset(8);
+            } else if gid < 100 {
+                data = data.offset(9);
+            } else {
+                data = data.offset(10);
+            }
+
+            'reveals: loop {
+                'sets: for _ in 0..3 {
+                    // #AmountDigits = {1:956, 2:288}
+                    let mut amount = *data - b'0';
+                    data = data.offset(1);
+                    if *data != b' ' {
+                        amount = amount * 10 + (*data - b'0');
+                        data = data.offset(1);
+                    }
+
+                    if *data.offset(" red".len() as isize) < b'a' {
+                        if amount > 12 {
+                            is_game_valid = false;
+                        }
+                        data = data.offset(" red".len() as isize);
+                    } else if *data.offset(" blue".len() as isize) < b'a' {
+                        if amount > 14 {
+                            is_game_valid = false;
+                        }
+                        data = data.offset(" blue".len() as isize);
+                    } else {
+                        if amount > 13 {
+                            is_game_valid = false;
+                        }
+                        data = data.offset(" green".len() as isize);
+                    };
+
+                    match *data {
+                        b';' => {
+                            data = data.offset("; ".len() as isize);
+                            break 'sets;
+                        }
+                        b',' => {
+                            data = data.offset(", ".len() as isize);
+                        }
+                        _ => {
+                            data = data.offset("\n".len() as isize);
+                            break 'reveals;
+                        }
+                    }
+                }
+            }
+        }
+        if is_game_valid {
+            sum += gid as usize;
+        }
+    }
+
+    sum
 }
 
 pub fn part_2(input: &str) -> usize {
