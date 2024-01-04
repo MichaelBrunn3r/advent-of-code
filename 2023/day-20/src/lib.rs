@@ -6,7 +6,7 @@ use aoc::prelude::*;
 use arrayvec::ArrayVec;
 use core::num;
 use itertools::Itertools;
-use parse::ModuleParser;
+use parse::{ModuleParser, PARSER};
 use regex::Regex;
 use std::arch::asm;
 use std::{
@@ -32,8 +32,8 @@ pub fn part_1(input: &str) -> usize {
         NUM_L_TO_BROADCASTER + NUM_L_FROM_BROADCASTER + NUM_CYCLES * NUM_L_BETWEEN_COUNTER_FFS;
     let mut num_high = NUM_CYCLES * NUM_H_BETWEEN_COUNTER_FFS;
 
-    let mut parser = ModuleParser::new(input.as_bytes());
-    parser.parse();
+    let parser = unsafe { &mut PARSER };
+    parser.parse(input.as_bytes());
 
     let (num_l_to_from_cycle_conjunctions, num_h_to_from_cycle_conjunctions) = parser
         .broadcaster_outputs
@@ -56,7 +56,7 @@ pub fn part_1(input: &str) -> usize {
             for bit_idx in 2..=NUM_FFS_PER_CYCLE {
                 let flipflop = &parser.modules[next as usize];
 
-                if flipflop.outputs.len() == 1 {
+                if flipflop.outputs[1] == 0 {
                     num_l_to_cycle_conj -= N >> bit_idx;
 
                     // Calculates: `num_h_to_cycle_conj -= round(N / 2^bit_idx)`
@@ -108,8 +108,8 @@ pub fn part_1(input: &str) -> usize {
 const MAX_CYCLE_PERIOD: usize = 2usize.pow(NUM_FFS_PER_CYCLE);
 
 pub fn part_2(input: &str) -> usize {
-    let mut parser = ModuleParser::new(input.as_bytes());
-    parser.parse();
+    let parser = unsafe { &mut PARSER };
+    parser.parse(input.as_bytes());
 
     parser
         .broadcaster_outputs
@@ -131,7 +131,7 @@ pub fn part_2(input: &str) -> usize {
             for bit_idx in 1..=NUM_FFS_PER_CYCLE {
                 let flipflop = &parser.modules[next as usize];
 
-                if flipflop.outputs.len() == 1 {
+                if flipflop.outputs[1] == 0 {
                     cycle_period -= 1 << bit_idx;
 
                     num_visited_not_connected_ffs += 1;
