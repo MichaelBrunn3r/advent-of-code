@@ -62,7 +62,8 @@ impl ModuleParser {
     }
 
     fn hash(name: &[u8]) -> u16 {
-        (name[0] - b'a') as u16 + (((name[1] - b'a') as u16) << 5)
+        // b'a' + (b'a' << 5) = 0b1100_1000_0001
+        name[0] as u16 + ((name[1] as u16) << 5) - 0b1100_1000_0001
     }
 
     fn reset(&mut self) {
