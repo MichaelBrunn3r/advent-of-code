@@ -77,19 +77,20 @@ impl ModuleParser {
                 break;
             }
 
-            if data[0] == b'b' {
-                data = &data["broadcaster -> ".len()..];
-                data =
-                    Self::parse_module_outputs_inplace::<4>(4, &mut self.broadcaster_outputs, data);
-            };
-            let module_type = data[0];
-
-            let name = &data[1..3];
-            let hash = Self::hash(name);
-            data = &data["%aa -> ".len()..];
-
-            match module_type {
+            match data[0] {
+                b'b' => {
+                    data = &data["broadcaster -> ".len()..];
+                    data = Self::parse_module_outputs_inplace::<4>(
+                        4,
+                        &mut self.broadcaster_outputs,
+                        data,
+                    );
+                }
                 b'%' => {
+                    let name = &data[1..3];
+                    let hash = Self::hash(name);
+                    data = &data["%aa -> ".len()..];
+
                     let num_module_outputs = Self::count_flipflip_outputs(data);
 
                     data = Self::parse_module_outputs_inplace::<2>(
@@ -99,6 +100,10 @@ impl ModuleParser {
                     );
                 }
                 b'&' => {
+                    let name = &data[1..3];
+                    let hash = Self::hash(name);
+                    data = &data["%aa -> ".len()..];
+
                     let num_module_outputs = Self::count_conjunction_outputs(data);
                     if num_module_outputs == 5 {
                         self.cycle_conjunctions[self.num_cycle_conjunctions] = hash; // Only store cycle conjunctions

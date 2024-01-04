@@ -1,4 +1,4 @@
-use std::ops::{self, Range, RangeInclusive};
+use std::ops::{Range, RangeInclusive};
 
 pub trait RangeExt<T>
 where
