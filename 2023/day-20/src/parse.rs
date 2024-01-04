@@ -10,7 +10,7 @@ pub struct FlipFlop {
 }
 
 pub struct ModuleParser {
-    pub modules: [FlipFlop; 858],
+    pub modules: [FlipFlop; 65536],
     pub broadcaster_outputs: [u16; 4],
     pub cycle_conjunctions: [u16; 4],
     num_cycle_conjunctions: usize,
@@ -35,7 +35,7 @@ impl ModuleParser {
         }
     }
 
-    fn count_flipflip_outputs(data: &[u8]) -> usize {
+    fn count_flipflop_outputs(data: &[u8]) -> usize {
         // #Outputs: {1:16, 2:32}
         if data[2] == b'\n' {
             1
@@ -62,8 +62,7 @@ impl ModuleParser {
     }
 
     fn hash(name: &[u8]) -> u16 {
-        // b'a' + (b'a' << 5) = 0b1100_1000_0001
-        name[0] as u16 + ((name[1] as u16) << 5) - 0b1100_1000_0001
+        return unsafe { (name.as_ptr() as *const u16).read() };
     }
 
     fn reset(&mut self) {
@@ -92,7 +91,7 @@ impl ModuleParser {
                     let hash = Self::hash(name);
                     data = &data["%aa -> ".len()..];
 
-                    let num_module_outputs = Self::count_flipflip_outputs(data);
+                    let num_module_outputs = Self::count_flipflop_outputs(data);
 
                     data = Self::parse_module_outputs_inplace::<2>(
                         num_module_outputs,
