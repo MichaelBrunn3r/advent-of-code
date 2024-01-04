@@ -35,72 +35,62 @@ pub fn part_1(input: &str) -> usize {
     let parser = unsafe { &mut PARSER };
     parser.parse(input.as_bytes());
 
-    let (num_l_to_from_cycle_conjunctions, num_h_to_from_cycle_conjunctions) = parser
-        .broadcaster_outputs
-        .iter()
-        .map(|&broadcast_output| {
-            // Each broadcast output is the first FlipFlop in a cycle
-            let start = &parser.modules[broadcast_output as usize];
+    for broadcast_output in parser.broadcaster_outputs {
+        // Each broadcast output is the first FlipFlop in a cycle
+        let start = &parser.modules[broadcast_output as usize];
 
-            // Find the conjunction of the cycle
-            let (cycle_conj, mut next) = if parser.cycle_conjunctions.contains(&start.outputs[0]) {
-                (start.outputs[0], start.outputs[1])
-            } else {
-                (start.outputs[1], start.outputs[0])
-            };
+        // Find the conjunction of the cycle
+        let (cycle_conj, mut next) = if parser.cycle_conjunctions.contains(&start.outputs[0]) {
+            (start.outputs[0], start.outputs[1])
+        } else {
+            (start.outputs[1], start.outputs[0])
+        };
 
-            let mut num_l_to_cycle_conj = NUM_L_TO_CYCLE_CONJ;
-            let mut num_h_to_cycle_conj = NUM_H_TO_CYCLE_CONJ;
+        let mut num_l_to_cycle_conj = NUM_L_TO_CYCLE_CONJ;
+        let mut num_h_to_cycle_conj = NUM_H_TO_CYCLE_CONJ;
 
-            let mut num_visited_not_connected_ffs = 0;
-            for bit_idx in 2..=NUM_FFS_PER_CYCLE {
-                let flipflop = &parser.modules[next as usize];
+        let mut num_visited_not_connected_ffs = 0;
+        for bit_idx in 2..=NUM_FFS_PER_CYCLE {
+            let flipflop = &parser.modules[next as usize];
 
-                if flipflop.outputs[1] == 0 {
-                    num_l_to_cycle_conj -= N >> bit_idx;
+            if flipflop.outputs[1] == 0 {
+                num_l_to_cycle_conj -= N >> bit_idx;
 
-                    // Calculates: `num_h_to_cycle_conj -= round(N / 2^bit_idx)`
-                    // Divide by shifting right and then round by adding the carry bit.
-                    // Carry=1 indicates remainder >= 0.5, in which case we need to round up.
-                    let n = N;
-                    unsafe {
-                        asm!(
-                            "shr {n}, cl",
-                            "sbb {num_h_to_cycle_conj}, {n}",
-                            n = in(reg) n,
-                            in("ecx") bit_idx,
-                            num_h_to_cycle_conj = inout(reg) num_h_to_cycle_conj,
-                        );
-                    }
-
-                    num_visited_not_connected_ffs += 1;
-                    if num_visited_not_connected_ffs == NUM_NOT_CONNECTED_FFS_PER_CYCLE {
-                        break;
-                    }
+                // Calculates: `num_h_to_cycle_conj -= round(N / 2^bit_idx)`
+                // Divide by shifting right and then round by adding the carry bit.
+                // Carry=1 indicates remainder >= 0.5, in which case we need to round up.
+                let n = N;
+                unsafe {
+                    asm!(
+                        "shr {n}, cl",
+                        "sbb {num_h_to_cycle_conj}, {n}",
+                        n = in(reg) n,
+                        in("ecx") bit_idx,
+                        num_h_to_cycle_conj = inout(reg) num_h_to_cycle_conj,
+                    );
                 }
 
-                next = if flipflop.outputs[0] == cycle_conj {
-                    flipflop.outputs[1]
-                } else {
-                    flipflop.outputs[0]
-                };
+                num_visited_not_connected_ffs += 1;
+                if num_visited_not_connected_ffs == NUM_NOT_CONNECTED_FFS_PER_CYCLE {
+                    break;
+                }
             }
 
-            let num_pulses_to_cycle_conj = num_l_to_cycle_conj + num_h_to_cycle_conj;
+            next = if flipflop.outputs[0] == cycle_conj {
+                flipflop.outputs[1]
+            } else {
+                flipflop.outputs[0]
+            };
+        }
 
-            let num_l_from_cycle_conj = num_pulses_to_cycle_conj;
-            let num_h_from_cycle_conj = 6 * num_pulses_to_cycle_conj;
+        let num_pulses_to_cycle_conj = num_l_to_cycle_conj + num_h_to_cycle_conj;
 
-            (
-                num_l_to_cycle_conj + num_l_from_cycle_conj,
-                num_h_to_cycle_conj + num_h_from_cycle_conj,
-            )
-        })
-        .reduce(|(acc_l, acc_h), (l, h)| (acc_l + l, acc_h + h))
-        .unwrap();
+        let num_l_from_cycle_conj = num_pulses_to_cycle_conj;
+        let num_h_from_cycle_conj = 6 * num_pulses_to_cycle_conj;
 
-    num_low += num_l_to_from_cycle_conjunctions;
-    num_high += num_h_to_from_cycle_conjunctions;
+        num_low += num_l_to_cycle_conj + num_l_from_cycle_conj;
+        num_high += num_h_to_cycle_conj + num_h_from_cycle_conj;
+    }
 
     num_low * num_high
 }

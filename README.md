@@ -1,6 +1,6 @@
 # Advent of Code 🎄 Solutions
 
-### 2023 (Total: `13969µs = 13.9ms`)
+### 2023 (Total: `13968µs = 13.9ms`)
 
 1. [Trebuchet?!](./2023/day-1/README.md)
    [`Code`](./2023/day-1/src/lib.rs) `18µs/117µs`
@@ -22,14 +22,14 @@
 17. Clumsy Crucible (WIP)
 18. Lavaduct Lagoon (WIP)
 19. [Aplenty](./2023/day-19/README.md) [`Code`](./2023/day-19/src/lib.rs) `33µs/41µs`
-20. [Pulse Propagation](./2023/day-20/README.md) [`Code`](./2023/day-20/src/lib.rs) `650ns/674ns`
+20. [Pulse Propagation](./2023/day-20/README.md) [`Code`](./2023/day-20/src/lib.rs) `67ns/59ns`
 21. Step Counter (WIP)
 22. Sand Slabs (WIP)
 23. A Long Walk (WIP)
 24. Never Tell Me The Odds (WIP)
 25. Snowverload (WIP)
 
-<!-- (18 + 117) + (45 + 46) + (24 + 61) + (73 + 0.336) + (34 + 34) + (34 + 109) + (28 + 27) + (39 + 61) + (1500 + 1500) + (69 + 71) + (4 + 10000) + (33 + 41) + (0.65 + 0.674) -->
+<!-- (18 + 117) + (45 + 46) + (24 + 61) + (73 + 0.336) + (34 + 34) + (34 + 109) + (28 + 27) + (39 + 61) + (1500 + 1500) + (69 + 71) + (4 + 10000) + (33 + 41) + (0.067 + 0.059) -->
 
 ### 2022
 
