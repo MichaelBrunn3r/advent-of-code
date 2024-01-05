@@ -1,12 +1,12 @@
 # Advent of Code 🎄 Solutions
 
-### 2023 (Total: `13879µs = 13.8ms`)
+### 2023 (Total: `264044µs = 264ms`)
 
 1. [Trebuchet?!](./2023/day-1/README.md)
    [`Code`](./2023/day-1/src/lib.rs) `18µs/117µs`
 2. [Cube Conundrum](./2023/day-2/README.md) [`Code`](./2023/day-2/src/lib.rs) `1.1µs/1.3µs`
 3. [Gear Ratios](./2023/day-3/README.md) [`Code`](./2023/day-3/src/lib.rs)
-4. [Scratchcards](./2023/day-4/README.md) [`Code`](./2023/day-4/src/lib.rs)
+4. [Scratchcards](./2023/day-4/README.md) [`Code`](./2023/day-4/src/lib.rs) `165µs/250ms`
 5. [If You Give A Seed A Fertilizer](./2023/day-5/README.md) [`Code`](./2023/day-5/src/lib.rs) `24µs/61µs`
 6. [Wait For It](./2023/day-6/README.md) [`Code`](./2023/day-6/src/lib.rs) `73µs/336ns`
 7. [Camel Cards](./2023/day-7/README.md) [`Code`](./2023/day-7/src/lib.rs) `34µs/34µs`
@@ -29,7 +29,7 @@
 24. Never Tell Me The Odds (WIP)
 25. Snowverload (WIP)
 
-<!-- (18 + 117) + (1.1 + 1.3) + (24 + 61) + (73 + 0.336) + (34 + 34) + (34 + 109) + (28 + 27) + (39 + 61) + (1500 + 1500) + (69 + 71) + (4 + 10000) + (33 + 41) + (0.067 + 0.059) -->
+<!-- (18 + 117) + (1.1 + 1.3) + (165 + 250000) + (24 + 61) + (73 + 0.336) + (34 + 34) + (34 + 109) + (28 + 27) + (39 + 61) + (1500 + 1500) + (69 + 71) + (4 + 10000) + (33 + 41) + (0.067 + 0.059) -->
 
 ### 2022
 
