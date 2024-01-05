@@ -2,18 +2,12 @@ pub fn part_1(input: &str) -> usize {
     let mut data = input.as_ptr();
     let mut sum = 0;
 
-    for gid in 1..=100 {
+    for (gid, &len) in (1..=100).zip(GID_PREFIX_LEN_LUT.iter()) {
         let mut is_game_valid = true;
 
         unsafe {
             // #GidDigits = {1:9, 2:90, 3:1}
-            if gid < 10 {
-                data = data.offset(8);
-            } else if gid < 100 {
-                data = data.offset(9);
-            } else {
-                data = data.offset(10);
-            }
+            data = data.offset(len);
 
             'game: loop {
                 // #AmountDigits = {1:956, 2:288}
@@ -168,4 +162,24 @@ impl Reveal {
 struct Game {
     gid: u32,
     reveals: Vec<Reveal>,
+}
+
+const GID_PREFIX_LEN_LUT: [isize; 100] = generate_gid_prefix_len_lut();
+const fn generate_gid_prefix_len_lut() -> [isize; 100] {
+    let mut gid_prefix_len_lut = [0; 100];
+
+    let mut i = 0;
+    while i < 9 {
+        gid_prefix_len_lut[i] = "Game 1: ".len() as isize;
+        i += 1;
+    }
+
+    while i < 99 {
+        gid_prefix_len_lut[i] = "Game 10: ".len() as isize;
+        i += 1;
+    }
+
+    gid_prefix_len_lut[99] = "Game 100: ".len() as isize;
+
+    gid_prefix_len_lut
 }
