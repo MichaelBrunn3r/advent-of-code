@@ -1,11 +1,12 @@
-static mut WINNING_NUMBERS: [[bool; 14650]; 203] = unsafe { std::mem::zeroed() };
+const NUM_CARDS: usize = 202;
+static mut WINNING_NUMBERS: [[bool; 14650]; NUM_CARDS] = unsafe { std::mem::zeroed() };
 
 pub fn part_1(input: &str) -> usize {
     let mut data = input.as_ptr();
     let mut total = 0;
 
     unsafe {
-        for cid in 1..=202 {
+        for cid in 0..NUM_CARDS {
             data = data.offset("Card   1: ".len() as isize);
 
             for _ in 0..10 {
@@ -32,73 +33,44 @@ pub fn part_1(input: &str) -> usize {
 }
 
 pub fn part_2(input: &str) -> usize {
-    let matches_per_card: Vec<usize> = input
-        .lines()
-        .map(|line| Card::from_str(line))
-        .map(|card| card.count_matching())
-        .collect();
-    let mut card_counts = vec![1; matches_per_card.len()];
+    let mut matches_per_card: [usize; NUM_CARDS] = unsafe { std::mem::zeroed() };
 
-    let mut total_cards = matches_per_card.len();
-    loop {
-        let mut cards_won = 0;
-        for (i, num_matches) in matches_per_card.iter().enumerate() {
-            if card_counts[i] == 0 {
-                continue;
+    let mut data = input.as_ptr();
+    unsafe {
+        for cid in 0..NUM_CARDS {
+            data = data.offset("Card   1: ".len() as isize);
+
+            for _ in 0..10 {
+                let num = (data as *const u16).read();
+                WINNING_NUMBERS[cid][num as usize] = true;
+                data = data.offset("12 ".len() as isize);
             }
-            card_counts[i] -= 1;
-            for j in i + 1..=i + num_matches {
-                card_counts[j] += 1;
-                cards_won += 1;
-                total_cards += 1;
+
+            data = data.offset("| ".len() as isize);
+
+            let mut num_matches = 0;
+            for _ in 0..25 {
+                let num = (data as *const u16).read();
+                num_matches += WINNING_NUMBERS[cid][num as usize] as usize;
+                data = data.offset("12 ".len() as isize);
             }
+
+            matches_per_card[cid] = num_matches;
         }
-        if cards_won == 0 {
-            break;
+    }
+
+    let mut cards = (0..NUM_CARDS).collect::<Vec<_>>();
+    let mut total_cards = NUM_CARDS;
+
+    while !cards.is_empty() {
+        let card_id = cards.pop().unwrap();
+        let num_matches = matches_per_card[card_id];
+        total_cards += num_matches;
+
+        for won_id in card_id + 1..card_id + 1 + num_matches {
+            cards.push(won_id);
         }
     }
 
     total_cards
-}
-
-#[derive(Debug)]
-struct Card {
-    winning_numbers: Vec<usize>,
-    your_numbers: Vec<usize>,
-}
-
-impl Card {
-    fn from_str(input: &str) -> Self {
-        let (_, body) = input.split_once(':').unwrap();
-        let (winning_str, your_str) = body.split_once('|').unwrap();
-
-        let winning_numbers = winning_str
-            .trim()
-            .split(' ')
-            .filter(|s| !s.is_empty())
-            .map(|s| s.parse::<usize>().unwrap())
-            .collect::<Vec<_>>();
-
-        let your_numbers = your_str
-            .trim()
-            .split(' ')
-            .filter(|s| !s.is_empty())
-            .map(|s| s.parse::<usize>().unwrap())
-            .collect::<Vec<_>>();
-
-        Self {
-            winning_numbers,
-            your_numbers,
-        }
-    }
-
-    fn count_matching(&self) -> usize {
-        let mut matches = 0;
-        for number in self.your_numbers.iter() {
-            if self.winning_numbers.contains(number) {
-                matches += 1;
-            }
-        }
-        matches
-    }
 }

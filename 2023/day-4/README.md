@@ -3,4 +3,4 @@
 ## Benchmarks (i5-1240P, no IO)
 
 - Part 1: `2.5479 µs`
-- Part 2: `250.50 ms`
+- Part 2: `18.734 ms`
