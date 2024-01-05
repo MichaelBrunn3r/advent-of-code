@@ -11,26 +11,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_example_0() {
-        unsafe {
-            NETWORK.fill((0, 0));
-        }
-        aoc::assert_solution(0, part_1);
+    fn test_part_1() {
+        assert_eq!(part_1(&aoc::read_input_to_string()), 16697);
     }
 
     #[test]
-    fn test_example_1() {
-        unsafe {
-            NETWORK.fill((0, 0));
-        }
-        aoc::assert_solution(1, part_1);
-    }
-
-    #[test]
-    fn test_example_2() {
-        unsafe {
-            NETWORK.fill((0, 0));
-        }
-        aoc::assert_solution(2, part_2);
+    fn test_part_2() {
+        assert_eq!(part_2(&aoc::read_input_to_string()), 10668805667831);
     }
 }
