@@ -34,6 +34,8 @@ pub fn part_1(input: &str) -> usize {
 
 static mut MATCHES_PER_CARD: [usize; NUM_CARDS] = unsafe { std::mem::zeroed() };
 pub fn part_2(input: &str) -> usize {
+    let mut memo: [usize; NUM_CARDS] = unsafe { std::mem::zeroed() };
+
     let mut data = input.as_ptr();
     unsafe {
         for cid in 0..NUM_CARDS {
@@ -60,28 +62,22 @@ pub fn part_2(input: &str) -> usize {
 
     NUM_CARDS
         + (0..NUM_CARDS)
-            .map(|card_id| calc_cards_won_by(card_id))
+            .map(|card_id| calc_cards_won_by(card_id, &mut memo))
             .sum::<usize>()
 }
 
-fn calc_cards_won_by(card_id: usize) -> usize {
-    static mut MEMO: [usize; NUM_CARDS] = unsafe { std::mem::zeroed() };
-
-    unsafe {
-        if MEMO[card_id] != 0 {
-            return MEMO[card_id];
-        }
+fn calc_cards_won_by(card_id: usize, memo: &mut [usize; NUM_CARDS]) -> usize {
+    if memo[card_id] != 0 {
+        return memo[card_id];
     }
 
     let num_matches = unsafe { MATCHES_PER_CARD[card_id] };
     let mut cards_won = num_matches;
     for won_id in card_id + 1..card_id + 1 + num_matches {
-        cards_won += calc_cards_won_by(won_id);
+        cards_won += calc_cards_won_by(won_id, memo);
     }
 
-    unsafe {
-        MEMO[card_id] = cards_won;
-    }
+    memo[card_id] = cards_won;
 
     cards_won
 }
