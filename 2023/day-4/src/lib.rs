@@ -1,14 +1,34 @@
+static mut WINNING_NUMBERS: [[bool; 14650]; 203] = unsafe { std::mem::zeroed() };
+
 pub fn part_1(input: &str) -> usize {
-    input
-        .lines()
-        .map(|line| Card::from_str(line))
-        // .inspect(|card| println!("{:?}", card))
-        .map(|card| card.count_matching())
-        // .inspect(|matches| println!("#matches={}", matches))
-        .filter(|matches| *matches > 0)
-        .map(|matches| 2usize.pow((matches - 1) as u32))
-        // .inspect(|matches| println!("#points={}", matches))
-        .sum::<usize>()
+    let mut data = input.as_ptr();
+    let mut total = 0;
+
+    unsafe {
+        for cid in 1..=202 {
+            data = data.offset("Card   1: ".len() as isize);
+
+            for _ in 0..10 {
+                let num = (data as *const u16).read();
+                WINNING_NUMBERS[cid][num as usize] = true;
+                data = data.offset("12 ".len() as isize);
+            }
+
+            data = data.offset("| ".len() as isize);
+
+            let mut points = 1;
+            for _ in 0..25 {
+                let num = (data as *const u16).read();
+                points <<= WINNING_NUMBERS[cid][num as usize] as usize;
+                data = data.offset("12 ".len() as isize);
+            }
+            points >>= 1;
+
+            total += points;
+        }
+    }
+
+    total
 }
 
 pub fn part_2(input: &str) -> usize {
