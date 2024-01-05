@@ -14,11 +14,11 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        aoc::assert_solution(0, part_1);
+        assert_eq!(part_1(&aoc::read_input_to_string()), 23678);
     }
 
     #[test]
     fn test_part_2() {
-        aoc::assert_solution(1, part_2);
+        assert_eq!(part_2(&aoc::read_input_to_string()), 15455663);
     }
 }
