@@ -1,11 +1,13 @@
 # [2023 Day 7: Camel Cards](https://adventofcode.com/2023/day/7)
 
-- [Very optimized solution from orlp](https://github.com/orlp/aoc2023/blob/master/src/bin/day07.rs)
+- [Solution from orlp](https://github.com/orlp/aoc2023/blob/master/src/bin/day07.rs) [Rust]
 
-## Benchmarks (i5-1240P, no IO)
+## Benchmarks (with parsing, no I/O)
 
-- Part 1: `21.549 µs`
-- Part 2: `21.490 µs`
+| CPU              | Part 1      | Part 2      |
+| ---------------- | ----------- | ----------- |
+| i5-1240P@4.4Hz   | `21.549 µs` | `21.490 µs` |
+| i5-12600K@4.9GHz | `19.384 µs` | `19.353 µs` |
 
 ## Explanation
 

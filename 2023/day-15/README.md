@@ -1,8 +1,8 @@
 # 2023 Day 15
 
-## Benchmarks (i5-1240P, with parsing, no I/O)
+## Benchmarks (with parsing, no I/O)
 
-- Part 1: `14.166 µs`
-- Part 2: `45.130 µs`
-
-## Explanation
+| CPU              | Part 1      | Part 2      |
+| ---------------- | ----------- | ----------- |
+| i5-1240P@4.4Hz   | `14.166 µs` | `45.130 µs` |
+| i5-12600K@4.9GHz | `12.599 µs` | `39.758 µs` |

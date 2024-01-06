@@ -1,8 +1,8 @@
 # [2023 Day 2: Cube Conundrum](https://adventofcode.com/2023/day/2)
 
-## Benchmarks (i5-1240P, includes parsing, no I/O)
+## Benchmarks (with parsing, no I/O)
 
-- Part 1: `1.1291 µs`
-- Part 2: `1.3893 µs`
-
-## Explanation
+| CPU              | Part 1      | Part 2      |
+| ---------------- | ----------- | ----------- |
+| i5-1240P@4.4Hz   | `1.1291 µs` | `1.3893 µs` |
+| i5-12600K@4.9GHz | `1.0227 µs` | `1.0595 µs` |

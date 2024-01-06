@@ -1,6 +1,8 @@
 # [2023 Day 8: Haunted Wasteland](https://adventofcode.com/2023/day/8)
 
-## Benchmarks (i5-1240P, no IO)
+## Benchmarks (with parsing, no I/O)
 
-- Part 1: `32.435 µs`
-- Part 2: `91.380 µs`
+| CPU              | Part 1      | Part 2      |
+| ---------------- | ----------- | ----------- |
+| i5-1240P@4.4Hz   | `32.435 µs` | `91.380 µs` |
+| i5-12600K@4.9GHz | `29.249 µs` | `69.184 µs` |

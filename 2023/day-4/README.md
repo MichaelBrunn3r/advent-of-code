@@ -1,6 +1,8 @@
 # [2023 Day 4: Scratchcards](https://adventofcode.com/2023/day/4)
 
-## Benchmarks (i5-1240P, no IO)
+## Benchmarks (with parsing, no I/O)
 
-- Part 1: `2.5479 µs`
-- Part 2: `4.1244 µs`
+| CPU              | Part 1      | Part 2      |
+| ---------------- | ----------- | ----------- |
+| i5-1240P@4.4Hz   | `2.5479 µs` | `4.1244 µs` |
+| i5-12600K@4.9GHz | `2.2213 µs` | `3.7123 µs` |

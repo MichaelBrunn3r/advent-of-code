@@ -1,8 +1,8 @@
 # 2023 Day 17
 
-## Benchmarks (i5-1240P, with parsing, no I/O)
+## Benchmarks (with parsing, no I/O)
 
-- Part 1: ???
-- Part 2: ???
-
-## Explanation
+| CPU              | Part 1 | Part 2 |
+| ---------------- | ------ | ------ |
+| i5-1240P@4.4Hz   |        |        |
+| i5-12600K@4.9GHz |        |        |

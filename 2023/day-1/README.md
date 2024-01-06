@@ -1,6 +1,8 @@
 # [2023 Day 1: Trebuchet?!](https://adventofcode.com/2023/day/1)
 
-## Benchmarks (i5-1240P, no IO)
+## Benchmarks (with parsing, no I/O)
 
-- Part 1: `11.869 µs`
-- Part 2: `39.202 µs`
+| CPU              | Part 1      | Part 2      |
+| ---------------- | ----------- | ----------- |
+| i5-1240P@4.4Hz   | `11.869 µs` | `39.202 µs` |
+| i5-12600K@4.9GHz | `5.7675 µs` | `43.152 µs` |

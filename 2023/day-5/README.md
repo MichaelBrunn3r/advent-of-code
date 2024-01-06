@@ -2,10 +2,9 @@
 
 [Task description](./TASKS.md)
 
-## Benchmarks
+## Benchmarks (with parsing, no I/O)
 
-- Part 1: `4.0562 µs`, Parse: `3.2908 µs`
-- Part 2: `17.509 µs`
-
-Measures without reading input file.<br>
-CPU : 12th Gen Intel(R) Core(TM) i5-1240P
+| CPU              | Part 1                            | Part 2      |
+| ---------------- | --------------------------------- | ----------- |
+| i5-1240P@4.4Hz   | `4.0562 µs` (`3.2908 µs` parsing) | `17.509 µs` |
+| i5-12600K@4.9GHz | `3.7142 µs`                       | `15.607 µs` |

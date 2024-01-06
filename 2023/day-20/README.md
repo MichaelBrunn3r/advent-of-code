@@ -2,11 +2,12 @@
 
 - [Solution by maneatingape](https://github.com/maneatingape/advent-of-code-rust/blob/main/src/year2023/day20.rs) (Rust)
 
-## Benchmarks (i5-1240P, with parsing, no I/O)
+## Benchmarks (with parsing, no I/O)
 
-- Part 1: `67.951 ns`
-- Part 2: `59.930 ns`
-- Parsing: `48.193 ns`
+| CPU              | Part 1      | Part 2      | Parsing     |
+| ---------------- | ----------- | ----------- | ----------- |
+| i5-1240P@4.4Hz   | `67.951 ns` | `59.930 ns` | `48.193 ns` |
+| i5-12600K@4.9GHz | `61.078 ns` | `55.860 ns` |             |
 
 ## Explanation
 
