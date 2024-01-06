@@ -11,6 +11,7 @@ itertools = { workspace = true }
 rayon = { workspace = true }
 criterion = {workspace = true}
 rand = {workspace = true}
+rustc-hash = "1.1.0"
 
 [[bench]]
 name = "p1"

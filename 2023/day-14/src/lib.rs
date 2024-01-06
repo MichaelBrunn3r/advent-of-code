@@ -4,15 +4,12 @@ use std::collections::HashMap;
 const SPHERE: u8 = b'O';
 const CUBE: u8 = b'#';
 const EMPTY: u8 = b'.';
-
 const COLS: usize = 101;
 
 pub fn part_1(input: &str) -> usize {
     tilt_north_and_calc_load(input.as_bytes(), input.find('\n').unwrap())
 }
 
-// 56317 too low
-// 96325 too high
 pub fn part_2(input: &mut str) -> usize {
     let size = input.find('\n').unwrap();
     let platform = unsafe { input.as_bytes_mut() };
@@ -32,11 +29,8 @@ pub fn calc_load(platform: &[u8], size: usize) -> usize {
 
     for (line, load) in platform.chunks_exact(size + 1).zip((1..size + 1).rev()) {
         for c in line {
-            match *c {
-                SPHERE => {
-                    total_load += load;
-                }
-                _ => {}
+            if *c == SPHERE {
+                total_load += load;
             }
         }
     }
@@ -67,7 +61,7 @@ pub fn tilt_north_and_calc_load(platform: &[u8], size: usize) -> usize {
 }
 
 fn spin_until_first_cycle_period(platform: &mut [u8], size: usize) -> (usize, usize) {
-    let mut after_spin_states = HashMap::new();
+    let mut after_spin_states = HashMap::with_capacity(128);
     let mut i = 0;
     loop {
         i += 1;
