@@ -4,8 +4,8 @@
 
 ## Benchmarks
 
-- Part 1: `6.0738 µs`
-- Part 2: `58.571 µs`
+- Part 1: `4.2079 µs`, Parse: `3.4453 µs`
+- Part 2: `44.767 µs`
 
 Measures without reading input file.<br>
 CPU : 12th Gen Intel(R) Core(TM) i5-1240P

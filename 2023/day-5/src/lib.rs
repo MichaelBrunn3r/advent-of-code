@@ -93,26 +93,11 @@ pub fn part_2(input: &str) -> usize {
     }
 }
 
-fn parse_seeds(data: &mut *const u8) -> [usize; NUM_SEEDS] {
+pub fn parse_seeds(data: &mut *const u8) -> [usize; NUM_SEEDS] {
     unsafe {
         let mut seeds = [0; NUM_SEEDS];
         for i in 0..NUM_SEEDS {
-            let seed_digits = if !(*data.add(8)).is_ascii_digit() {
-                8
-            } else if !(*data.add(9)).is_ascii_digit() {
-                9
-            } else {
-                10
-            };
-
-            let mut seed = 0;
-            for _ in 0..seed_digits {
-                seed *= 10;
-                seed += (data.read() - b'0') as usize;
-                *data = data.add(1);
-            }
-            seeds[i] = seed;
-
+            seeds[i] = data.parse_ascii_digits(get_num_seed_digits(data));
             *data = data.add(1);
         }
 
@@ -126,23 +111,7 @@ fn parse_seed_ranges(data: &mut *const u8) -> Vec<Range<usize>> {
         for _ in 0..NUM_SEED_RANGES {
             let mut seed_range = [0; 2];
             for i in 0..2 {
-                let seed_digits = if !(*data.add(8)).is_ascii_digit() {
-                    8
-                } else if !(*data.add(9)).is_ascii_digit() {
-                    9
-                } else {
-                    10
-                };
-
-                let mut seed = 0;
-                for _ in 0..seed_digits {
-                    seed *= 10;
-                    seed += (data.read() - b'0') as usize;
-                    *data = data.add(1);
-                }
-
-                seed_range[i] = seed;
-
+                seed_range[i] = data.parse_ascii_digits(get_num_seed_digits(data));
                 *data = data.add(1);
             }
 
@@ -153,7 +122,18 @@ fn parse_seed_ranges(data: &mut *const u8) -> Vec<Range<usize>> {
     }
 }
 
-unsafe fn parse_map_sections(data: &mut *const u8) -> Vec<Vec<RangeToRangeMap>> {
+unsafe fn get_num_seed_digits(data: &*const u8) -> usize {
+    // #digits: {8:5, 9:7, 10:8}
+    if !data.add(10).read().is_ascii_digit() && data.add(9).read().is_ascii_digit() {
+        10
+    } else if !data.add(9).read().is_ascii_digit() {
+        9
+    } else {
+        8
+    }
+}
+
+pub unsafe fn parse_map_sections(data: &mut *const u8) -> Vec<Vec<RangeToRangeMap>> {
     let mut sections = vec![];
 
     while data.read() == b'\n' {
@@ -170,7 +150,7 @@ unsafe fn parse_map_section(data: &mut *const u8) -> Vec<RangeToRangeMap> {
     }
     *data = data.add(1);
 
-    let mut section = vec![];
+    let mut section = Vec::with_capacity(40);
 
     loop {
         if !data.read().is_ascii_digit() {
@@ -196,7 +176,7 @@ unsafe fn parse_map_section(data: &mut *const u8) -> Vec<RangeToRangeMap> {
         });
     }
 
-    section.sort_by_key(|map| map.from.start);
+    section.sort_unstable_by_key(|map| map.from.start);
     section
 }
 
