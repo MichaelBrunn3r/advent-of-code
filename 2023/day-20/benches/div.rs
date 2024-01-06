@@ -1,4 +1,4 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
 use std::arch::asm;
 
 fn bench(c: &mut Criterion) {
@@ -11,7 +11,7 @@ fn bench(c: &mut Criterion) {
 
             for not_connected in &not_connected {
                 for &bit_idx in not_connected {
-                    num_h_to_cycle_conj -= round_integer_division(n, 2 << bit_idx - 1);
+                    num_h_to_cycle_conj -= round_integer_division(n, 2 << (bit_idx - 1));
                 }
             }
 
@@ -46,8 +46,8 @@ fn bench(c: &mut Criterion) {
                 for &bit_idx in not_connected {
                     unsafe {
                         asm!(
-                            "shr {n}, cl",
-                            "sbb {num_h_to_cycle_conj}, {n}",
+                            "shr {n:e}, cl",
+                            "sbb {num_h_to_cycle_conj:e}, {n:e}",
                             n = in(reg) n,
                             in("ecx") bit_idx,
                             num_h_to_cycle_conj = inout(reg) num_h_to_cycle_conj,

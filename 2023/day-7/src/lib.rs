@@ -49,12 +49,10 @@ fn count_winnings(
         }
 
         hands.sort_by_cached_key(|(hand_strength, _)| *hand_strength);
-
-        let mut sum = 0usize;
-        for i in 0..NUM_LINES {
-            sum += (i + 1) * hands[i].1;
-        }
-        sum
+        hands
+            .iter()
+            .enumerate()
+            .fold(0, |acc, (i, (_, bet))| acc + (i + 1) * bet)
     }
 }
 
@@ -83,7 +81,7 @@ fn labels_to_hand_strength(
         .rev()
         .map(|&l| card_lut[l as usize - SMALLEST_LABEL])
         .enumerate()
-        .map(|(i, s)| (s as u32) << (i << 2)) // i * 4
+        .map(|(i, s)| s << (i << 2)) // i * 4
         .sum::<u32>()
         | kind as u32
 }
@@ -91,13 +89,13 @@ fn labels_to_hand_strength(
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 #[repr(u32)]
 pub enum HandKind {
-    FiveOfAKind = 6 << 5 * 4,
-    FourOfAKind = 5 << 5 * 4,
-    FullHouse = 4 << 5 * 4,
-    ThreeOfAKind = 3 << 5 * 4,
-    TwoPairs = 2 << 5 * 4,
-    OnePair = 1 << 5 * 4,
-    FiveUnique = 0 << 5 * 4,
+    FiveOfAKind = 6 << (5 * 4),
+    FourOfAKind = 5 << (5 * 4),
+    FullHouse = 4 << (5 * 4),
+    ThreeOfAKind = 3 << (5 * 4),
+    TwoPairs = 2 << (5 * 4),
+    OnePair = 1 << (5 * 4),
+    FiveUnique = 0 << (5 * 4),
 }
 
 impl HandKind {
@@ -107,19 +105,19 @@ impl HandKind {
         occurences_lut: &[HandKind; OCCURENCES_LUT_LEN],
     ) -> Self {
         let mut card_counts = 0u64;
-        let mut count_occurences = NUM_LABELS as usize;
+        let mut count_occurences = NUM_LABELS;
         let mut num_jokers = 0usize;
 
         for &l in labels {
             let card = card_lut[l as usize - SMALLEST_LABEL] as usize;
 
-            let card_count = (card_counts >> 4 * card) & 0xf;
-            count_occurences -= 1usize << card_count * 4;
+            let card_count = (card_counts >> (4 * card)) & 0xf;
+            count_occurences -= 1usize << (card_count * 4);
 
-            card_counts += 1u64 << card * 4;
+            card_counts += 1u64 << (card * 4);
 
-            let card_count = (card_counts >> 4 * card) & 0xf;
-            count_occurences += 1usize << card_count * 4;
+            let card_count = (card_counts >> (4 * card)) & 0xf;
+            count_occurences += 1usize << (card_count * 4);
 
             num_jokers += (l == b'J') as usize;
         }

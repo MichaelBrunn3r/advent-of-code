@@ -6,27 +6,30 @@ pub fn part_1(input: &str) -> usize {
     let mut total = 0;
 
     unsafe {
-        for cid in 0..NUM_CARDS {
-            data = data.offset("Card   1: ".len() as isize);
+        WINNING_NUMBERS
+            .iter_mut()
+            .take(NUM_CARDS)
+            .for_each(|winnining_numbers| {
+                data = data.add("Card   1: ".len());
 
-            for _ in 0..10 {
-                let num = (data as *const u16).read();
-                WINNING_NUMBERS[cid][num as usize] = true;
-                data = data.offset("12 ".len() as isize);
-            }
+                for _ in 0..10 {
+                    let num = (data as *const u16).read();
+                    winnining_numbers[num as usize] = true;
+                    data = data.add("12 ".len());
+                }
 
-            data = data.offset("| ".len() as isize);
+                data = data.add("| ".len());
 
-            let mut points = 1;
-            for _ in 0..25 {
-                let num = (data as *const u16).read();
-                points <<= WINNING_NUMBERS[cid][num as usize] as usize;
-                data = data.offset("12 ".len() as isize);
-            }
-            points >>= 1;
+                let mut points = 1;
+                for _ in 0..25 {
+                    let num = (data as *const u16).read();
+                    points <<= winnining_numbers[num as usize] as usize;
+                    data = data.add("12 ".len());
+                }
+                points >>= 1;
 
-            total += points;
-        }
+                total += points;
+            });
     }
 
     total
@@ -39,21 +42,21 @@ pub fn part_2(input: &str) -> usize {
     let mut data = input.as_ptr();
     unsafe {
         for cid in 0..NUM_CARDS {
-            data = data.offset("Card   1: ".len() as isize);
+            data = data.add("Card   1: ".len());
 
             for _ in 0..10 {
                 let num = (data as *const u16).read();
                 WINNING_NUMBERS[cid][num as usize] = true;
-                data = data.offset("12 ".len() as isize);
+                data = data.add("12 ".len());
             }
 
-            data = data.offset("| ".len() as isize);
+            data = data.add("| ".len());
 
             let mut num_matches = 0;
             for _ in 0..25 {
                 let num = (data as *const u16).read();
                 num_matches += WINNING_NUMBERS[cid][num as usize] as usize;
-                data = data.offset("12 ".len() as isize);
+                data = data.add("12 ".len());
             }
 
             MATCHES_PER_CARD[cid] = num_matches;

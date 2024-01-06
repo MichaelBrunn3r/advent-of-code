@@ -71,9 +71,7 @@ const fn generate_count_occurences_to_hand_kind_lut(
                         }
                     }
                     HandKind::OnePair => {
-                        if num_jokers == 1 {
-                            kind = HandKind::ThreeOfAKind;
-                        } else if num_jokers == 2 {
+                        if num_jokers == 1 || num_jokers == 2 {
                             kind = HandKind::ThreeOfAKind;
                         }
                     }
@@ -86,7 +84,7 @@ const fn generate_count_occurences_to_hand_kind_lut(
                 }
             }
 
-            lut[idx as usize] = kind;
+            lut[idx] = kind;
 
             num_jokers += 1;
         }

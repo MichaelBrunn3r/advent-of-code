@@ -1,7 +1,3 @@
-use std::collections::HashSet;
-
-use itertools::Itertools;
-
 pub fn part_1(input: &str) -> usize {
     sum_distances(input, 1)
 }

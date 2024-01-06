@@ -1,10 +1,4 @@
-#![allow(dead_code)]
-
-use std::hint::unreachable_unchecked;
-
-use aoc::prelude::*;
 use itertools::Itertools;
-use regex::Regex;
 
 /** '.' */
 const EMPTY: u8 = b'.';
@@ -39,8 +33,7 @@ pub fn part_1(input: &str) -> usize {
     let mut unexplored_dirs = vec![vec![0b1111; size + 2]; size + 2];
     let mut stack = vec![(Direction::Right, (1usize, 0usize))];
 
-    while !stack.is_empty() {
-        let (dir, mut pos) = stack.pop().unwrap();
+    while let Some((dir, mut pos)) = stack.pop() {
         let step = match dir {
             Direction::Up => (-1isize, 0),
             Direction::Down => (1, 0),
@@ -62,7 +55,7 @@ pub fn part_1(input: &str) -> usize {
                 continue;
             }
 
-            let c = tiles[pos.0 as usize][pos.1 as usize];
+            let c = tiles[pos.0][pos.1];
 
             energized[pos.0][pos.1] = true;
             match c {

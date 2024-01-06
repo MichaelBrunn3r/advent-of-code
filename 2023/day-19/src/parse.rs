@@ -213,7 +213,7 @@ impl<'a> Iterator for PartParser<'a> {
     type Item = Part;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.data.len() == 0 {
+        if self.data.is_empty() {
             return None;
         }
 

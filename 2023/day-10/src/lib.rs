@@ -144,7 +144,7 @@ impl<'g> Grid<'g> {
         pos -= (next_dir == Direction::LEFT) as i32;
         pos += (next_dir == Direction::RIGHT) as i32;
 
-        return (pos, next_dir);
+        (pos, next_dir)
     }
 
     fn find_start(&self) -> i32 {
@@ -164,18 +164,5 @@ impl<'g> Grid<'g> {
 
     fn mark_tile(&mut self, idx: i32) {
         self.tiles[idx as usize] = Tile::mark(self.tiles[idx as usize]);
-    }
-
-    fn pretty_print(&self) {
-        self.tiles.chunks_exact(self.width).for_each(|row| {
-            println!(
-                "{}",
-                row.iter()
-                    .map(|&t| Tile::to_unicode_char(unsafe {
-                        std::mem::transmute::<&u8, &Tile>(&t)
-                    }))
-                    .collect::<String>()
-            );
-        });
     }
 }

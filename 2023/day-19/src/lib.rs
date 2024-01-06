@@ -6,7 +6,7 @@ use parse::{PartParser, WorkflowParser};
 pub fn part_1(input: &str) -> usize {
     let mut parser = WorkflowParser::new(input.as_bytes());
     let mut rules = Vec::with_capacity(1650);
-    while let Some(rule) = parser.next() {
+    for rule in parser.by_ref() {
         rules.push(rule)
     }
 
@@ -36,7 +36,7 @@ pub fn part_1(input: &str) -> usize {
 pub fn part_2(input: &str) -> usize {
     let mut parser = WorkflowParser::new(input.as_bytes());
     let mut rules = Vec::with_capacity(1650);
-    while let Some(rule) = parser.next() {
+    for rule in parser.by_ref() {
         rules.push(rule)
     }
 
@@ -48,9 +48,7 @@ pub fn part_2(input: &str) -> usize {
     )];
     let mut accepted = vec![];
 
-    while !stack.is_empty() {
-        let (workflow_id, mut xmas_ranges) = stack.pop().unwrap();
-
+    while let Some((workflow_id, mut xmas_ranges)) = stack.pop() {
         for rule in &rules[workflow_id.0 as usize..workflow_id.1 as usize] {
             match rule.rating {
                 Rating::Any => match rule.on_met {

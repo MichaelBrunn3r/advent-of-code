@@ -61,12 +61,10 @@ pub fn part_2(input: &str) -> usize {
                     let (left_overhang, mapped_range, right_overhang) = map.map(seed_range);
                     mapped.push(mapped_range);
 
-                    match left_overhang {
-                        // Maps are sorted -> We won't find a mapping for the left overhang in this section
-                        Some(range) => mapped.push(range),
-                        _ => {}
+                    // Maps are sorted -> We won't find a mapping for the left overhang in this section
+                    if let Some(range) = left_overhang {
+                        mapped.push(range);
                     }
-
                     if right_overhang.is_none() {
                         break;
                     }
@@ -85,10 +83,10 @@ pub fn part_2(input: &str) -> usize {
 pub fn parse_seeds(data: &mut *const u8) -> [usize; NUM_SEEDS] {
     unsafe {
         let mut seeds = [0; NUM_SEEDS];
-        for i in 0..NUM_SEEDS {
-            seeds[i] = data.parse_ascii_digits(get_num_seed_digits(data));
+        seeds.iter_mut().take(NUM_SEEDS).for_each(|seed| {
+            *seed = data.parse_ascii_digits(get_num_seed_digits(data));
             *data = data.add(1);
-        }
+        });
 
         seeds
     }
@@ -99,10 +97,10 @@ fn parse_seed_ranges(data: &mut *const u8) -> Vec<Range<usize>> {
         let mut seed_ranges = vec![];
         for _ in 0..NUM_SEED_RANGES {
             let mut seed_range = [0; 2];
-            for i in 0..2 {
-                seed_range[i] = data.parse_ascii_digits(get_num_seed_digits(data));
+            seed_range.iter_mut().take(3).for_each(|range| {
+                *range = data.parse_ascii_digits(get_num_seed_digits(data));
                 *data = data.add(1);
-            }
+            });
 
             seed_ranges.push(seed_range[0]..seed_range[0] + seed_range[1]);
         }
@@ -122,12 +120,14 @@ unsafe fn get_num_seed_digits(data: &*const u8) -> usize {
     }
 }
 
-pub unsafe fn parse_map_sections(data: &mut *const u8) -> Vec<Vec<RangeToRangeMap>> {
+pub fn parse_map_sections(data: &mut *const u8) -> Vec<Vec<RangeToRangeMap>> {
     let mut sections = vec![];
 
-    while data.read() == b'\n' {
-        *data = data.add(1);
-        sections.push(parse_map_section(data));
+    unsafe {
+        while data.read() == b'\n' {
+            *data = data.add(1);
+            sections.push(parse_map_section(data));
+        }
     }
 
     sections
@@ -147,7 +147,7 @@ unsafe fn parse_map_section(data: &mut *const u8) -> Vec<RangeToRangeMap> {
         }
 
         let mut parts = [0; 3];
-        for i in 0..3 {
+        parts.iter_mut().take(3).for_each(|part| {
             let mut num = 0;
             while data.read().is_ascii_digit() {
                 num *= 10;
@@ -156,8 +156,8 @@ unsafe fn parse_map_section(data: &mut *const u8) -> Vec<RangeToRangeMap> {
             }
             *data = data.add(1);
 
-            parts[i] = num;
-        }
+            *part = num;
+        });
 
         section.push(RangeToRangeMap {
             from: parts[1]..parts[1] + parts[2],
@@ -187,10 +187,6 @@ impl RangeToRangeMap {
             from: val..val,
             to: val..val,
         }
-    }
-
-    pub fn len(&self) -> usize {
-        self.from.len()
     }
 
     pub fn map_value(&self, val: usize) -> usize {

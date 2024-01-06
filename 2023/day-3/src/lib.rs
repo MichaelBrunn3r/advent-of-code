@@ -18,14 +18,14 @@ pub fn part_1(input: &str) -> usize {
 
             if range.start > 0 {
                 let prev_char = line.chars().nth(range.start - 1).unwrap();
-                if prev_char != '.' && !prev_char.is_digit(10) {
+                if prev_char != '.' && !prev_char.is_ascii_digit() {
                     is_part_number = true;
                 }
             }
 
             if !is_part_number && range.end < line.len() {
                 let next_char = line.chars().nth(range.end).unwrap();
-                if next_char != '.' && !next_char.is_digit(10) {
+                if next_char != '.' && !next_char.is_ascii_digit() {
                     is_part_number = true;
                 }
             }
@@ -34,7 +34,7 @@ pub fn part_1(input: &str) -> usize {
                 let prev_line = lines[i - 1];
                 for j in range.start.saturating_sub(1)..(range.end + 1).min(prev_line.len()) {
                     let above_char = prev_line.chars().nth(j).unwrap();
-                    if above_char != '.' && !above_char.is_digit(10) {
+                    if above_char != '.' && !above_char.is_ascii_digit() {
                         is_part_number = true;
                         break;
                     }
@@ -45,7 +45,7 @@ pub fn part_1(input: &str) -> usize {
                 let next_line = lines[i + 1];
                 for j in range.start.saturating_sub(1)..(range.end + 1).min(next_line.len()) {
                     let below_char = next_line.chars().nth(j).unwrap();
-                    if below_char != '.' && !below_char.is_digit(10) {
+                    if below_char != '.' && !below_char.is_ascii_digit() {
                         is_part_number = true;
                         break;
                     }
@@ -69,8 +69,8 @@ pub fn part_1(input: &str) -> usize {
 pub fn part_2(lines: &[Vec<u8>]) -> usize {
     let mut sum = 0;
 
-    for pos in star_positions(&lines) {
-        let numbers = adjacent_numbers(&lines, pos);
+    for pos in star_positions(lines) {
+        let numbers = adjacent_numbers(lines, pos);
         if numbers.len() != 2 {
             continue;
         }
@@ -145,7 +145,7 @@ fn adjacent_numbers(lines: &[Vec<u8>], star_position: (usize, usize)) -> Vec<&[u
     numbers
 }
 
-fn star_positions<'l>(lines: &'l [Vec<u8>]) -> impl Iterator<Item = (usize, usize)> + 'l {
+fn star_positions(lines: &'_ [Vec<u8>]) -> impl Iterator<Item = (usize, usize)> + '_ {
     lines.iter().enumerate().flat_map(|(l, line)| {
         line.iter()
             .enumerate()

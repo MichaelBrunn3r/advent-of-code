@@ -1,4 +1,3 @@
-use aoc::prelude::*;
 use itertools::Itertools;
 
 // 1000 too low

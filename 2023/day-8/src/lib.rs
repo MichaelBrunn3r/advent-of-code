@@ -1,9 +1,7 @@
 use aoc::prelude::UnsignedExt;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
-const NUM_INSTRUCTIONS: usize = 283;
 const LINE_LEN: usize = 17;
-
 const NUM_POSSIBLE_NODES: usize = 26426;
 const ZZZ: u16 = encode_base_26(b"ZZZ");
 const Z: u16 = 25;

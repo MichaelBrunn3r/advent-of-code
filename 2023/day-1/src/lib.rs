@@ -51,7 +51,6 @@ pub fn part_2(input: &str) -> usize {
             while *input != b'\n' {
                 let val = (input as *const u32).read();
                 let three_bytes = val & 0b11111111_11111111_11111111;
-                let four_bytes = val & 0b11111111_11111111_11111111_11111111;
 
                 if val & 0b01000000 == 0 {
                     last = *input - b'0';
@@ -62,25 +61,25 @@ pub fn part_2(input: &str) -> usize {
                 } else if three_bytes == TWO {
                     last = 2;
                     input = input.add(2);
-                } else if four_bytes == THREE {
+                } else if val == THREE {
                     last = 3;
                     input = input.add(3);
-                } else if four_bytes == FOUR {
+                } else if val == FOUR {
                     last = 4;
                     input = input.add(1);
-                } else if four_bytes == FIVE {
+                } else if val == FIVE {
                     last = 5;
                     input = input.add(3);
                 } else if three_bytes == SIX {
                     last = 6;
                     input = input.add(3);
-                } else if four_bytes == SEVEN {
+                } else if val == SEVEN {
                     last = 7;
                     input = input.add(1);
-                } else if four_bytes == EIGHT {
+                } else if val == EIGHT {
                     last = 8;
                     input = input.add(4);
-                } else if four_bytes == NINE {
+                } else if val == NINE {
                     last = 9;
                     input = input.add(3);
                 } else {

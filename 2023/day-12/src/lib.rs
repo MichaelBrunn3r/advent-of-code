@@ -1,6 +1,5 @@
 use aoc::prelude::*;
 use itertools::Itertools;
-use regex::Regex;
 
 const OPERATIONAL: u8 = b'.';
 const DAMAGED: u8 = b'#';

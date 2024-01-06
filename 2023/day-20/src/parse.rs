@@ -44,25 +44,25 @@ impl ModuleParser {
         }
     }
 
-    unsafe fn parse_module_outputs_inplace<'d, const N: usize>(
+    unsafe fn parse_module_outputs_inplace<const N: usize>(
         num_outputs: usize,
         outputs: &mut [u16],
         mut data: *const u8,
     ) -> *mut u8 {
-        for i in 0..num_outputs - 1 {
-            outputs[i] = Self::hash(data);
-            data = data.offset("aa, ".len() as isize);
-        }
+        outputs.iter_mut().take(num_outputs - 1).for_each(|output| {
+            *output = Self::hash(data);
+            data = data.add("aa, ".len());
+        });
 
         // Last output has no comma and ends with a newline
         outputs[num_outputs - 1] = Self::hash(data);
-        data = data.offset("aa\n".len() as isize);
+        data = data.add("aa\n".len());
 
         data as *mut u8
     }
 
     unsafe fn hash(name: *const u8) -> u16 {
-        return (name as *const u16).read();
+        (name as *const u16).read()
     }
 
     fn reset(&mut self) {
@@ -77,7 +77,7 @@ impl ModuleParser {
             unsafe {
                 match *data {
                     b'b' => {
-                        data = data.offset("broadcaster -> ".len() as isize);
+                        data = data.add("broadcaster -> ".len());
                         data = Self::parse_module_outputs_inplace::<4>(
                             4,
                             &mut self.broadcaster_outputs,
@@ -86,7 +86,7 @@ impl ModuleParser {
                     }
                     b'%' => {
                         let hash = Self::hash(data.offset(1));
-                        data = data.offset("%aa -> ".len() as isize);
+                        data = data.add("%aa -> ".len());
 
                         let num_module_outputs = Self::count_flipflop_outputs(data);
 
@@ -98,17 +98,17 @@ impl ModuleParser {
                     }
                     b'&' => {
                         let hash = Self::hash(data.offset(1));
-                        data = data.offset("%aa -> ".len() as isize);
+                        data = data.add("%aa -> ".len());
 
                         let num_module_outputs = Self::count_conjunction_outputs(data);
                         if num_module_outputs == 5 {
                             self.cycle_conjunctions[self.num_cycle_conjunctions] = hash; // Only store cycle conjunctions
                             self.num_cycle_conjunctions += 1;
 
-                            data = data.offset("aa, bb, cc, dd, ee\n".len() as isize);
+                            data = data.add("aa, bb, cc, dd, ee\n".len());
                         // Skip outputs
                         } else {
-                            data = data.offset("aa\n".len() as isize); // Skip other conjunctions
+                            data = data.add("aa\n".len()); // Skip other conjunctions
                         }
                     }
                     _ => unreachable!(),

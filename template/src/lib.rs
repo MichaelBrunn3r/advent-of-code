@@ -1,5 +1,3 @@
-#![allow(unused_imports, unused_variables)]
-
 use aoc::prelude::*;
 use itertools::Itertools;
 use regex::Regex;

@@ -1,5 +1,4 @@
 use aoc::U8PtrExt;
-use itertools::Itertools;
 
 // distance = hold_time * (time - hold_time)
 // -> distance_to_beat < hold_time * (time - hold_time)
@@ -16,10 +15,10 @@ pub fn part_1(input: &str) -> usize {
         data = data.add("Time:   ".len());
 
         let mut times = [0; 4];
-        for i in 0..4 {
+        times.iter_mut().take(4).for_each(|time| {
             data = data.add("     ".len());
-            times[i] = data.parse_ascii_digits(2);
-        }
+            *time = data.parse_ascii_digits(2);
+        });
 
         data = data.add("\nDistance".len());
 

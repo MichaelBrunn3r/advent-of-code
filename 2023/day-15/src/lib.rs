@@ -1,11 +1,10 @@
 use std::arch::x86_64::{__m256i, _mm256_mullo_epi16, _mm256_set_epi16, _mm256_storeu_si256};
 
-use aoc::prelude::*;
 use itertools::Itertools;
 
 pub fn part_1(input: &str) -> usize {
     SplitIter::new(&input.as_bytes()[..input.len() - 1])
-        .map(|s| hash(s) % 256 as usize)
+        .map(|s| hash(s) % 256)
         .sum()
 }
 
@@ -103,7 +102,7 @@ impl<'i> Iterator for SplitIter<'i> {
     fn next(&mut self) -> Option<Self::Item> {
         let chars_left = self.input.len().saturating_sub(self.pos);
         match chars_left {
-            0 | 1 | 2 => return None,
+            0..=2 => return None,
             3 => {
                 let result = &self.input[self.pos..self.pos + 3];
                 self.pos += 3;
@@ -176,14 +175,14 @@ pub fn part_2_avx(input: &str) -> usize {
     let mut sum = iter
         .remainder()
         .iter()
-        .map(|[box_num, pos, focal_len]| box_num * pos * *focal_len as usize)
+        .map(|[box_num, pos, focal_len]| box_num * pos * *focal_len)
         .sum::<usize>();
 
     sum += iter
         .map(|chunk| {
-            let box_nums = chunk_to_m256i(0, &chunk);
-            let lens_pos = chunk_to_m256i(1, &chunk);
-            let focal_lens = chunk_to_m256i(2, &chunk);
+            let box_nums = chunk_to_m256i(0, chunk);
+            let lens_pos = chunk_to_m256i(1, chunk);
+            let focal_lens = chunk_to_m256i(2, chunk);
 
             let res = unsafe { _mm256_mullo_epi16(box_nums, lens_pos) };
             let res = unsafe { _mm256_mullo_epi16(res, focal_lens) };

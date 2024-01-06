@@ -1,8 +1,6 @@
 use aoc::prelude::*;
 use itertools::Itertools;
-use regex::Regex;
 
-const ASH: u8 = b'.';
 const ROCKS: u8 = b'#';
 
 pub fn part_1(input: &str) -> usize {
@@ -47,7 +45,7 @@ pub fn part_2(input: &str) -> usize {
 
     patterns
         .enumerate()
-        .map(|(i, (pattern, row_reflections, col_reflections))| {
+        .map(|(_, (pattern, row_reflections, col_reflections))| {
             for row_idx in row_reflections {
                 if reflection_with_smudge_at(&pattern.rows, row_idx) {
                     return 100 * row_idx;
@@ -95,7 +93,7 @@ fn reflection_with_smudge_at(lines: &[usize], idx: usize) -> bool {
         }
     }
 
-    return has_smudge;
+    has_smudge
 }
 
 #[derive(Debug)]
@@ -105,7 +103,7 @@ struct Pattern {
 }
 
 impl Pattern {
-    fn parse<'a>(section: &str) -> Pattern {
+    fn parse(section: &str) -> Pattern {
         let num_cols = section.lines().next().unwrap().len();
         let mut cols = vec![0; num_cols];
 

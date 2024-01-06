@@ -12,15 +12,15 @@ pub fn part_1(input: &str) -> usize {
             'game: loop {
                 // #AmountDigits = {1:956, 2:288}
                 if *data.offset(1) == b' ' {
-                    match *data.offset("1 ".len() as isize) {
+                    match *data.add("1 ".len()) {
                         b'r' => {
-                            data = data.offset("1 red".len() as isize);
+                            data = data.add("1 red".len());
                         }
                         b'g' => {
-                            data = data.offset("1 green".len() as isize);
+                            data = data.add("1 green".len());
                         }
                         b'b' => {
-                            data = data.offset("1 blue".len() as isize);
+                            data = data.add("1 blue".len());
                         }
                         _ => {}
                     }
@@ -28,24 +28,24 @@ pub fn part_1(input: &str) -> usize {
                     let mut amount = *data - b'0';
                     amount = amount * 10 + (*data.offset(1) - b'0');
 
-                    match *data.offset("12 ".len() as isize) {
+                    match *data.add("12 ".len()) {
                         b'r' => {
                             if amount > 12 {
                                 is_game_valid = false;
                             }
-                            data = data.offset("12 red".len() as isize);
+                            data = data.add("12 red".len());
                         }
                         b'g' => {
                             if amount > 13 {
                                 is_game_valid = false;
                             }
-                            data = data.offset("12 green".len() as isize);
+                            data = data.add("12 green".len());
                         }
                         b'b' => {
                             if amount > 14 {
                                 is_game_valid = false;
                             }
-                            data = data.offset("12 blue".len() as isize);
+                            data = data.add("12 blue".len());
                         }
                         _ => {}
                     }
@@ -53,11 +53,11 @@ pub fn part_1(input: &str) -> usize {
 
                 match *data {
                     b'\n' => {
-                        data = data.offset("\n".len() as isize);
+                        data = data.add("\n".len());
                         break 'game;
                     }
                     _ => {
-                        data = data.offset(", ".len() as isize);
+                        data = data.add(", ".len());
                     }
                 }
             }
@@ -86,18 +86,18 @@ pub fn part_2(input: &str) -> usize {
             'game: loop {
                 // #AmountDigits = {1:956, 2:288}
                 if *data.offset(1) == b' ' {
-                    match *data.offset("1 ".len() as isize) {
+                    match *data.add("1 ".len()) {
                         b'r' => {
                             max_red = max_red.max((*data - b'0') as usize);
-                            data = data.offset("1 red".len() as isize);
+                            data = data.add("1 red".len());
                         }
                         b'g' => {
                             max_green = max_green.max((*data - b'0') as usize);
-                            data = data.offset("1 green".len() as isize);
+                            data = data.add("1 green".len());
                         }
                         b'b' => {
                             max_blue = max_blue.max((*data - b'0') as usize);
-                            data = data.offset("1 blue".len() as isize);
+                            data = data.add("1 blue".len());
                         }
                         _ => {}
                     }
@@ -105,18 +105,18 @@ pub fn part_2(input: &str) -> usize {
                     let mut amount = *data - b'0';
                     amount = amount * 10 + (*data.offset(1) - b'0');
 
-                    match *data.offset("12 ".len() as isize) {
+                    match *data.add("12 ".len()) {
                         b'r' => {
                             max_red = max_red.max(amount as usize);
-                            data = data.offset("12 red".len() as isize);
+                            data = data.add("12 red".len());
                         }
                         b'g' => {
                             max_green = max_green.max(amount as usize);
-                            data = data.offset("12 green".len() as isize);
+                            data = data.add("12 green".len());
                         }
                         b'b' => {
                             max_blue = max_blue.max(amount as usize);
-                            data = data.offset("12 blue".len() as isize);
+                            data = data.add("12 blue".len());
                         }
                         _ => {}
                     }
@@ -124,11 +124,11 @@ pub fn part_2(input: &str) -> usize {
 
                 match *data {
                     b'\n' => {
-                        data = data.offset("\n".len() as isize);
+                        data = data.add("\n".len());
                         break 'game;
                     }
                     _ => {
-                        data = data.offset(", ".len() as isize);
+                        data = data.add(", ".len());
                     }
                 }
             }

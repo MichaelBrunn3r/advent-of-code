@@ -1,4 +1,3 @@
-use aoc::prelude::*;
 use aoc_2023_14::*;
 
 fn main() {

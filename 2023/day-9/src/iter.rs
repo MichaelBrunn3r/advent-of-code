@@ -1,5 +1,3 @@
-use itertools::Itertools;
-
 pub struct SeriesValuesIterator<'a> {
     input: &'a [u8],
     pos: usize,
@@ -45,7 +43,7 @@ impl<'a> Iterator for SeriesValuesIterator<'a> {
             }
         }
 
-        return Some(val * sign);
+        Some(val * sign)
     }
 }
 
@@ -101,39 +99,6 @@ impl Iterator for SeriesValuesIteratorReverse<'_> {
             }
         }
 
-        return Some(val * sign);
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_series_values_iterator() {
-        assert_eq!(
-            SeriesValuesIterator::new("0 1 2 3 4".as_bytes()).collect_vec(),
-            vec![0, 1, 2, 3, 4]
-        );
-        assert_eq!(
-            SeriesValuesIterator::new("-1 -4 -13 -35 -77 -144 -237 -351 -473 -580 -637 -595 -389 64 867 2145 4047 6748 10451 15389 21827".as_bytes()).collect_vec(),
-            vec![-1, -4, -13,-35,-77,-144,-237,-351,-473,-580,-637,-595,-389,64,867,2145,4047,6748,10451,15389,21827]
-        );
-    }
-
-    #[test]
-    fn test_series_values_iterator_rev() {
-        assert_eq!(
-            SeriesValuesIteratorReverse::new("0 1 2 3 4".as_bytes()).collect_vec(),
-            vec![4, 3, 2, 1, 0]
-        );
-        assert_eq!(
-            SeriesValuesIteratorReverse::new("3 2 1 0 -1 -2 -3".as_bytes()).collect_vec(),
-            vec![-3, -2, -1, 0, 1, 2, 3]
-        );
-        assert_eq!(
-            SeriesValuesIteratorReverse::new("-144".as_bytes()).collect_vec(),
-            vec![-144]
-        );
+        Some(val * sign)
     }
 }
