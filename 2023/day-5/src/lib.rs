@@ -1,6 +1,4 @@
-use aoc::prelude::RangeExt;
 use aoc::prelude::*;
-use itertools::Itertools;
 use std::ops::Range;
 
 const NUM_SEEDS: usize = 20;
@@ -15,9 +13,7 @@ pub fn part_1(input: &str) -> usize {
 
         let seeds = parse_seeds(&mut data);
 
-        let map_sections = sections
-            .map(|s| parse_map_section(s.lines()))
-            .collect::<Vec<_>>();
+        let map_sections = parse_map_sections(&mut data);
 
         let mut min = usize::MAX;
         for seed in seeds.iter() {
@@ -25,7 +21,6 @@ pub fn part_1(input: &str) -> usize {
             for mappings in map_sections.iter() {
                 let default = RangeToRangeMap::identity(mapped);
                 let mapping = mappings
-                    .maps
                     .iter()
                     .take_while(|map| mapped >= map.from.start)
                     .find(|map| map.from.contains(&mapped))
@@ -54,16 +49,13 @@ pub fn part_2(input: &str) -> usize {
 
         let mut seed_ranges = parse_seed_ranges(&mut data);
 
-        let map_sections = sections
-            .map(|s| parse_map_section(s.lines()))
-            .collect::<Vec<_>>();
+        let map_sections = parse_map_sections(&mut data);
 
         for map_section in map_sections.iter() {
             seed_ranges = seed_ranges
                 .into_iter()
                 .map(|mut seed_range| {
                     let maps: Vec<&RangeToRangeMap> = map_section
-                        .maps
                         .iter()
                         .filter(|m| seed_range.intersects(&m.from))
                         .collect();
@@ -161,38 +153,51 @@ fn parse_seed_ranges(data: &mut *const u8) -> Vec<Range<usize>> {
     }
 }
 
-fn parse_map_section<'a>(mut lines: impl Iterator<Item = &'a str>) -> MapSection<'a> {
-    let (from, to) = lines
-        .next()
-        .unwrap()
-        .split_once(' ')
-        .unwrap()
-        .0
-        .split_once("-to-")
-        .unwrap();
+unsafe fn parse_map_sections(data: &mut *const u8) -> Vec<Vec<RangeToRangeMap>> {
+    let mut sections = vec![];
 
-    let mut maps: Vec<RangeToRangeMap> = lines
-        .map(|line| {
-            let (to_start, from_start, len) = line
-                .parse_splits::<usize>(" ")
-                .next_tuple::<(usize, usize, usize)>()
-                .unwrap();
-            RangeToRangeMap {
-                from: (from_start)..(from_start + len),
-                to: (to_start)..(to_start + len),
-            }
-        })
-        .collect();
+    while data.read() == b'\n' {
+        *data = data.add(1);
+        sections.push(parse_map_section(data));
+    }
 
-    maps.sort_by_key(|map| map.from.start);
-
-    MapSection { from, to, maps }
+    sections
 }
 
-struct MapSection<'a> {
-    from: &'a str,
-    to: &'a str,
-    maps: Vec<RangeToRangeMap>,
+unsafe fn parse_map_section(data: &mut *const u8) -> Vec<RangeToRangeMap> {
+    while data.read() != b'\n' {
+        *data = data.add(1);
+    }
+    *data = data.add(1);
+
+    let mut section = vec![];
+
+    loop {
+        if !data.read().is_ascii_digit() {
+            break;
+        }
+
+        let mut parts = [0; 3];
+        for i in 0..3 {
+            let mut num = 0;
+            while data.read().is_ascii_digit() {
+                num *= 10;
+                num += (data.read() - b'0') as usize;
+                *data = data.add(1);
+            }
+            *data = data.add(1);
+
+            parts[i] = num;
+        }
+
+        section.push(RangeToRangeMap {
+            from: parts[1]..parts[1] + parts[2],
+            to: parts[0]..parts[0] + parts[2],
+        });
+    }
+
+    section.sort_by_key(|map| map.from.start);
+    section
 }
 
 #[derive(Debug, PartialEq, Clone)]
