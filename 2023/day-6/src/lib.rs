@@ -1,6 +1,5 @@
-use aoc::prelude::*;
+use aoc::U8PtrExt;
 use itertools::Itertools;
-use regex::Regex;
 
 // distance = hold_time * (time - hold_time)
 // -> distance_to_beat < hold_time * (time - hold_time)
@@ -12,55 +11,73 @@ use regex::Regex;
 // h^2 - th + d = 0
 
 pub fn part_1(input: &str) -> usize {
-    let re_number = Regex::new(r"(\d+)").unwrap();
-    let (times, distances_to_beat) = input
-        .split('\n')
-        .map(|line| {
-            re_number
-                .find_iter(line.split_once(':').unwrap().1)
-                .map(|m| m.as_str().parse::<usize>().unwrap())
-                .collect::<Vec<usize>>()
-        })
-        .collect_tuple()
-        .unwrap();
+    let mut data = input.as_ptr();
+    unsafe {
+        data = data.add("Time:   ".len());
 
-    times
-        .iter()
-        .zip(distances_to_beat.iter())
-        .map(|(time, distance_to_beat)| {
-            let (max_hold_time, min_hold_time) =
-                quadratic_formula(1.0, -(*time as f64), *distance_to_beat as f64);
+        let mut times = [0; 4];
+        for i in 0..4 {
+            data = data.add("     ".len());
+            times[i] = data.parse_ascii_digits(2);
+        }
 
-            (
-                (max_hold_time - 1.0).ceil() as usize,
-                (min_hold_time + 1.0).floor() as usize,
-            )
-        })
-        .map(|(max_hold_time, min_hold_time)| max_hold_time - min_hold_time + 1)
-        .reduce(|acc, x| acc * x)
-        .unwrap()
+        data = data.add("\nDistance".len());
+
+        (0..4)
+            .map(|_| {
+                data = data.add("   ".len());
+                let num_digits = get_num_distance_digits(&mut data);
+                data.parse_ascii_digits(num_digits)
+            })
+            .zip(times.iter())
+            .map(|(distance, time)| {
+                let (max_hold_time, min_hold_time) =
+                    quadratic_formula(1.0, -(*time as f64), distance as f64);
+
+                (
+                    (max_hold_time).floor() as usize,
+                    (min_hold_time).ceil() as usize,
+                )
+            })
+            .map(|(max_hold_time, min_hold_time)| max_hold_time - min_hold_time + 1)
+            .reduce(|acc, x| acc * x)
+            .unwrap()
+    }
 }
 
 pub fn part_2(input: &str) -> usize {
-    let (time, distance_to_beat) = input
-        .lines()
-        .map(|line| {
-            line.split_once(':')
-                .unwrap()
-                .1
-                .replace(" ", "")
-                .parse::<usize>()
-                .unwrap()
-        })
-        .collect_tuple()
-        .unwrap();
+    let mut data = input.as_ptr();
+    unsafe {
+        data = data.add("Time:   ".len());
 
-    // println!("time: {}, distance_to_beat: {}", time, distance_to_beat);
+        let mut time = 0usize;
+        for _ in 0..4 {
+            data = data.add("     ".len());
+            for _ in 0..2 {
+                time *= 10;
+                time += (data.read() - b'0') as usize;
+                data = data.add(1);
+            }
+        }
 
-    let (max_hold_time, min_hold_time) =
-        quadratic_formula(1.0, -(time as f64), distance_to_beat as f64);
+        data = data.add("\nDistance".len());
 
-    ((max_hold_time - 1.0).ceil() as usize) - ((min_hold_time + 1.0).floor() as usize) + 1
+        let mut distance = 0usize;
+        for _ in 0..4 {
+            data = data.add("   ".len());
+            let num_digits = get_num_distance_digits(&mut data);
+            for _ in 0..num_digits {
+                distance *= 10;
+                distance += (data.read() - b'0') as usize;
+                data = data.add(1);
+            }
+        }
+
+        let (max_hold_time, min_hold_time) =
+            quadratic_formula(1.0, -(time as f64), distance as f64);
+
+        ((max_hold_time).floor() as usize) - ((min_hold_time).ceil() as usize) + 1
+    }
 }
 
 fn quadratic_formula(a: f64, b: f64, c: f64) -> (f64, f64) {
@@ -71,6 +88,11 @@ fn quadratic_formula(a: f64, b: f64, c: f64) -> (f64, f64) {
     (x1, x2)
 }
 
-fn calculate_distance(time: usize, hold_time: usize) -> usize {
-    hold_time * (time - hold_time)
+unsafe fn get_num_distance_digits(data: &mut *const u8) -> usize {
+    if data.read() != b' ' {
+        4
+    } else {
+        *data = data.add(1);
+        3
+    }
 }
