@@ -1,6 +1,6 @@
 # Advent of Code 🎄 Solutions
 
-### 2023 (Total: `98252.476µs = 9.8ms`)
+### 2023 (Total: `95252.476µs = 9.5ms`)
 
 | Day | Problem                                                                | Bench               | Code                    |
 | --- | ---------------------------------------------------------------------- | ------------------- | ----------------------- |
@@ -17,7 +17,7 @@
 | 11  | [Cosmic Expansion](https://adventofcode.com/2023/day/11)               | `105.8µs` `105.4µs` | [`Code`](./2023/day-11) |
 | 12  | [Hot Springs](https://adventofcode.com/2023/day/12)                    |                     |                         |
 | 13  | [Point of Incidence](https://adventofcode.com/2023/day/13)             | `48.3µs` `50.4µs`   | [`Code`](./2023/day-13) |
-| 14  | [Parabolic Reflector Dish](https://adventofcode.com/2023/day/14)       | `6.2µs` `9.7ms`     | [`Code`](./2023/day-14) |
+| 14  | [Parabolic Reflector Dish](https://adventofcode.com/2023/day/14)       | `6.2µs` `9.4ms`     | [`Code`](./2023/day-14) |
 | 15  | [Lens Library](https://adventofcode.com/2023/day/15)                   | `12.5µs` `39.7µs`   | [`Code`](./2023/day-15) |
 | 16  | [The Floor Will Be Lava](https://adventofcode.com/2023/day/16)         |                     |                         |
 | 17  | [Clumsy Crucible](https://adventofcode.com/2023/day/17)                |                     |                         |
@@ -30,7 +30,7 @@
 | 24  | [Never Tell Me The Odds](https://adventofcode.com/2023/day/24)         |                     |                         |
 | 25  | [Snowverload](https://adventofcode.com/2023/day/25)                    |                     |                         |
 
-<!-- (5.7 + 43.1) + (1 + 1) + (441.2 + 30.6) + (2.2 + 3.7) + (3.7 + 15.6) + (0.04 + 0.02) + (19.3 + 19.3) + (29.2 + 69.1) + (23.6 + 24.3) + (35.6 + 49.5) + (105.8 + 105.4) + (48.3 + 50.4) + (6.2 + 97000) + (12.5 + 39.7) + (30.8 + 35.5) + (0.061 + 0.055) -->
+<!-- (5.7 + 43.1) + (1 + 1) + (441.2 + 30.6) + (2.2 + 3.7) + (3.7 + 15.6) + (0.04 + 0.02) + (19.3 + 19.3) + (29.2 + 69.1) + (23.6 + 24.3) + (35.6 + 49.5) + (105.8 + 105.4) + (48.3 + 50.4) + (6.2 + 94000) + (12.5 + 39.7) + (30.8 + 35.5) + (0.061 + 0.055) -->
 
 ### 2022
 

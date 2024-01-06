@@ -5,6 +5,8 @@ const SPHERE: u8 = b'O';
 const CUBE: u8 = b'#';
 const EMPTY: u8 = b'.';
 
+const COLS: usize = 101;
+
 pub fn part_1(input: &str) -> usize {
     tilt_north_and_calc_load(input.as_bytes(), input.find('\n').unwrap())
 }
@@ -43,7 +45,7 @@ pub fn calc_load(platform: &[u8], size: usize) -> usize {
 }
 
 pub fn tilt_north_and_calc_load(platform: &[u8], size: usize) -> usize {
-    let mut current_stops = vec![size + 1; size];
+    let mut current_stops = [size + 1; COLS];
     let mut total_load = 0;
 
     for (line, load) in platform.chunks_exact(size + 1).zip((1..size + 1).rev()) {
@@ -85,7 +87,7 @@ pub fn spin(platform: &mut [u8], rows: usize, cols: usize) {
 }
 
 pub fn tilt_north(platform: &mut [u8], rows: usize, cols: usize) {
-    let mut row_stops = vec![0; cols];
+    let mut row_stops = [0; COLS];
 
     let mut pos = 0;
     for row in 0..rows {
@@ -108,7 +110,7 @@ pub fn tilt_north(platform: &mut [u8], rows: usize, cols: usize) {
 }
 
 fn tilt_south(platform: &mut [u8], rows: usize, cols: usize) {
-    let mut row_stops = vec![rows - 1; cols];
+    let mut row_stops = [rows - 1; COLS];
 
     let mut pos = rows * cols - 1;
     for row in (0..rows).rev() {
