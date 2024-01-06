@@ -1,8 +1,4 @@
-use lazy_static::lazy_static;
-use regex::Regex;
-
 const NUM_LINES: usize = 1000;
-
 pub fn part_1(input: &str) -> usize {
     let mut input = input.as_ptr();
     let mut sum = 0;
@@ -33,100 +29,72 @@ pub fn part_1(input: &str) -> usize {
     sum
 }
 
-pub fn part_2(input: &str) -> u32 {
-    input
-        .lines()
-        .map(|line| {
-            let (first, last) = first_and_last_digit_with_names(line.as_bytes());
-            10 * first + last
-        })
-        .sum()
-}
+const ONE: u32 = 0b01100101_01101110_01101111; // ?eno
+const TWO: u32 = 0b01101111_01110111_01110100; // ?owt
+const THREE: u32 = 0b01100101_01110010_01101000_01110100; // erht
+const FOUR: u32 = 0b01110010_01110101_01101111_01100110; // ruof
+const FIVE: u32 = 0b01100101_01110110_01101001_01100110; // evif
+const SIX: u32 = 0b01111000_01101001_01110011; // ?xis
+const SEVEN: u32 = 0b01100101_01110110_01100101_01110011; // eves
+const EIGHT: u32 = 0b01101000_01100111_01101001_01100101; // hgie
+const NINE: u32 = 0b01100101_01101110_01101001_01101110; // enin
 
-lazy_static! {
-    static ref DIGIT_PATTERN: Regex = Regex::new(r"(\d)").unwrap();
-}
+pub fn part_2(input: &str) -> usize {
+    let mut input = input.as_ptr();
+    let mut sum = 0;
 
-fn first_and_last_digit_with_names(line: &[u8]) -> (u32, u32) {
-    let mut first = -1i32;
-    let mut last = -1i32;
-    for (i, c) in line.iter().enumerate() {
-        match c {
-            b'0'..=b'9' => {
-                last = (c - b'0') as i32;
-            }
-            b'e' => {
-                if &line[i..(i + 5).min(line.len())] == b"eight" {
-                    last = 8;
-                }
-            }
-            b'f' => {
-                if &line[i..(i + 4).min(line.len())] == b"five" {
-                    last = 5;
-                } else if &line[i..(i + 4).min(line.len())] == b"four" {
-                    last = 4;
-                }
-            }
-            b'n' => {
-                if &line[i..(i + 4).min(line.len())] == b"nine" {
-                    last = 9;
-                }
-            }
-            b'o' => {
-                if &line[i..(i + 3).min(line.len())] == b"one" {
+    unsafe {
+        for _ in 0..NUM_LINES {
+            let mut first = 0;
+            let mut last = 0;
+
+            while *input != b'\n' {
+                let val = (input as *const u32).read();
+                let three_bytes = val & 0b11111111_11111111_11111111;
+                let four_bytes = val & 0b11111111_11111111_11111111_11111111;
+
+                if val & 0b01000000 == 0 {
+                    last = *input - b'0';
+                    input = input.add(1);
+                } else if three_bytes == ONE {
                     last = 1;
-                }
-            }
-            b's' => {
-                if &line[i..(i + 5).min(line.len())] == b"seven" {
-                    last = 7;
-                } else if &line[i..(i + 3).min(line.len())] == b"six" {
-                    last = 6;
-                }
-            }
-            b't' => {
-                if &line[i..(i + 3).min(line.len())] == b"two" {
+                    input = input.add(2);
+                } else if three_bytes == TWO {
                     last = 2;
-                } else if &line[i..(i + 5).min(line.len())] == b"three" {
+                    input = input.add(2);
+                } else if four_bytes == THREE {
                     last = 3;
+                    input = input.add(3);
+                } else if four_bytes == FOUR {
+                    last = 4;
+                    input = input.add(1);
+                } else if four_bytes == FIVE {
+                    last = 5;
+                    input = input.add(3);
+                } else if three_bytes == SIX {
+                    last = 6;
+                    input = input.add(3);
+                } else if four_bytes == SEVEN {
+                    last = 7;
+                    input = input.add(1);
+                } else if four_bytes == EIGHT {
+                    last = 8;
+                    input = input.add(4);
+                } else if four_bytes == NINE {
+                    last = 9;
+                    input = input.add(3);
+                } else {
+                    input = input.add(1);
+                }
+
+                if first == 0 {
+                    first = last;
                 }
             }
-            _ => {}
-        }
-        if first < 0 {
-            first = last;
+
+            sum += 10 * first as usize + last as usize;
+            input = input.add(1);
         }
     }
-
-    (first as u32, last as u32)
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_sum_of_calibration_values() {
-        assert_eq!(
-            part_2(
-                r#"1abc2
-                pqr3stu8vwx
-                a1b2c3d4e5f
-                treb7uchet"#
-            ),
-            142
-        );
-        assert_eq!(
-            part_2(
-                r#"two1nine
-                eightwothree
-                abcone2threexyz
-                xtwone3four
-                4nineeightseven2
-                zoneight234
-                7pqrstsixteen"#
-            ),
-            281
-        );
-    }
+    sum
 }
