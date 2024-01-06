@@ -1,6 +1,6 @@
 # Advent of Code 🎄 Solutions
 
-### 2023 (Total: `14167µs = 14ms`)
+### 2023 (Total: `11407µs = 11.4ms`)
 
 | Day | Problem                                                                | Bench           | Code                    |
 | --- | ---------------------------------------------------------------------- | --------------- | ----------------------- |
@@ -14,7 +14,7 @@
 | 8   | [Haunted Wasteland](https://adventofcode.com/2023/day/8)               | `34µs` `109µs`  | [`Code`](./2023/day-8)  |
 | 9   | [Mirage Maintenance](https://adventofcode.com/2023/day/9)              | `28µs` `27µs`   | [`Code`](./2023/day-9)  |
 | 10  | [Pipe Maze](https://adventofcode.com/2023/day/10)                      | `39µs` `61µs`   | [`Code`](./2023/day-10) |
-| 11  | [Cosmic Expansion](https://adventofcode.com/2023/day/11)               | `1.5ms` `1.5ms` | [`Code`](./2023/day-11) |
+| 11  | [Cosmic Expansion](https://adventofcode.com/2023/day/11)               | `120µs` `120µs` | [`Code`](./2023/day-11) |
 | 12  | [Hot Springs](https://adventofcode.com/2023/day/12)                    |                 |                         |
 | 13  | [Point of Incidence](https://adventofcode.com/2023/day/13)             | `69µs` `71µs`   | [`Code`](./2023/day-13) |
 | 14  | [Parabolic Reflector Dish](https://adventofcode.com/2023/day/14)       | `4µs` `10ms`    | [`Code`](./2023/day-14) |
@@ -30,7 +30,7 @@
 | 24  | [Never Tell Me The Odds](https://adventofcode.com/2023/day/24)         |                 |                         |
 | 25  | [Snowverload](https://adventofcode.com/2023/day/25)                    |                 |                         |
 
-<!-- (11 + 39) + (1.1 + 1.3) + (2.5 + 4.1) + (493 + 36) + (4 + 17) + (0.045 + 0.022) + (21 + 21) + (34 + 109) + (28 + 27) + (39 + 61) + (1500 + 1500) + (69 + 71) + (4 + 10000) + (33 + 41) + (0.067 + 0.059) -->
+<!-- (11 + 39) + (1.1 + 1.3) + (2.5 + 4.1) + (493 + 36) + (4 + 17) + (0.045 + 0.022) + (21 + 21) + (34 + 109) + (28 + 27) + (39 + 61) + (120 + 120) + (69 + 71) + (4 + 10000) + (33 + 41) + (0.067 + 0.059) -->
 
 ### 2022
 
