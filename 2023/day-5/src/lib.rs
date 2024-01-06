@@ -4,9 +4,6 @@ use std::ops::Range;
 const NUM_SEEDS: usize = 20;
 
 pub fn part_1(input: &str) -> usize {
-    let mut sections = input.split("\n\n");
-    sections.next().unwrap();
-
     unsafe {
         let mut data = input.as_ptr();
         data = data.add("seeds: ".len());
@@ -40,53 +37,45 @@ pub fn part_1(input: &str) -> usize {
 const NUM_SEED_RANGES: usize = 10;
 
 pub fn part_2(input: &str) -> usize {
-    let mut sections = input.split("\n\n");
-    sections.next().unwrap();
-
     unsafe {
         let mut data = input.as_ptr();
         data = data.add("seeds: ".len());
 
         let mut seed_ranges = parse_seed_ranges(&mut data);
-
         let map_sections = parse_map_sections(&mut data);
 
         for map_section in map_sections.iter() {
-            seed_ranges = seed_ranges
-                .into_iter()
-                .map(|mut seed_range| {
-                    let maps: Vec<&RangeToRangeMap> = map_section
-                        .iter()
-                        .filter(|m| seed_range.intersects(&m.from))
-                        .collect();
+            let mut mapped = Vec::with_capacity(seed_ranges.len());
+            for mut seed_range in seed_ranges.into_iter() {
+                let maps: Vec<&RangeToRangeMap> = map_section
+                    .iter()
+                    .filter(|m| seed_range.intersects(&m.from))
+                    .collect();
 
-                    if maps.is_empty() {
-                        return vec![seed_range];
+                if maps.is_empty() {
+                    mapped.push(seed_range);
+                    continue;
+                }
+
+                for map in maps.into_iter() {
+                    let (left_overhang, mapped_range, right_overhang) = map.map(seed_range);
+                    mapped.push(mapped_range);
+
+                    match left_overhang {
+                        // Maps are sorted -> We won't find a mapping for the left overhang in this section
+                        Some(range) => mapped.push(range),
+                        _ => {}
                     }
 
-                    let mut mapped = vec![];
-                    for map in maps.into_iter() {
-                        let (left_overhang, mapped_range, right_overhang) = map.map(seed_range);
-                        mapped.push(mapped_range);
-
-                        match left_overhang {
-                            // Maps are sorted -> We won't find a mapping for the left overhang in this section
-                            Some(range) => mapped.push(range),
-                            _ => {}
-                        }
-
-                        if right_overhang.is_none() {
-                            break;
-                        }
-
-                        // Maps are sorted -> right overhang may be mapped by subsequent maps
-                        seed_range = right_overhang.unwrap();
+                    if right_overhang.is_none() {
+                        break;
                     }
 
-                    mapped
-                })
-                .flatten()
-                .collect();
+                    // Maps are sorted -> right overhang may be mapped by subsequent maps
+                    seed_range = right_overhang.unwrap();
+                }
+            }
+            seed_ranges = mapped;
         }
 
         seed_ranges.iter().map(|r| r.start).min().unwrap()
