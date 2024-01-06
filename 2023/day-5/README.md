@@ -4,8 +4,8 @@
 
 ## Benchmarks
 
-- Part 1: 24.344 µs
-- Part 2: 61.941 µs
+- Part 1: `25.001 µs`
+- Part 2: `69.569 µs`
 
 Measures without reading input file.<br>
 CPU : 12th Gen Intel(R) Core(TM) i5-1240P
