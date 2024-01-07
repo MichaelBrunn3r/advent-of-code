@@ -1,4 +1,4 @@
-# 2023 Day 19
+# [2023 Day 19: Aplenty](https://adventofcode.com/2023/day/19)
 
 ## Benchmarks (with parsing, no I/O)
 

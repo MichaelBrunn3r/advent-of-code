@@ -1,4 +1,4 @@
-# 2023 Day 20
+# [2023 Day 20: Pulse Propagation](https://adventofcode.com/2023/day/20)
 
 - [Solution by maneatingape](https://github.com/maneatingape/advent-of-code-rust/blob/main/src/year2023/day20.rs) (Rust)
 

@@ -1,4 +1,4 @@
-# 2023 Day 14
+# [2023 Day 14: Parabolic Reflector Dish](https://adventofcode.com/2023/day/14)
 
 ## Benchmarks (with parsing, no I/O)
 
