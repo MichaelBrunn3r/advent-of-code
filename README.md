@@ -1,6 +1,6 @@
 # Advent of Code 🎄 Solutions
 
-### 2023 (Total: `9952.476µs = 9.9ms`)
+### 2023 (Total: `12075.716µs = 12ms`)
 
 | Day | Problem                                                                | Bench               | Code                                                        |
 | --- | ---------------------------------------------------------------------- | ------------------- | ----------------------------------------------------------- |
@@ -15,7 +15,7 @@
 | 9   | [Mirage Maintenance](https://adventofcode.com/2023/day/9)              | `23.6µs` `24.3µs`   | [`About`](./2023/day-9) [`Code`](./2023/day-9/src/lib.rs)   |
 | 10  | [Pipe Maze](https://adventofcode.com/2023/day/10)                      | `35.6µs` `49.5µs`   | [`About`](./2023/day-10) [`Code`](./2023/day-10/src/lib.rs) |
 | 11  | [Cosmic Expansion](https://adventofcode.com/2023/day/11)               | `105.8µs` `105.4µs` | [`About`](./2023/day-11) [`Code`](./2023/day-11/src/lib.rs) |
-| 12  | [Hot Springs](https://adventofcode.com/2023/day/12)                    |                     |                                                             |
+| 12  | [Hot Springs](https://adventofcode.com/2023/day/12)                    | `173.7µs` `1.9ms`   |                                                             |
 | 13  | [Point of Incidence](https://adventofcode.com/2023/day/13)             | `48.3µs` `50.4µs`   | [`About`](./2023/day-13) [`Code`](./2023/day-13/src/lib.rs) |
 | 14  | [Parabolic Reflector Dish](https://adventofcode.com/2023/day/14)       | `6.2µs` `8.7ms`     | [`About`](./2023/day-14) [`Code`](./2023/day-14/src/lib.rs) |
 | 15  | [Lens Library](https://adventofcode.com/2023/day/15)                   | `12.5µs` `39.7µs`   | [`About`](./2023/day-15) [`Code`](./2023/day-15/src/lib.rs) |
@@ -30,7 +30,7 @@
 | 24  | [Never Tell Me The Odds](https://adventofcode.com/2023/day/24)         |                     |                                                             |
 | 25  | [Snowverload](https://adventofcode.com/2023/day/25)                    |                     |                                                             |
 
-<!-- (5.7 + 43.1) + (1 + 1) + (441.2 + 30.6) + (2.2 + 3.7) + (3.7 + 15.6) + (0.04 + 0.02) + (19.3 + 19.3) + (29.2 + 69.1) + (23.6 + 24.3) + (35.6 + 49.5) + (105.8 + 105.4) + (48.3 + 50.4) + (6.2 + 8700) + (12.5 + 39.7) + (30.8 + 35.5) + (0.061 + 0.055) -->
+<!-- (5.7 + 43.1) + (1 + 1) + (441.2 + 30.6) + (2.2 + 3.7) + (3.7 + 15.6) + (0.04 + 0.02) + (19.3 + 19.3) + (29.2 + 69.1) + (23.6 + 24.3) + (35.6 + 49.5) + (105.8 + 105.4) + (173.74 + 1949.5) + (48.3 + 50.4) + (6.2 + 8700) + (12.5 + 39.7) + (30.8 + 35.5) + (0.061 + 0.055) -->
 
 ### 2022
 

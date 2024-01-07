@@ -44,30 +44,33 @@ pub fn part_1(input: &str) -> usize {
     }
 }
 
-//  6575118122726 too low
-//  6792010726878
-// 10776233067311 too high
 pub fn part_2(input: &str) -> usize {
     let mut runs = Vec::new();
-    let mut memo = FxHashMap::with_capacity_and_hasher(9257, FxBuildHasher::default());
+    let mut springs = Vec::new();
+    let mut memo = FxHashMap::with_capacity_and_hasher(512, FxBuildHasher::default());
 
     let mut data = input.as_ptr();
     unsafe {
         let mut sum = 0;
         for _ in 0..1000 {
+            runs.clear();
+            springs.clear();
+            memo.clear();
+
             let mut offset = 0;
             while data.add(offset).read() != b' ' {
                 offset += 1;
             }
-            let springs = std::slice::from_raw_parts(data, offset);
-            let springs = format!(
-                "{}?{}?{}?{}?{}",
-                springs.as_str_unchecked(),
-                springs.as_str_unchecked(),
-                springs.as_str_unchecked(),
-                springs.as_str_unchecked(),
-                springs.as_str_unchecked()
-            );
+            let springs_chars = std::slice::from_raw_parts(data, offset);
+            springs.extend_from_slice(springs_chars);
+            springs.push(b'?');
+            springs.extend_from_slice(springs_chars);
+            springs.push(b'?');
+            springs.extend_from_slice(springs_chars);
+            springs.push(b'?');
+            springs.extend_from_slice(springs_chars);
+            springs.push(b'?');
+            springs.extend_from_slice(springs_chars);
 
             data = data.add(offset + 1);
             let start = runs.len();
@@ -89,7 +92,7 @@ pub fn part_2(input: &str) -> usize {
             }
             let damaged_runs = &runs[start..];
 
-            let cnt = count_arrangements_2(springs.as_bytes(), damaged_runs, runs_sum, &mut memo);
+            let cnt = count_arrangements_2(&springs, damaged_runs, runs_sum, &mut memo);
             sum += cnt;
         }
         sum
@@ -156,9 +159,9 @@ fn count_arrangements_2(
     springs: &[u8],
     damaged_runs: &[u8],
     damaged_runs_sum: usize,
-    memo: &mut FxHashMap<(Vec<u8>, Vec<u8>), usize>,
+    memo: &mut FxHashMap<(*const u8, u8), usize>,
 ) -> usize {
-    if let Some(&result) = memo.get(&(springs.to_vec(), damaged_runs.to_vec())) {
+    if let Some(&result) = memo.get(&(springs.as_ptr(), damaged_runs.len() as u8)) {
         return result;
     }
 
@@ -202,6 +205,9 @@ fn count_arrangements_2(
             count_arrangements_2(&springs[1..], damaged_runs, damaged_runs_sum, memo);
     }
 
-    memo.insert((springs.to_vec(), damaged_runs.to_vec()), num_arrangements);
+    memo.insert(
+        (springs.as_ptr(), damaged_runs.len() as u8),
+        num_arrangements,
+    );
     num_arrangements
 }
