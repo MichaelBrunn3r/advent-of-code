@@ -16,22 +16,14 @@ pub fn part_1(input: &str) -> usize {
     unsafe {
         let mut sum = 0;
         for _ in 0..NUM_LINES {
-            let mut offset = 0;
-            while data.add(offset).read() != b' ' {
-                offset += 1;
-            }
+            let offset = parse_springs(data);
             let springs = std::slice::from_raw_parts(data, offset);
-
             data = data.add(offset + 1);
+
             let start = runs.len();
             let mut runs_sum = 0;
             while data.read().is_ascii_digit() {
-                let mut num = data.read() - b'0';
-                data = data.add(1);
-                if data.read().is_ascii_digit() {
-                    num = num * 10 + (data.read() - b'0');
-                    data = data.add(1);
-                }
+                let num = parse_num(&mut data);
                 runs.push(num);
                 data = data.add(1);
                 runs_sum += num as usize;
@@ -57,32 +49,21 @@ pub fn part_2(input: &str) -> usize {
             springs.clear();
             memo.clear();
 
-            let mut offset = 0;
-            while data.add(offset).read() != b' ' {
-                offset += 1;
-            }
+            let offset = parse_springs(data);
             let springs_chars = std::slice::from_raw_parts(data, offset);
-            springs.extend_from_slice(springs_chars);
-            springs.push(b'?');
-            springs.extend_from_slice(springs_chars);
-            springs.push(b'?');
-            springs.extend_from_slice(springs_chars);
-            springs.push(b'?');
-            springs.extend_from_slice(springs_chars);
-            springs.push(b'?');
-            springs.extend_from_slice(springs_chars);
-
             data = data.add(offset + 1);
+
+            springs.extend_from_slice(springs_chars);
+            for _ in 0..4 {
+                springs.push(b'?');
+                springs.extend_from_slice(springs_chars);
+            }
+
             let start = runs.len();
             let mut runs_sum = 0;
             let mut current_runs = Vec::new();
             while data.read().is_ascii_digit() {
-                let mut num = data.read() - b'0';
-                data = data.add(1);
-                if data.read().is_ascii_digit() {
-                    num = num * 10 + (data.read() - b'0');
-                    data = data.add(1);
-                }
+                let num = parse_num(&mut data);
                 current_runs.push(num);
                 data = data.add(1);
                 runs_sum += num as usize * 5;
@@ -96,6 +77,28 @@ pub fn part_2(input: &str) -> usize {
             sum += cnt;
         }
         sum
+    }
+}
+
+fn parse_springs(data: *const u8) -> usize {
+    unsafe {
+        let mut offset = 0;
+        while data.add(offset).read() != b' ' {
+            offset += 1;
+        }
+        offset
+    }
+}
+
+fn parse_num(data: &mut *const u8) -> u8 {
+    unsafe {
+        let mut num = data.read() - b'0';
+        *data = data.add(1);
+        if data.read().is_ascii_digit() {
+            num = num * 10 + (data.read() - b'0');
+            *data = data.add(1);
+        }
+        num
     }
 }
 
