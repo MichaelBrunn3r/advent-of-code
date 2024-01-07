@@ -44,7 +44,8 @@ pub fn part_1(input: &str) -> usize {
     }
 }
 
-// 6575118122726 too low
+//  6575118122726 too low
+//  6792010726878
 // 10776233067311 too high
 pub fn part_2(input: &str) -> usize {
     let mut runs = Vec::new();
@@ -53,7 +54,7 @@ pub fn part_2(input: &str) -> usize {
     let mut data = input.as_ptr();
     unsafe {
         let mut sum = 0;
-        for _ in 0..6 {
+        for _ in 0..1000 {
             let mut offset = 0;
             while data.add(offset).read() != b' ' {
                 offset += 1;
@@ -67,7 +68,6 @@ pub fn part_2(input: &str) -> usize {
                 springs.as_str_unchecked(),
                 springs.as_str_unchecked()
             );
-            println!("{}", springs);
 
             data = data.add(offset + 1);
             let start = runs.len();
@@ -88,11 +88,8 @@ pub fn part_2(input: &str) -> usize {
                 runs.extend_from_slice(&current_runs);
             }
             let damaged_runs = &runs[start..];
-            data = data.add(1);
-            println!("{:?} {}", damaged_runs, runs_sum);
 
             let cnt = count_arrangements_2(springs.as_bytes(), damaged_runs, runs_sum, &mut memo);
-            println!("{}", cnt);
             sum += cnt;
         }
         sum
@@ -161,9 +158,9 @@ fn count_arrangements_2(
     damaged_runs_sum: usize,
     memo: &mut FxHashMap<(Vec<u8>, Vec<u8>), usize>,
 ) -> usize {
-    // if let Some(&result) = memo.get(&(springs.to_vec(), damaged_runs.to_vec())) {
-    //     return result;
-    // }
+    if let Some(&result) = memo.get(&(springs.to_vec(), damaged_runs.to_vec())) {
+        return result;
+    }
 
     // No groups left
     if damaged_runs.is_empty() {
@@ -177,10 +174,6 @@ fn count_arrangements_2(
     }
 
     if springs.len() < damaged_runs_sum + damaged_runs.len() - 1 {
-        return 0;
-    }
-
-    if springs.is_empty() {
         return 0;
     }
 
