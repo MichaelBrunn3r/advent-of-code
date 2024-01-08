@@ -3,17 +3,18 @@ use itertools::Itertools;
 
 const ROCKS: u8 = b'#';
 
-pub fn part_1(input: &str) -> usize {
-    let patterns = input.split("\n\n").map(|section| {
-        let pattern = Pattern::parse(section);
+pub fn parse(input: &str) -> Vec<Pattern> {
+    input.split("\n\n").map(Pattern::parse).collect_vec()
+}
 
-        let row_reflections = pattern.rows.iter().duplicate_positions();
-        let col_reflections = pattern.cols.iter().duplicate_positions();
-
-        (pattern, row_reflections, col_reflections)
-    });
-
+pub fn part_1(patterns: &[Pattern]) -> usize {
     patterns
+        .iter()
+        .map(|pattern| {
+            let row_reflections = pattern.rows.iter().duplicate_positions();
+            let col_reflections = pattern.cols.iter().duplicate_positions();
+            (pattern, row_reflections, col_reflections)
+        })
         .map(|(pattern, row_reflections, col_reflections)| {
             for row_idx in row_reflections {
                 if pattern.rows.partialy_reflects_at(row_idx) {
@@ -32,18 +33,14 @@ pub fn part_1(input: &str) -> usize {
         .sum()
 }
 
-// 9300 too low
-pub fn part_2(input: &str) -> usize {
-    let patterns = input.split("\n\n").map(|section| {
-        let pattern = Pattern::parse(section);
-
-        let row_reflections = duplicate_positions_or_smudged(&pattern.rows);
-        let col_reflections = duplicate_positions_or_smudged(&pattern.cols);
-
-        (pattern, row_reflections, col_reflections)
-    });
-
+pub fn part_2(patterns: &[Pattern]) -> usize {
     patterns
+        .iter()
+        .map(|pattern| {
+            let row_reflections = duplicate_positions_or_smudged(&pattern.rows);
+            let col_reflections = duplicate_positions_or_smudged(&pattern.cols);
+            (pattern, row_reflections, col_reflections)
+        })
         .enumerate()
         .map(|(_, (pattern, row_reflections, col_reflections))| {
             for row_idx in row_reflections {
@@ -97,7 +94,7 @@ fn reflection_with_smudge_at(lines: &[usize], idx: usize) -> bool {
 }
 
 #[derive(Debug)]
-struct Pattern {
+pub struct Pattern {
     rows: Vec<usize>,
     cols: Vec<usize>,
 }

@@ -1,6 +1,3 @@
-use std::collections::HashMap;
-
-use aoc::U8SliceExt;
 use fxhash::{FxBuildHasher, FxHashMap};
 
 const NUM_LINES: usize = 1000;

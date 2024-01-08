@@ -3,8 +3,9 @@ use criterion::{criterion_group, criterion_main, Criterion};
 
 fn bench(c: &mut Criterion) {
     let input = aoc::read_input_to_string();
+    let patterns = parse(&input);
 
-    c.bench_function("aoc_2023_13_part_2", |b| b.iter(|| part_2(&input)));
+    c.bench_function("aoc_2023_13_part_2", |b| b.iter(|| part_2(&patterns)));
 }
 
 criterion_group!(benches, bench);
