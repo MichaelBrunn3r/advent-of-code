@@ -12,21 +12,16 @@ use aoc::U8PtrExt;
 pub fn part_1(input: &str) -> usize {
     let mut data = input.as_ptr();
     unsafe {
-        data = data.add("Time:   ".len());
+        data = data.add("Time:        ".len());
 
-        let mut times = [0; 4];
-        times.iter_mut().take(4).for_each(|time| {
-            data = data.add("     ".len());
-            *time = data.parse_ascii_digits(2);
-        });
-
+        let times = data.parse_n_uints::<usize, 4, 2>("     ".len());
         data = data.add("\nDistance".len());
 
         (0..4)
             .map(|_| {
                 data = data.add("   ".len());
                 let num_digits = get_num_distance_digits(&mut data);
-                data.parse_ascii_digits(num_digits)
+                data.parse_uint_n_digits::<usize>(num_digits)
             })
             .zip(times.iter())
             .map(|(distance, time)| {

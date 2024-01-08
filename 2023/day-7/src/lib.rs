@@ -41,7 +41,7 @@ fn count_winnings(
             );
             data = data.add("992QQ ".len());
 
-            let bet = data.parse_ascii_digits(get_num_bet_digits(data));
+            let bet = data.parse_uint_n_digits(get_num_bet_digits(data));
 
             data = data.add(1);
 

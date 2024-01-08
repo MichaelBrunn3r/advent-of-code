@@ -84,7 +84,7 @@ pub fn parse_seeds(data: &mut *const u8) -> [usize; NUM_SEEDS] {
     unsafe {
         let mut seeds = [0; NUM_SEEDS];
         seeds.iter_mut().take(NUM_SEEDS).for_each(|seed| {
-            *seed = data.parse_ascii_digits(get_num_seed_digits(data));
+            *seed = data.parse_uint_n_digits(get_num_seed_digits(data));
             *data = data.add(1);
         });
 
@@ -98,7 +98,7 @@ fn parse_seed_ranges(data: &mut *const u8) -> Vec<Range<usize>> {
         for _ in 0..NUM_SEED_RANGES {
             let mut seed_range = [0; 2];
             seed_range.iter_mut().take(3).for_each(|range| {
-                *range = data.parse_ascii_digits(get_num_seed_digits(data));
+                *range = data.parse_uint_n_digits(get_num_seed_digits(data));
                 *data = data.add(1);
             });
 

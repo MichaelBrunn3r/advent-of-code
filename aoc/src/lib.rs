@@ -1,4 +1,5 @@
 mod assert;
+mod constvec;
 mod coords;
 mod iter;
 mod number;
@@ -10,6 +11,7 @@ mod string;
 mod u8;
 
 pub use assert::*;
+pub use constvec::*;
 pub use coords::*;
 pub use iter::*;
 pub use number::*;

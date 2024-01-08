@@ -1,6 +1,6 @@
 # Advent of Code 🎄 Solutions
 
-### 2023 (Total: `12075.716µs = 12ms`)
+### 2023 (Total: `12074.754729µs = 12ms`)
 
 | Day | Problem                                                                | Bench               | Code                                                        |
 | --- | ---------------------------------------------------------------------- | ------------------- | ----------------------------------------------------------- |
@@ -8,9 +8,9 @@
 | 2   | [Cube Conundrum](https://adventofcode.com/2023/day/2)                  | `1µs` `1µs`         | [`About`](./2023/day-2) [`Code`](./2023/day-2/src/lib.rs)   |
 | 3   | [Gear Ratios](https://adventofcode.com/2023/day/3)                     | `441.2µs` `30.6µs`  | [`About`](./2023/day-3) [`Code`](./2023/day-3/src/lib.rs)   |
 | 4   | [Scratchcards](https://adventofcode.com/2023/day/4)                    | `2.2µs` `3.7µs`     | [`About`](./2023/day-4) [`Code`](./2023/day-4/src/lib.rs)   |
-| 5   | [If You Give A Seed A Fertilizer](https://adventofcode.com/2023/day/5) | `3.7µs` `15.6µs`    | [`About`](./2023/day-5) [`Code`](./2023/day-5/src/lib.rs)   |
-| 6   | [Wait For It](https://adventofcode.com/2023/day/6)                     | `40.1ns` `20.7ns`   | [`About`](./2023/day-6) [`Code`](./2023/day-6/src/lib.rs)   |
-| 7   | [Camel Cards](https://adventofcode.com/2023/day/7)                     | `19.3µs` `19.3µs`   | [`About`](./2023/day-7) [`Code`](./2023/day-7/src/lib.rs)   |
+| 5   | [If You Give A Seed A Fertilizer](https://adventofcode.com/2023/day/5) | `3.6µs` `15.6µs`    | [`About`](./2023/day-5) [`Code`](./2023/day-5/src/lib.rs)   |
+| 6   | [Wait For It](https://adventofcode.com/2023/day/6)                     | `34ns` `20.7ns`     | [`About`](./2023/day-6) [`Code`](./2023/day-6/src/lib.rs)   |
+| 7   | [Camel Cards](https://adventofcode.com/2023/day/7)                     | `18.8µs` `18.7µs`   | [`About`](./2023/day-7) [`Code`](./2023/day-7/src/lib.rs)   |
 | 8   | [Haunted Wasteland](https://adventofcode.com/2023/day/8)               | `29.2µs` `69.1µs`   | [`About`](./2023/day-8) [`Code`](./2023/day-8/src/lib.rs)   |
 | 9   | [Mirage Maintenance](https://adventofcode.com/2023/day/9)              | `23.6µs` `24.3µs`   | [`About`](./2023/day-9) [`Code`](./2023/day-9/src/lib.rs)   |
 | 10  | [Pipe Maze](https://adventofcode.com/2023/day/10)                      | `35.6µs` `49.5µs`   | [`About`](./2023/day-10) [`Code`](./2023/day-10/src/lib.rs) |
@@ -30,7 +30,7 @@
 | 24  | [Never Tell Me The Odds](https://adventofcode.com/2023/day/24)         |                     |                                                             |
 | 25  | [Snowverload](https://adventofcode.com/2023/day/25)                    |                     |                                                             |
 
-<!-- (5.7 + 43.1) + (1 + 1) + (441.2 + 30.6) + (2.2 + 3.7) + (3.7 + 15.6) + (0.04 + 0.02) + (19.3 + 19.3) + (29.2 + 69.1) + (23.6 + 24.3) + (35.6 + 49.5) + (105.8 + 105.4) + (173.74 + 1949.5) + (48.3 + 50.4) + (6.2 + 8700) + (12.5 + 39.7) + (30.8 + 35.5) + (0.061 + 0.055) -->
+<!-- (5.7 + 43.1) + (1 + 1) + (441.2 + 30.6) + (2.2 + 3.7) + (3.6659 + 15.607) + (0.034067 + 0.020762) + (18.899 + 18.772) + (29.2 + 69.1) + (23.6 + 24.3) + (35.6 + 49.5) + (105.8 + 105.4) + (173.74 + 1949.5) + (48.3 + 50.4) + (6.2 + 8700) + (12.5 + 39.7) + (30.8 + 35.5) + (0.061 + 0.055) -->
 
 ### 2022
 

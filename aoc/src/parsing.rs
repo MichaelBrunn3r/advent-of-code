@@ -4,12 +4,15 @@ use std::ops::{AddAssign, MulAssign};
 pub trait U8PtrExt {
     fn as_str(&self, n: usize) -> &str;
 
-    fn parse_ascii_digits(&mut self, num_digits: usize) -> usize;
+    // unsigned int
     fn parse_uint<T: From<u8> + MulAssign + AddAssign, const N: usize>(&mut self) -> T;
+    fn parse_uint_n_digits<T: From<u8> + MulAssign + AddAssign>(&mut self, digits: usize) -> T;
     fn parse_n_uints<T: From<u8> + MulAssign + AddAssign, const N: usize, const D: usize>(
         &mut self,
         seperator: usize,
     ) -> [T; N];
+
+    // signed int
     fn parse_int<T: From<u8> + From<i32> + MulAssign + AddAssign, const DIGITS: usize>(
         &mut self,
     ) -> T;
@@ -28,20 +31,6 @@ impl U8PtrExt for *const u8 {
         unsafe { std::slice::from_raw_parts(*self, n).as_str_unchecked() }
     }
 
-    fn parse_ascii_digits(&mut self, num_digits: usize) -> usize {
-        unsafe {
-            let mut num = (self.read() - b'0') as usize;
-            *self = self.add(1);
-
-            for _ in 1..num_digits {
-                num *= 10;
-                num += (self.read() - b'0') as usize;
-                *self = self.add(1);
-            }
-            num
-        }
-    }
-
     fn parse_uint<T: From<u8> + MulAssign + AddAssign, const DIGITS: usize>(&mut self) -> T {
         unsafe {
             let mut num: T = 0.into();
@@ -51,6 +40,20 @@ impl U8PtrExt for *const u8 {
                 *self = self.add(1);
             }
             while self.read() >= b'0' {
+                num *= 10.into();
+                num += (self.read() - b'0').into();
+                *self = self.add(1);
+            }
+            num
+        }
+    }
+
+    fn parse_uint_n_digits<T: From<u8> + MulAssign + AddAssign>(&mut self, digits: usize) -> T {
+        unsafe {
+            let mut num: T = (self.read() - b'0').into();
+            *self = self.add(1);
+
+            for _ in 1..digits {
                 num *= 10.into();
                 num += (self.read() - b'0').into();
                 *self = self.add(1);
