@@ -1,18 +1,20 @@
 mod assert;
+mod coords;
 mod iter;
 mod number;
+mod parsing;
 mod point;
-mod ptr;
 mod range;
 mod slice;
 mod string;
 mod u8;
 
 pub use assert::*;
+pub use coords::*;
 pub use iter::*;
 pub use number::*;
+pub use parsing::*;
 pub use point::*;
-pub use ptr::*;
 pub use range::*;
 pub use slice::*;
 pub use string::*;
@@ -58,10 +60,10 @@ pub fn solution_exists(n: usize) -> bool {
 pub mod prelude {
     pub use crate::iter::IteratorExt;
     pub use crate::number::UnsignedExt;
+    pub use crate::parsing::U8PtrExt;
     pub use crate::point::PointExt;
-    pub use crate::ptr::U8PtrExt;
     pub use crate::range::RangeExt;
     pub use crate::slice::SliceExt;
     pub use crate::string::{CharExt, StrExt};
-    pub use crate::u8::{SliceOfU8SlicesExt, U8SliceExt};
+    pub use crate::u8::U8SliceExt;
 }

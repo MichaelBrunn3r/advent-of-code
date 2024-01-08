@@ -2,8 +2,9 @@ use aoc_2023_24::*;
 
 fn main() {
     let input = aoc::read_input_to_string();
-    println!("Part 1: {}", part_1(&input));
-    println!("Part 2: {}", part_2(&input));
+    let hailstones = parse(&input);
+    println!("Part 1: {}", part_1(hailstones));
+    println!("Part 2: {}", part_2(hailstones));
 }
 
 #[cfg(test)]
@@ -12,7 +13,7 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        assert_eq!(part_1(&aoc::read_input_to_string()), 20434);
+        assert_eq!(part_1(parse(&aoc::read_input_to_string())), 20434);
     }
 
     // #[test]
