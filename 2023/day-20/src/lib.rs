@@ -6,7 +6,7 @@ use aoc::prelude::*;
 use arrayvec::ArrayVec;
 use core::num;
 use itertools::Itertools;
-use parse::{ModuleParser, PARSER};
+use parse::{FlipFlop, ModuleParser, PARSER};
 use regex::Regex;
 use std::arch::asm;
 use std::{
@@ -27,20 +27,32 @@ const NUM_H_BETWEEN_COUNTER_FFS: usize = N;
 const NUM_L_TO_CYCLE_CONJ: usize = calc_l_to_cycle_conjunction(N);
 const NUM_H_TO_CYCLE_CONJ: usize = calc_h_to_cycle_conjunction(N);
 
-pub fn part_1(input: &str) -> usize {
+pub fn parse(input: &str) -> ([u16; 4], [u16; 4], &'static [FlipFlop; 65536]) {
+    let parser = unsafe { &mut PARSER };
+    parser.parse(input.as_bytes());
+
+    (
+        parser.broadcaster_outputs,
+        parser.cycle_conjunctions,
+        &parser.modules,
+    )
+}
+
+pub fn part_1(
+    broadcaster_outputs: &[u16; 4],
+    modules: &[FlipFlop; 65536],
+    cycle_conjunctions: &[u16; 4],
+) -> usize {
     let mut num_low =
         NUM_L_TO_BROADCASTER + NUM_L_FROM_BROADCASTER + NUM_CYCLES * NUM_L_BETWEEN_COUNTER_FFS;
     let mut num_high = NUM_CYCLES * NUM_H_BETWEEN_COUNTER_FFS;
 
-    let parser = unsafe { &mut PARSER };
-    parser.parse(input.as_bytes());
-
-    for broadcast_output in parser.broadcaster_outputs {
+    for &broadcast_output in broadcaster_outputs {
         // Each broadcast output is the first FlipFlop in a cycle
-        let start = &parser.modules[broadcast_output as usize];
+        let start = &modules[broadcast_output as usize];
 
         // Find the conjunction of the cycle
-        let (cycle_conj, mut next) = if parser.cycle_conjunctions.contains(&start.outputs[0]) {
+        let (cycle_conj, mut next) = if cycle_conjunctions.contains(&start.outputs[0]) {
             (start.outputs[0], start.outputs[1])
         } else {
             (start.outputs[1], start.outputs[0])
@@ -51,7 +63,7 @@ pub fn part_1(input: &str) -> usize {
 
         let mut num_visited_not_connected_ffs = 0;
         for bit_idx in 2..=NUM_FFS_PER_CYCLE {
-            let flipflop = &parser.modules[next as usize];
+            let flipflop = &modules[next as usize];
 
             if flipflop.outputs[1] == 0 {
                 num_l_to_cycle_conj -= N >> bit_idx;
@@ -97,17 +109,18 @@ pub fn part_1(input: &str) -> usize {
 
 const MAX_CYCLE_PERIOD: usize = 2usize.pow(NUM_FFS_PER_CYCLE);
 
-pub fn part_2(input: &str) -> usize {
-    let parser = unsafe { &mut PARSER };
-    parser.parse(input.as_bytes());
-
+pub fn part_2(
+    broadcaster_outputs: &[u16; 4],
+    modules: &[FlipFlop; 65536],
+    cycle_conjunctions: &[u16; 4],
+) -> usize {
     let mut result = 1;
-    for broadcast_output in parser.broadcaster_outputs {
+    for &broadcast_output in broadcaster_outputs {
         // Each broadcast output is the first FlipFlop in a cycle
-        let start = &parser.modules[broadcast_output as usize];
+        let start = &modules[broadcast_output as usize];
 
         // Find the conjunction of the cycle
-        let (cycle_conj, mut next) = if parser.cycle_conjunctions.contains(&start.outputs[0]) {
+        let (cycle_conj, mut next) = if cycle_conjunctions.contains(&start.outputs[0]) {
             (start.outputs[0], start.outputs[1])
         } else {
             (start.outputs[1], start.outputs[0])
@@ -117,7 +130,7 @@ pub fn part_2(input: &str) -> usize {
         let mut num_visited_not_connected_ffs = 0usize; // FF = FlipFlop
 
         for bit_idx in 1..=NUM_FFS_PER_CYCLE {
-            let flipflop = &parser.modules[next as usize];
+            let flipflop = &modules[next as usize];
 
             if flipflop.outputs[1] == 0 {
                 cycle_period -= 1 << bit_idx;
