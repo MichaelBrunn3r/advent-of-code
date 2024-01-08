@@ -7,43 +7,8 @@ pub fn part_1(input: &str) -> usize {
     let mut data = input.as_ptr();
     unsafe {
         HAIL_STONES.clear();
-
         while data.read() != b'\n' {
-            let mut pos = [0.0, 0.0, 0.0];
-            for comp in &mut pos {
-                while data.read().is_ascii_digit() {
-                    *comp = *comp * 10.0 + (data.read() - b'0') as f64;
-                    data = data.add(1);
-                }
-
-                data = data.add(", ".len());
-            }
-
-            let mut vel = [0.0, 0.0, 0.0];
-            for comp in &mut vel {
-                data = data.add(" ".len());
-                let sign = if data.read() == b'-' {
-                    data = data.add(1);
-                    -1.0
-                } else {
-                    1.0
-                };
-
-                while data.read().is_ascii_digit() {
-                    *comp = *comp * 10.0 + (data.read() - b'0') as f64;
-                    data = data.add(1);
-                }
-                *comp *= sign;
-                data = data.add(",".len());
-            }
-
-            let slope = vel[1] / vel[0];
-            HAIL_STONES.push(Hail {
-                pos: [pos[0], pos[1]],
-                vel: [vel[0], vel[1]],
-                y_intercept: pos[1] - slope * pos[0],
-                slope,
-            });
+            HAIL_STONES.push(parse_hailstone(&mut data));
         }
 
         let mut interactions = 0;
@@ -76,6 +41,13 @@ pub fn part_1(input: &str) -> usize {
 }
 
 pub fn part_2(input: &str) -> usize {
+    let mut data = input.as_ptr();
+    unsafe {
+        HAIL_STONES.clear();
+        for _ in 0..3 {
+            HAIL_STONES.push(parse_hailstone(&mut data));
+        }
+    }
     0
 }
 
@@ -85,6 +57,46 @@ struct Hail {
     vel: [f64; 2],
     y_intercept: f64,
     slope: f64,
+}
+
+fn parse_hailstone(data: &mut *const u8) -> Hail {
+    unsafe {
+        let mut pos = [0.0, 0.0, 0.0];
+        for comp in &mut pos {
+            while data.read().is_ascii_digit() {
+                *comp = *comp * 10.0 + (data.read() - b'0') as f64;
+                *data = data.add(1);
+            }
+
+            *data = data.add(", ".len());
+        }
+
+        let mut vel = [0.0, 0.0, 0.0];
+        for comp in &mut vel {
+            *data = data.add(" ".len());
+            let sign = if data.read() == b'-' {
+                *data = data.add(1);
+                -1.0
+            } else {
+                1.0
+            };
+
+            while data.read().is_ascii_digit() {
+                *comp = *comp * 10.0 + (data.read() - b'0') as f64;
+                *data = data.add(1);
+            }
+            *comp *= sign;
+            *data = data.add(",".len());
+        }
+
+        let slope = vel[1] / vel[0];
+        Hail {
+            pos: [pos[0], pos[1]],
+            vel: [vel[0], vel[1]],
+            y_intercept: pos[1] - slope * pos[0],
+            slope,
+        }
+    }
 }
 
 struct ConstVec<T, const C: usize> {
