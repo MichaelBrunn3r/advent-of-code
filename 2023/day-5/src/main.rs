@@ -2,8 +2,10 @@ use aoc_2023_5::*;
 
 fn main() {
     let input = aoc::read_input_to_string();
-    println!("Part 1: {}", part_1(&input));
-    println!("Part 2: {}", part_2(&input));
+    let (seeds, map_sections) = parse(&input);
+
+    println!("Part 1: {}", part_1(&seeds, &map_sections));
+    println!("Part 2: {}", part_2(&seeds, &map_sections));
 }
 
 #[cfg(test)]
@@ -12,11 +14,13 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        assert_eq!(part_1(&aoc::read_input_to_string()), 388071289);
+        let (seeds, map_sections) = parse(&aoc::read_input_to_string());
+        assert_eq!(part_1(&seeds, &map_sections), 388071289);
     }
 
     #[test]
     fn test_part_2() {
-        assert_eq!(part_2(&aoc::read_input_to_string()), 84206669);
+        let (seeds, map_sections) = parse(&aoc::read_input_to_string());
+        assert_eq!(part_2(&seeds, &map_sections), 84206669);
     }
 }

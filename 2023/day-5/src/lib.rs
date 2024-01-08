@@ -1,83 +1,76 @@
 use aoc::prelude::*;
+use itertools::Itertools;
 use std::ops::Range;
 
 const NUM_SEEDS: usize = 20;
 
-pub fn part_1(input: &str) -> usize {
+pub fn parse(input: &str) -> ([usize; NUM_SEEDS], Vec<Vec<RangeToRangeMap>>) {
     unsafe {
         let mut data = input.as_ptr();
         data = data.add("seeds: ".len());
 
-        let seeds = parse_seeds(&mut data);
-
-        let map_sections = parse_map_sections(&mut data);
-
-        let mut min = usize::MAX;
-        for seed in seeds.iter() {
-            let mut mapped = *seed;
-            for mappings in map_sections.iter() {
-                let default = RangeToRangeMap::identity(mapped);
-                let mapping = mappings
-                    .iter()
-                    .take_while(|map| mapped >= map.from.start)
-                    .find(|map| map.from.contains(&mapped))
-                    .unwrap_or(&default);
-
-                mapped = mapping.map_value(mapped);
-            }
-            if mapped < min {
-                min = mapped;
-            }
-        }
-
-        min
+        (parse_seeds(&mut data), parse_map_sections(&mut data))
     }
 }
 
-const NUM_SEED_RANGES: usize = 10;
+pub fn part_1(seeds: &[usize; NUM_SEEDS], map_sections: &[Vec<RangeToRangeMap>]) -> usize {
+    let mut min = usize::MAX;
+    for seed in seeds.iter() {
+        let mut mapped = *seed;
+        for mappings in map_sections.iter() {
+            let default = RangeToRangeMap::identity(mapped);
+            let mapping = mappings
+                .iter()
+                .take_while(|map| mapped >= map.from.start)
+                .find(|map| map.from.contains(&mapped))
+                .unwrap_or(&default);
 
-pub fn part_2(input: &str) -> usize {
-    unsafe {
-        let mut data = input.as_ptr();
-        data = data.add("seeds: ".len());
-
-        let mut seed_ranges = parse_seed_ranges(&mut data);
-        let map_sections = parse_map_sections(&mut data);
-
-        for map_section in map_sections.iter() {
-            let mut mapped = Vec::with_capacity(seed_ranges.len());
-            for mut seed_range in seed_ranges.into_iter() {
-                let maps: Vec<&RangeToRangeMap> = map_section
-                    .iter()
-                    .filter(|m| seed_range.intersects(&m.from))
-                    .collect();
-
-                if maps.is_empty() {
-                    mapped.push(seed_range);
-                    continue;
-                }
-
-                for map in maps.into_iter() {
-                    let (left_overhang, mapped_range, right_overhang) = map.map(seed_range);
-                    mapped.push(mapped_range);
-
-                    // Maps are sorted -> We won't find a mapping for the left overhang in this section
-                    if let Some(range) = left_overhang {
-                        mapped.push(range);
-                    }
-                    if right_overhang.is_none() {
-                        break;
-                    }
-
-                    // Maps are sorted -> right overhang may be mapped by subsequent maps
-                    seed_range = right_overhang.unwrap();
-                }
-            }
-            seed_ranges = mapped;
+            mapped = mapping.map_value(mapped);
         }
-
-        seed_ranges.iter().map(|r| r.start).min().unwrap()
+        if mapped < min {
+            min = mapped;
+        }
     }
+
+    min
+}
+
+pub fn part_2(seeds: &[usize; NUM_SEEDS], map_sections: &[Vec<RangeToRangeMap>]) -> usize {
+    let mut seed_ranges = seeds.iter().tuples().map(|(&a, &b)| a..a + b).collect_vec();
+
+    for map_section in map_sections.iter() {
+        let mut mapped = Vec::with_capacity(seed_ranges.len());
+        for mut seed_range in seed_ranges.into_iter() {
+            let maps: Vec<&RangeToRangeMap> = map_section
+                .iter()
+                .filter(|m| seed_range.intersects(&m.from))
+                .collect();
+
+            if maps.is_empty() {
+                mapped.push(seed_range);
+                continue;
+            }
+
+            for map in maps.into_iter() {
+                let (left_overhang, mapped_range, right_overhang) = map.map(seed_range);
+                mapped.push(mapped_range);
+
+                // Maps are sorted -> We won't find a mapping for the left overhang in this section
+                if let Some(range) = left_overhang {
+                    mapped.push(range);
+                }
+                if right_overhang.is_none() {
+                    break;
+                }
+
+                // Maps are sorted -> right overhang may be mapped by subsequent maps
+                seed_range = right_overhang.unwrap();
+            }
+        }
+        seed_ranges = mapped;
+    }
+
+    seed_ranges.iter().map(|r| r.start).min().unwrap()
 }
 
 pub fn parse_seeds(data: &mut *const u8) -> [usize; NUM_SEEDS] {
@@ -89,23 +82,6 @@ pub fn parse_seeds(data: &mut *const u8) -> [usize; NUM_SEEDS] {
         });
 
         seeds
-    }
-}
-
-fn parse_seed_ranges(data: &mut *const u8) -> Vec<Range<usize>> {
-    unsafe {
-        let mut seed_ranges = vec![];
-        for _ in 0..NUM_SEED_RANGES {
-            let mut seed_range = [0; 2];
-            seed_range.iter_mut().take(3).for_each(|range| {
-                *range = data.parse_uint_n_digits(get_num_seed_digits(data));
-                *data = data.add(1);
-            });
-
-            seed_ranges.push(seed_range[0]..seed_range[0] + seed_range[1]);
-        }
-
-        seed_ranges
     }
 }
 

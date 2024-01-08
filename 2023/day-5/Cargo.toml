@@ -12,12 +12,13 @@ rayon = { workspace = true }
 criterion = { workspace = true }
 
 [[bench]]
-name = "p1"
+name = "p"
 harness = false
 
 [[bench]]
-name = "p1-parse"
+name = "p1"
 harness = false
+
 
 [[bench]]
 name = "p2"
