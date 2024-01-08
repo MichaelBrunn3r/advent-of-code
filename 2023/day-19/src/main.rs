@@ -4,8 +4,13 @@ use aoc_2023_19::*;
 
 fn main() {
     let input = aoc::read_input_to_string();
-    println!("Part 1: {}", part_1(&input));
-    println!("Part 2: {}", part_2(&input));
+    let (rules, workflows, workflow_in_id, parts, name_to_id) = parse(&input);
+
+    println!(
+        "Part 1: {}",
+        part_1(&rules, &workflows, workflow_in_id, &parts)
+    );
+    println!("Part 2: {}", part_2(&rules, &workflows, &name_to_id));
     // println!("Part 1: {}", part_2(&aoc::read_example_to_string(0)));
 }
 
@@ -15,11 +20,14 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        assert_eq!(part_1(&aoc::read_input_to_string()), 418498)
+        let (rules, workflows, workflow_in_id, parts, _) = parse(&aoc::read_input_to_string());
+        assert_eq!(part_1(&rules, &workflows, workflow_in_id, &parts), 418498)
     }
 
     #[test]
     fn test_part_2() {
-        assert_eq!(part_2(&aoc::read_input_to_string()), 123331556462603)
+        let input = aoc::read_input_to_string();
+        let (rules, workflows, workflow_in_id, parts, name_to_id) = parse(&input);
+        assert_eq!(part_2(&rules, &workflows, &name_to_id), 123331556462603)
     }
 }

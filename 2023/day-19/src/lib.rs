@@ -1,9 +1,20 @@
 #![allow(unused_variables)]
 
 mod parse;
+use std::collections::HashMap;
+
+use itertools::Itertools;
 use parse::{PartParser, WorkflowParser};
 
-pub fn part_1(input: &str) -> usize {
+pub fn parse<'a>(
+    input: &'a str,
+) -> (
+    Vec<Rule>,
+    [(u16, u16); 1650],
+    u16,
+    Vec<Part>,
+    HashMap<&'a str, u16>,
+) {
     let mut parser = WorkflowParser::new(input.as_bytes());
     let mut rules = Vec::with_capacity(1650);
     for rule in parser.by_ref() {
@@ -13,7 +24,19 @@ pub fn part_1(input: &str) -> usize {
     let workflows = parser.workflows;
     let workflow_in_id = *parser.name_to_id.get("in").unwrap();
 
-    PartParser::new(&parser.data[1..])
+    let parts = PartParser::new(&parser.data[1..]).collect_vec();
+
+    (rules, workflows, workflow_in_id, parts, parser.name_to_id)
+}
+
+pub fn part_1(
+    rules: &[Rule],
+    workflows: &[(u16, u16); 1650],
+    workflow_in_id: u16,
+    parts: &[Part],
+) -> usize {
+    parts
+        .iter()
         .filter(|part| {
             let mut current_workflow = workflows[workflow_in_id as usize];
             loop {
@@ -33,17 +56,13 @@ pub fn part_1(input: &str) -> usize {
         .sum::<usize>()
 }
 
-pub fn part_2(input: &str) -> usize {
-    let mut parser = WorkflowParser::new(input.as_bytes());
-    let mut rules = Vec::with_capacity(1650);
-    for rule in parser.by_ref() {
-        rules.push(rule)
-    }
-
-    let workflows = parser.workflows;
-
+pub fn part_2(
+    rules: &[Rule],
+    workflows: &[(u16, u16); 1650],
+    name_to_id: &HashMap<&str, u16>,
+) -> usize {
     let mut stack = vec![(
-        workflows[*parser.name_to_id.get("in").unwrap() as usize],
+        workflows[*name_to_id.get("in").unwrap() as usize],
         [1..=4000, 1..=4000, 1..=4000, 1..=4000],
     )];
     let mut accepted = vec![];
