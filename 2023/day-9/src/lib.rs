@@ -1,33 +1,52 @@
-use iter::{SeriesValuesIterator, SeriesValuesIteratorReverse};
-mod iter;
+use aoc::U8PtrExt;
 
-pub fn part_1(input: &str) -> i32 {
-    let mut buffer = Vec::<i32>::with_capacity(21);
+const NUM_HISTORIES: usize = 200;
+const VALUES_PER_HISTORY: usize = 21;
+
+static mut DATA: [[i32; VALUES_PER_HISTORY]; NUM_HISTORIES] = unsafe { std::mem::zeroed() };
+type Data = [[i32; VALUES_PER_HISTORY]; NUM_HISTORIES];
+
+pub fn parse(input: &str) -> &'static Data {
+    let mut data = input.as_ptr();
+    unsafe {
+        for history in &mut DATA {
+            for val in history {
+                *val = data.parse_int::<i32, 1>();
+                data = data.add(1);
+            }
+        }
+
+        &mut DATA
+    }
+}
+
+pub fn part_1(data: &Data) -> i32 {
+    let mut buffer = [0; VALUES_PER_HISTORY];
     let mut sum = 0;
 
-    for line in input.lines() {
-        buffer.extend(SeriesValuesIterator::new(line.as_bytes()));
+    for values in data {
+        buffer.copy_from_slice(&values[..VALUES_PER_HISTORY]);
         sum += predict_next_value(&mut buffer);
-        buffer.clear();
     }
 
     sum
 }
 
-pub fn part_2(input: &str) -> i32 {
-    let mut buffer = Vec::<i32>::with_capacity(21);
+pub fn part_2(data: &Data) -> i32 {
+    let mut buffer = [0; VALUES_PER_HISTORY];
     let mut sum = 0;
 
-    for line in input.lines() {
-        buffer.extend(SeriesValuesIteratorReverse::new(line.as_bytes()));
+    for values in data {
+        for (i, val) in values.iter().rev().enumerate() {
+            buffer[i] = *val;
+        }
         sum += predict_next_value(&mut buffer);
-        buffer.clear();
     }
 
     sum
 }
 
-fn predict_next_value(series: &mut Vec<i32>) -> i32 {
+fn predict_next_value(series: &mut [i32]) -> i32 {
     let mut end = series.len();
     loop {
         for i in 1..end {
