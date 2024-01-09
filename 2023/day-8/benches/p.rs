@@ -3,11 +3,8 @@ use criterion::{criterion_group, criterion_main, Criterion};
 
 fn bench(c: &mut Criterion) {
     let input = aoc::read_input_to_string();
-    let (instructions, network, nodes_ending_in_a) = parse(&input);
 
-    c.bench_function("aoc_2023_8_part_2", |b| {
-        b.iter(|| part_2(instructions, network, &nodes_ending_in_a))
-    });
+    c.bench_function("aoc_2023_8_parse", |b| b.iter(|| parse(&input)));
 }
 
 criterion_group!(benches, bench);
