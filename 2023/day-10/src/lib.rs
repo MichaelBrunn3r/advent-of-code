@@ -1,8 +1,11 @@
 pub mod tile;
 use tile::*;
 
-pub fn part_1(input: &mut str) -> usize {
-    let grid = Grid::from_ascii_str(input);
+pub fn parse(input: String) -> Grid {
+    Grid::from_ascii_str(input.as_bytes().to_vec())
+}
+
+pub fn part_1(grid: &Grid) -> usize {
     let start = grid.find_start();
 
     let (a, b) = grid.connected_neighbours(start);
@@ -11,8 +14,8 @@ pub fn part_1(input: &mut str) -> usize {
 
     let mut step = 1;
     loop {
-        walker_1.step(&grid);
-        walker_2.step(&grid);
+        walker_1.step(grid);
+        walker_2.step(grid);
 
         step += 1;
 
@@ -24,8 +27,7 @@ pub fn part_1(input: &mut str) -> usize {
     step
 }
 
-pub fn part_2(input: &mut str) -> usize {
-    let mut grid = Grid::from_ascii_str(input);
+pub fn part_2(grid: &mut Grid) -> usize {
     let start = grid.find_start();
 
     let (a, b) = grid.connected_neighbours(start);
@@ -33,8 +35,8 @@ pub fn part_2(input: &mut str) -> usize {
     let mut walker_2 = Walker::new(b);
 
     while walker_1.current != walker_2.current {
-        grid.mark_tile(walker_1.step(&grid));
-        grid.mark_tile(walker_2.step(&grid));
+        grid.mark_tile(walker_1.step(grid));
+        grid.mark_tile(walker_2.step(grid));
     }
 
     grid.mark_tile(walker_1.current);
@@ -79,27 +81,24 @@ impl Walker {
     }
 }
 
-#[derive(Debug)]
-struct Grid<'a> {
-    pub tiles: &'a mut [u8],
+#[derive(Debug, Clone)]
+pub struct Grid {
+    pub tiles: Vec<u8>,
     pub width: usize,
     pub height: usize,
 }
 
-impl<'g> Grid<'g> {
-    fn from_ascii_str(tiles: &'g mut str) -> Self {
-        let row_len = tiles.find('\n').unwrap();
-        unsafe {
-            tiles
-                .as_bytes_mut()
-                .iter_mut()
-                .for_each(|t| *t = Tile::from_ascii_char(*t as char) as u8);
+impl Grid {
+    fn from_ascii_str(mut tiles: Vec<u8>) -> Self {
+        let row_len = 140;
+        tiles
+            .iter_mut()
+            .for_each(|t| *t = Tile::from_ascii_char(*t as char) as u8);
 
-            Self {
-                tiles: tiles.as_bytes_mut(),
-                width: row_len + 1,
-                height: row_len,
-            }
+        Self {
+            tiles,
+            width: row_len + 1,
+            height: row_len,
         }
     }
 
