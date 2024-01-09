@@ -3,6 +3,7 @@
 mod parse;
 use std::collections::HashMap;
 
+use fxhash::FxHashMap;
 use itertools::Itertools;
 use parse::{PartParser, WorkflowParser};
 
@@ -13,7 +14,7 @@ pub fn parse<'a>(
     [(u16, u16); 1650],
     u16,
     Vec<Part>,
-    HashMap<&'a str, u16>,
+    FxHashMap<&'a str, u16>,
 ) {
     let mut parser = WorkflowParser::new(input.as_bytes());
     let mut rules = Vec::with_capacity(1650);
@@ -59,7 +60,7 @@ pub fn part_1(
 pub fn part_2(
     rules: &[Rule],
     workflows: &[(u16, u16); 1650],
-    name_to_id: &HashMap<&str, u16>,
+    name_to_id: &FxHashMap<&str, u16>,
 ) -> usize {
     let mut stack = vec![(
         workflows[*name_to_id.get("in").unwrap() as usize],

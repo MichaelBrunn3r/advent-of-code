@@ -9,11 +9,7 @@ use itertools::Itertools;
 use parse::{FlipFlop, ModuleParser, PARSER};
 use regex::Regex;
 use std::arch::asm;
-use std::{
-    collections::{HashMap, VecDeque},
-    fmt::Formatter,
-    ops,
-};
+use std::{collections::VecDeque, fmt::Formatter, ops};
 
 // L = low pulse, H = high pulse, FF = FlipFlop
 const N: usize = 1000;

@@ -1,7 +1,6 @@
 use aoc::U8SliceExt;
 use arrayvec::ArrayVec;
 use core::num;
-use std::collections::{hash_map::Entry, HashMap};
 
 pub static mut PARSER: ModuleParser = ModuleParser::new_const();
 

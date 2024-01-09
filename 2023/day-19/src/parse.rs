@@ -1,12 +1,12 @@
 use aoc::{StrExt, U8SliceExt};
+use fxhash::{FxBuildHasher, FxHashMap};
 
 use crate::{Condition, OnMet, Part, Rating, Rule};
-use std::collections::HashMap;
 
 pub struct WorkflowParser<'a> {
     pub data: &'a [u8],
     pub workflows: [(u16, u16); 1650],
-    pub name_to_id: HashMap<&'a str, u16>,
+    pub name_to_id: FxHashMap<&'a str, u16>,
     current_workflow: (&'a str, usize),
     num_rules: usize,
 }
@@ -15,7 +15,7 @@ impl<'p> WorkflowParser<'p> {
     pub fn new(data: &[u8]) -> WorkflowParser {
         let mut parser = WorkflowParser {
             data,
-            name_to_id: HashMap::with_capacity(1650),
+            name_to_id: FxHashMap::with_capacity_and_hasher(1650, FxBuildHasher::default()),
             workflows: [(0, 0); 1650],
             current_workflow: ("", 0),
             num_rules: 0,

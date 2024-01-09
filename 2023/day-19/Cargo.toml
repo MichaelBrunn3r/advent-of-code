@@ -11,6 +11,7 @@ itertools = { workspace = true }
 rayon = { workspace = true }
 criterion = {workspace = true}
 rand = {workspace = true}
+fxhash = {workspace = true}
 
 [[bench]]
 name = "p"
