@@ -80,10 +80,6 @@ alias bd := bench-day
 bench-day year day benchmark:
     cargo bench -p aoc-{{year}}-{{day}} --bench {{benchmark}}
 
-alias bdni := bench-day-nightly
+alias bdn := bench-day-nightly
 bench-day-nightly year day benchmark:
     cargo +nightly bench -p aoc-{{year}}-{{day}} --bench {{benchmark}}
-
-alias bdnina := bench-day-nightly-native
-bench-day-nightly-native year day benchmark:
-    RUSTFLAGS="-C target-cpu=native" cargo +nightly bench -p aoc-{{year}}-{{day}} --bench {{benchmark}}
