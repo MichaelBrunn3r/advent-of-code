@@ -4,8 +4,8 @@ fn main() {
     let input = aoc::read_input_to_string();
     let data = parse(&input);
 
-    // println!("Part 1: {}", part_1(data));
-    println!("Part 2: {}", part_2(data));
+    println!("Part 1: {}", part_1(data));
+    // println!("Part 2: {}", part_2(data));
 }
 
 #[cfg(test)]

@@ -1,6 +1,6 @@
 // #![feature(stdsimd)]
-// use std::arch::x86_64::{_mm256_loadu_epi32, _mm256_storeu_epi32, _mm256_sub_epi32};
 use aoc::U8PtrExt;
+// use std::arch::x86_64::{_mm256_loadu_epi32, _mm256_storeu_epi32, _mm256_sub_epi32};
 
 const NUM_HISTORIES: usize = 200;
 const VALUES_PER_HISTORY: usize = 21;
@@ -40,38 +40,31 @@ fn predict_and_sum(series: &mut Data) -> i32 {
     sum
 }
 
-// Slower than loop. Maybe because of unaligned loads?
-// fn predict_next_value_simd(series: &[i32]) -> i32 {
-//     let mut buffer = [0; VALUES_PER_HISTORY + 3];
-//     buffer[..VALUES_PER_HISTORY].copy_from_slice(series);
-
+// fn predict_next_value_simd(series: &mut Data) -> i32 {
 //     unsafe {
-//         let mut end = VALUES_PER_HISTORY - 1;
-
-//         loop {
-//             let a = _mm256_sub_epi32(
-//                 _mm256_loadu_epi32(buffer.as_ptr().add(1)),
-//                 _mm256_loadu_epi32(buffer.as_ptr()),
-//             );
-//             let b = _mm256_sub_epi32(
-//                 _mm256_loadu_epi32(buffer.as_ptr().add(8 + 1)),
-//                 _mm256_loadu_epi32(buffer.as_ptr().add(8)),
-//             );
-//             let c = _mm256_sub_epi32(
-//                 _mm256_loadu_epi32(buffer.as_ptr().add(16 + 1)),
-//                 _mm256_loadu_epi32(buffer.as_ptr().add(16)),
-//             );
-
-//             _mm256_storeu_epi32(buffer.as_mut_ptr(), a);
-//             _mm256_storeu_epi32(buffer.as_mut_ptr().add(8), b);
-//             _mm256_storeu_epi32(buffer.as_mut_ptr().add(16), c);
-
-//             end -= 1;
-//             if buffer[0] == 0 && buffer[end] == 0 || end == 0 {
-//                 return -buffer[end + 1];
+//         for pass in 0..19 {
+//             let mut i = 0;
+//             for _ in 0..550 {
+//                 _mm256_storeu_epi32(
+//                     series.as_mut_ptr().add(i),
+//                     _mm256_sub_epi32(
+//                         _mm256_loadu_epi32(series.as_ptr().add(i + 1)),
+//                         _mm256_loadu_epi32(series.as_ptr().add(i)),
+//                     ),
+//                 );
+//                 i += 8;
 //             }
 //         }
 //     }
+
+//     let mut sum = 0;
+//     let mut i = 0;
+//     for _ in 0..NUM_HISTORIES {
+//         sum += -series[i + 2];
+//         i += VALUES_PER_HISTORY + 1;
+//     }
+
+//     sum
 // }
 
 pub fn parse(input: &str) -> &'static Data {
