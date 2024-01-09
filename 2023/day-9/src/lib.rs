@@ -4,35 +4,15 @@ use aoc::U8PtrExt;
 
 const NUM_HISTORIES: usize = 200;
 const VALUES_PER_HISTORY: usize = 21;
-
-type Data = [[i32; VALUES_PER_HISTORY]; NUM_HISTORIES];
+type Data = [i32; VALUES_PER_HISTORY * NUM_HISTORIES];
 static mut DATA: Data = unsafe { std::mem::zeroed() };
-
-pub fn parse(input: &str) -> &'static Data {
-    let mut data = input.as_ptr();
-    unsafe {
-        for history in &mut DATA {
-            for val in history {
-                if data.read() == b'-' {
-                    data = data.add(1);
-                    *val = -data.parse_int::<i32, 1>();
-                } else {
-                    *val = data.parse_uint::<i32, 1>();
-                }
-                data = data.add(1);
-            }
-        }
-
-        &mut DATA
-    }
-}
 
 pub fn part_1(data: &Data) -> i32 {
     let mut buffer = [0; VALUES_PER_HISTORY + 3];
     let mut sum = 0;
 
-    for values in data {
-        buffer[..VALUES_PER_HISTORY].copy_from_slice(&values[..VALUES_PER_HISTORY]);
+    for values in data.chunks_exact(VALUES_PER_HISTORY) {
+        buffer[..VALUES_PER_HISTORY].copy_from_slice(values);
         sum += predict_next_value(&mut buffer);
         // sum += predict_next_value_simd(values);
     }
@@ -44,7 +24,7 @@ pub fn part_2(data: &Data) -> i32 {
     let mut buffer = [0; VALUES_PER_HISTORY + 3];
     let mut sum = 0;
 
-    for values in data {
+    for values in data.chunks_exact(VALUES_PER_HISTORY) {
         for (i, val) in values.iter().rev().enumerate() {
             buffer[i] = *val;
         }
@@ -105,3 +85,164 @@ fn predict_next_value(series: &mut [i32]) -> i32 {
 //         }
 //     }
 // }
+
+pub fn parse(input: &str) -> &'static Data {
+    let mut data = input.as_ptr();
+    unsafe {
+        let mut i = 0;
+        for _ in 0..NUM_HISTORIES {
+            // Unrolled loop 21 times. This seems to be the fastest way to parse the input.
+            DATA[i] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 1] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 2] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 3] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 4] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 5] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 6] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 7] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 8] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 9] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 10] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 11] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 12] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 13] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 14] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 15] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 16] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 17] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 18] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 19] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+            DATA[i + 20] = if data.read() == b'-' {
+                data = data.add(1);
+                -data.parse_uint::<i32, 1>()
+            } else {
+                data.parse_uint::<i32, 1>()
+            };
+            data = data.add(1);
+
+            i += VALUES_PER_HISTORY;
+        }
+
+        &mut DATA
+    }
+}
