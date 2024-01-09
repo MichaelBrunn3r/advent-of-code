@@ -4,52 +4,40 @@ use aoc::U8PtrExt;
 
 const NUM_HISTORIES: usize = 200;
 const VALUES_PER_HISTORY: usize = 21;
-type Data = [i32; VALUES_PER_HISTORY * NUM_HISTORIES];
+const NUM_VALUES: usize = NUM_HISTORIES * VALUES_PER_HISTORY;
+
+type Data = [i32; NUM_VALUES + 201];
 static mut DATA: Data = unsafe { std::mem::zeroed() };
 
 pub fn part_1(data: &Data) -> i32 {
-    let mut buffer = [0; VALUES_PER_HISTORY + 3];
-    let mut sum = 0;
-
-    for values in data.chunks_exact(VALUES_PER_HISTORY) {
-        buffer[..VALUES_PER_HISTORY].copy_from_slice(values);
-        sum += predict_next_value(&mut buffer);
-        // sum += predict_next_value_simd(values);
-    }
-
-    sum
+    let mut buffer: Data = unsafe { std::mem::zeroed() };
+    buffer.copy_from_slice(data);
+    predict_and_sum(&mut buffer)
 }
 
 pub fn part_2(data: &Data) -> i32 {
-    let mut buffer = [0; VALUES_PER_HISTORY + 3];
-    let mut sum = 0;
+    let mut buffer: Data = unsafe { std::mem::zeroed() };
+    for (i, val) in data.iter().rev().skip(2).enumerate() {
+        buffer[i] = *val;
+    }
+    predict_and_sum(&mut buffer)
+}
 
-    for values in data.chunks_exact(VALUES_PER_HISTORY) {
-        for (i, val) in values.iter().rev().enumerate() {
-            buffer[i] = *val;
+fn predict_and_sum(series: &mut Data) -> i32 {
+    for _ in 0..19 {
+        for i in 1..series.len() {
+            series[i - 1] = series[i].wrapping_sub(series[i - 1]);
         }
-        sum += predict_next_value(&mut buffer);
+    }
+
+    let mut sum = 0;
+    let mut i = 0;
+    for _ in 0..NUM_HISTORIES {
+        sum += -series[i + 2];
+        i += VALUES_PER_HISTORY + 1;
     }
 
     sum
-}
-
-fn predict_next_value(series: &mut [i32]) -> i32 {
-    let mut end = VALUES_PER_HISTORY;
-
-    loop {
-        for i in 1..end + 1 {
-            series[i - 1] = series[i] - series[i - 1];
-        }
-
-        end -= 1;
-
-        if series[0] == 0 && series[end - 1] == 0 {
-            break;
-        }
-    }
-
-    -series[end]
 }
 
 // Slower than loop. Maybe because of unaligned loads?
@@ -240,7 +228,7 @@ pub fn parse(input: &str) -> &'static Data {
             };
             data = data.add(1);
 
-            i += VALUES_PER_HISTORY;
+            i += VALUES_PER_HISTORY + 1;
         }
 
         &mut DATA
