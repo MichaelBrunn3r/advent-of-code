@@ -30,6 +30,10 @@ alias td := test-day
 test-day year day:
     cargo test -p aoc-{{year}}-{{day}}
 
+alias tdn := test-day-nightly
+test-day-nightly year day:
+    cargo +nightly test -p aoc-{{year}}-{{day}}
+
 # Init
 
 alias i := init

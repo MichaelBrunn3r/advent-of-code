@@ -5,7 +5,7 @@ fn main() {
     let data = parse(&input);
 
     println!("Part 1: {}", part_1(data));
-    println!("Part 2: {}", part_2(data));
+    // println!("Part 2: {}", part_2(data));
 }
 
 #[cfg(test)]
