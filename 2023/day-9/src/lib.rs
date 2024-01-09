@@ -5,15 +5,20 @@ use aoc::U8PtrExt;
 const NUM_HISTORIES: usize = 200;
 const VALUES_PER_HISTORY: usize = 21;
 
-static mut DATA: [[i32; VALUES_PER_HISTORY]; NUM_HISTORIES] = unsafe { std::mem::zeroed() };
 type Data = [[i32; VALUES_PER_HISTORY]; NUM_HISTORIES];
+static mut DATA: Data = unsafe { std::mem::zeroed() };
 
 pub fn parse(input: &str) -> &'static Data {
     let mut data = input.as_ptr();
     unsafe {
         for history in &mut DATA {
             for val in history {
-                *val = data.parse_int::<i32, 1>();
+                if data.read() == b'-' {
+                    data = data.add(1);
+                    *val = -data.parse_int::<i32, 1>();
+                } else {
+                    *val = data.parse_uint::<i32, 1>();
+                }
                 data = data.add(1);
             }
         }
