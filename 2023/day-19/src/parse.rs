@@ -1,241 +1,299 @@
-use aoc::{StrExt, U8SliceExt};
-use fxhash::{FxBuildHasher, FxHashMap};
+use aoc::{ConstVec, Cursor};
+static mut WF_HASH_TO_ID: [u16; 65536] = gen_wf_hash_to_id();
+static mut WORKFLOWS: [Workflow; 1650] = unsafe { std::mem::zeroed() };
+static mut MAX_WF_ID: u16 = 0;
+static mut RULES: ConstVec<Rule, 1599> = ConstVec::new(Rule::new_reject_all());
+const NUM_PARTS: usize = 200;
+static mut PARTS: [Part; NUM_PARTS] = unsafe { std::mem::zeroed() };
+pub const WF_IN_ID: usize = 0;
 
-use crate::{Condition, OnMet, Part, Rating, Rule};
+pub fn parse_workflows(crs: &mut Cursor<u8>) -> (&'static [Workflow; 1650], &'static [Rule]) {
+    unsafe {
+        RULES.clear();
+        MAX_WF_ID = 1; // "in" is always at index 0
 
-pub struct WorkflowParser<'a> {
-    pub data: &'a [u8],
-    pub workflows: [(u16, u16); 1650],
-    pub name_to_id: FxHashMap<&'a str, u16>,
-    current_workflow: (&'a str, usize),
-    num_rules: usize,
-}
+        while crs[0] != b'\n' {
+            let mut wf_id_start = *crs;
+            let wf_name_len = if crs[2] == b'{' { 2 } else { 3 };
+            crs.skip(wf_name_len);
+            crs.skip("{".len());
 
-impl<'p> WorkflowParser<'p> {
-    pub fn new(data: &[u8]) -> WorkflowParser {
-        let mut parser = WorkflowParser {
-            data,
-            name_to_id: FxHashMap::with_capacity_and_hasher(1650, FxBuildHasher::default()),
-            workflows: [(0, 0); 1650],
-            current_workflow: ("", 0),
-            num_rules: 0,
-        };
+            let wf_rules_start = RULES.len;
 
-        let name = data[..parser._find_rules_separator()].as_str_unchecked();
-        parser.data = &parser.data[name.len() + 1..]; // Skip name and '{'
-        parser.current_workflow = (name, parser.num_rules);
-
-        parser
-    }
-
-    fn _name_to_id(&mut self, name: &'p str) -> u16 {
-        if let Some(idx) = self.name_to_id.get(name) {
-            return *idx;
-        }
-
-        let idx = self.name_to_id.len();
-        self.name_to_id.insert(name, idx as u16);
-        idx as u16
-    }
-
-    #[inline(always)]
-    fn _next_byte_unchecked(&mut self) -> u8 {
-        let byte = self.data[0];
-        self.data = &self.data[1..];
-        byte
-    }
-
-    #[inline(always)]
-    fn _find_rules_separator(&mut self) -> usize {
-        // Name lengths: [3: 310, 2: 229]
-        if self.data[3] == b'{' {
-            3
-        } else {
-            2
-        }
-    }
-
-    fn _find_rules_terminator(&mut self) -> usize {
-        // Name lengths: [3: 310, 2: 229]
-        if self.data[3] == b'}' {
-            3
-        } else {
-            2
-        }
-    }
-
-    #[inline(always)]
-    fn _find_on_met_separator(&mut self) -> usize {
-        // Condition digits: [4: 728, 3: 313, 2: 19]
-        if self.data[4] == b':' {
-            4
-        } else if self.data[3] == b':' {
-            3
-        } else {
-            2
-        }
-    }
-}
-
-impl<'a> Iterator for WorkflowParser<'a> {
-    type Item = Rule;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.data[0] == b'\n' {
-            return None;
-        }
-
-        self.num_rules += 1;
-        if self.data[1] != b'<' && self.data[1] != b'>' {
-            let rule = match self.data[0] {
-                b'R' => {
-                    self.data = &self.data[3..]; // Skip '}\n'
-                    Rule {
-                        rating: Rating::Any,
-                        condition: Condition::LessThan(4001),
-                        on_met: OnMet::Reject,
-                        on_met_id: u16::MAX,
-                    }
+            RULES.push(parse_rule(crs));
+            loop {
+                crs.skip(",".len());
+                if crs[1] == b'<' || crs[1] == b'>' {
+                    RULES.push(parse_rule(crs));
+                } else {
+                    RULES.push(parse_terminal_rule(crs));
+                    break;
                 }
-                b'A' => {
-                    self.data = &self.data[3..]; // Skip '}\n'
-                    Rule {
-                        rating: Rating::Any,
-                        condition: Condition::LessThan(4001),
-                        on_met: OnMet::Accept,
-                        on_met_id: u16::MAX,
-                    }
-                }
-                _ => {
-                    let rules_terminator = self._find_rules_terminator();
-                    let on_met_id =
-                        self._name_to_id(self.data[..rules_terminator].as_str_unchecked());
-                    self.data = &self.data[rules_terminator + 2..]; // Skip '<on_met>}\n'
-                    Rule {
-                        rating: Rating::Any,
-                        condition: Condition::LessThan(4001),
-                        on_met: OnMet::Continue,
-                        on_met_id,
-                    }
-                }
-            };
-
-            let id = self._name_to_id(self.current_workflow.0);
-            self.workflows[id as usize] = (self.current_workflow.1 as u16, self.num_rules as u16);
-
-            if self.data[0] != b'\n' {
-                let name = self.data[..self._find_rules_separator()].as_str_unchecked();
-                self.data = &self.data[name.len() + 1..]; // Skip name and '{'
-                self.current_workflow = (name, self.num_rules);
             }
+            crs.skip("}\n".len());
 
-            return Some(rule);
+            let wf_id = parse_wf_name_to_id(&mut wf_id_start, wf_name_len);
+            WORKFLOWS[wf_id as usize] = (wf_rules_start, RULES.len);
         }
 
-        let rating = Rating::from_ascii_char(self._next_byte_unchecked());
-
-        let condition_type = self._next_byte_unchecked();
-
-        let on_met_sep = self._find_on_met_separator();
-        let condition_value: u32 = self.data[..on_met_sep]
-            .as_str_unchecked()
-            .parse_unsigned_unchecked();
-        self.data = &self.data[on_met_sep + 1..];
-
-        let condition = Condition::from_ascii_char(condition_type, condition_value);
-
-        let (on_met, on_met_id) = match self.data[0] {
-            b'A' => {
-                self.data = &self.data[2..];
-                (OnMet::Accept, u16::MAX)
-            }
-            b'R' => {
-                self.data = &self.data[2..];
-                (OnMet::Reject, u16::MAX)
-            }
-            _ => {
-                // Get name. Name lengths: [3: 310, 2: 229]
-                let pos_comma = if self.data[3] == b',' { 3 } else { 2 };
-
-                let on_met_id = self._name_to_id(self.data[..pos_comma].as_str_unchecked());
-                self.data = &self.data[pos_comma + 1..];
-
-                (OnMet::Continue, on_met_id)
-            }
-        };
-
-        Some(Rule {
-            rating,
-            condition,
-            on_met,
-            on_met_id,
-        })
+        (&WORKFLOWS, &RULES)
     }
 }
 
-pub struct PartParser<'a> {
-    data: &'a [u8],
+pub fn parse_parts(crs: &mut Cursor<u8>) -> &'static [Part] {
+    unsafe {
+        for part in PARTS.iter_mut() {
+            crs.skip("{".len());
+
+            let mut xmas = [0u16, 0, 0, 0];
+            for rating in &mut xmas {
+                crs.skip("x=".len());
+                let num_rating_digits = get_num_rating_digits(crs);
+                *rating = crs.parse_uint_n_digits(num_rating_digits);
+                crs.skip(",".len()); // Also skips terminating '}'
+            }
+            crs.skip("\n".len());
+
+            part.0 = xmas;
+        }
+
+        &PARTS
+    }
 }
 
-impl PartParser<'_> {
-    pub fn new(data: &[u8]) -> PartParser {
-        PartParser { data }
-    }
+fn parse_rule(crs: &mut Cursor<u8>) -> Rule {
+    let rating = Rating::from_ascii_char(crs.take());
+    let condition_type = crs.take();
 
-    #[inline(always)]
-    fn _find_rating_separator(&mut self) -> usize {
-        if self.data[6] == b',' {
-            6
-        } else if self.data[5] == b',' {
-            5
-        } else if self.data[4] == b',' {
-            4
+    let num_condition_digits = get_on_met_separator_offset(crs);
+    let condition_value: u32 = crs.parse_uint_n_digits(num_condition_digits);
+    crs.skip(":".len());
+
+    let condition = Condition::from_ascii_char(condition_type, condition_value);
+
+    let (on_met, on_met_id) = match crs[0] {
+        b'A' => {
+            crs.skip("A".len());
+            (OnMet::Accept, u16::MAX)
+        }
+        b'R' => {
+            crs.skip("R".len());
+            (OnMet::Reject, u16::MAX)
+        }
+        _ => {
+            let wf_name_len = if crs[2] == b',' { 2 } else { 3 };
+            let on_met_id = parse_wf_name_to_id(crs, wf_name_len);
+            (OnMet::Continue, on_met_id)
+        }
+    };
+
+    Rule {
+        rating,
+        condition,
+        on_met,
+        on_met_id,
+    }
+}
+
+fn parse_terminal_rule(crs: &mut Cursor<u8>) -> Rule {
+    match crs[0] {
+        b'R' => {
+            crs.skip("R".len());
+            Rule::new_reject_all()
+        }
+        b'A' => {
+            crs.skip("A".len());
+            Rule::new_accept_all()
+        }
+        _ => {
+            let wf_name_len = if crs[2] == b'}' { 2 } else { 3 };
+            let on_met_wf_id = parse_wf_name_to_id(crs, wf_name_len);
+            Rule::new_continue_all(on_met_wf_id)
+        }
+    }
+}
+
+/** Get the length of the name of the current workflow. Starts at the start of the line and is terminated by '{' */
+fn get_wf_name_length(crs: &mut Cursor<u8>) -> usize {
+    // Name lengths: [3: 310, 2: 229]
+    if !crs[3].is_ascii_lowercase() {
+        3
+    } else {
+        2
+    }
+}
+
+fn parse_wf_name_to_id(crs: &mut Cursor<u8>, len: usize) -> u16 {
+    unsafe {
+        let hash = hash_wf_name(crs, len);
+
+        if WF_HASH_TO_ID[hash as usize] == u16::MAX {
+            let id = MAX_WF_ID;
+            WF_HASH_TO_ID[hash as usize] = id;
+            MAX_WF_ID += 1;
+            id
         } else {
-            3
-        }
-    }
-
-    #[inline(always)]
-    fn _find_part_terminator(&mut self) -> usize {
-        if self.data[6] == b'}' {
-            6
-        } else if self.data[5] == b'}' {
-            5
-        } else if self.data[4] == b'}' {
-            4
-        } else {
-            3
+            WF_HASH_TO_ID[hash as usize]
         }
     }
 }
 
-impl<'a> Iterator for PartParser<'a> {
-    type Item = Part;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.data.is_empty() {
-            return None;
-        }
-
-        self.data = &self.data[1..]; // Skip '{'
-
-        let mut part = Part([0, 0, 0, 0]);
-
-        for i in 0..3 {
-            let rating_sep = self._find_rating_separator();
-            part.0[i] = self.data[2..rating_sep]
-                .as_str_unchecked()
-                .parse_unsigned_unchecked();
-            self.data = &self.data[rating_sep + 1..];
-        }
-
-        let part_terminator = self._find_part_terminator();
-        part.0[3] = self.data[2..part_terminator]
-            .as_str_unchecked()
-            .parse_unsigned_unchecked();
-
-        self.data = &self.data[part_terminator + 2..]; // Skip '}\n'
-
-        Some(part)
+fn hash_wf_name(crs: &mut Cursor<u8>, len: usize) -> u16 {
+    let mut hash = 0;
+    for _ in 0..len {
+        hash <<= 5;
+        hash |= (crs.take() - b'a') as u16;
     }
+    hash
+}
+
+const fn hash_wf_name_const(bytes: &[u8]) -> u16 {
+    let mut hash = 0;
+    let mut i = 0;
+    while i < bytes.len() {
+        hash <<= 5;
+        hash |= (bytes[i] - b'a') as u16;
+        i += 1;
+    }
+    hash
+}
+
+/** Get the offset of '}' terminating the list of rules of the current workflow */
+fn get_rules_list_terminator_offset(data: &mut Cursor<u8>) -> usize {
+    // Name lengths: [2: 229, 3: 310]
+    if data[3] == b'}' {
+        3
+    } else {
+        2
+    }
+}
+
+/** Get offset of ':' separating the current rules condition and its 'on-met' part */
+fn get_on_met_separator_offset(crs: &mut Cursor<u8>) -> usize {
+    // Condition digits: [2: 19, 3: 313, 4: 728]
+    if crs[4] == b':' {
+        4
+    } else if crs[3] == b':' {
+        3
+    } else {
+        2
+    }
+}
+
+fn get_num_rating_digits(crs: &Cursor<u8>) -> usize {
+    if crs[3].is_ascii_digit() {
+        4
+    } else if crs[2].is_ascii_digit() {
+        3
+    } else if crs[1].is_ascii_digit() {
+        2
+    } else {
+        1
+    }
+}
+
+pub type Workflow = (u16, u16);
+
+#[derive(Debug, Clone, Copy)]
+pub struct Rule {
+    pub rating: Rating,
+    pub condition: Condition,
+    pub on_met: OnMet,
+    pub on_met_id: u16,
+}
+
+impl Rule {
+    pub fn is_met(&self, part: &Part) -> bool {
+        self.condition.is_met(part.0[self.rating as usize & 0b11])
+    }
+
+    pub const fn new_accept_all() -> Self {
+        Rule {
+            rating: Rating::Any,
+            condition: Condition::LessThan(4001),
+            on_met: OnMet::Accept,
+            on_met_id: u16::MAX,
+        }
+    }
+
+    pub const fn new_reject_all() -> Self {
+        Rule {
+            rating: Rating::Any,
+            condition: Condition::LessThan(4001),
+            on_met: OnMet::Reject,
+            on_met_id: u16::MAX,
+        }
+    }
+
+    pub const fn new_continue_all(on_met_wf_id: u16) -> Self {
+        Rule {
+            rating: Rating::Any,
+            condition: Condition::LessThan(4001),
+            on_met: OnMet::Continue,
+            on_met_id: on_met_wf_id,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum OnMet {
+    Accept,
+    Reject,
+    Continue,
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum Rating {
+    X = 0,
+    M = 1,
+    A = 2,
+    S = 3,
+    Any = 4,
+}
+
+impl Rating {
+    #[inline(always)]
+    pub fn from_ascii_char(c: u8) -> Self {
+        const LUT: [Rating; 121] = Rating::_create_lut();
+        LUT[c as usize]
+    }
+
+    const fn _create_lut() -> [Rating; 121] {
+        let mut lut = [Rating::Any; 121];
+        lut[b'x' as usize] = Rating::X;
+        lut[b'm' as usize] = Rating::M;
+        lut[b'a' as usize] = Rating::A;
+        lut[b's' as usize] = Rating::S;
+        lut
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+#[repr(u8)]
+pub enum Condition {
+    LessThan(u16) = b'<',
+    GreaterThan(u16) = b'>',
+}
+
+impl Condition {
+    #[inline(always)]
+    pub fn from_ascii_char(c: u8, value: u32) -> Self {
+        unsafe { std::mem::transmute(c as u32 | value << 16) }
+    }
+
+    pub fn is_met(&self, value: u16) -> bool {
+        match self {
+            Self::LessThan(n) => value < *n,
+            Self::GreaterThan(n) => value > *n,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct Part(pub [u16; 4]);
+
+const fn gen_wf_hash_to_id() -> [u16; 65536] {
+    let mut hash_to_id = [u16::MAX; 65536];
+    hash_to_id[hash_wf_name_const(b"in") as usize] = WF_IN_ID as u16; // "in" is always at index 0
+    hash_to_id
 }

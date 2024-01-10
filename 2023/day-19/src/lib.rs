@@ -1,45 +1,22 @@
-#![allow(unused_variables)]
-
 mod parse;
-use std::collections::HashMap;
+use aoc::Cursor;
+use parse::{
+    parse_parts, parse_workflows, Condition, OnMet, Part, Rating, Rule, Workflow, WF_IN_ID,
+};
 
-use fxhash::FxHashMap;
-use itertools::Itertools;
-use parse::{PartParser, WorkflowParser};
-
-pub fn parse<'a>(
-    input: &'a str,
-) -> (
-    Vec<Rule>,
-    [(u16, u16); 1650],
-    u16,
-    Vec<Part>,
-    FxHashMap<&'a str, u16>,
-) {
-    let mut parser = WorkflowParser::new(input.as_bytes());
-    let mut rules = Vec::with_capacity(1650);
-    for rule in parser.by_ref() {
-        rules.push(rule)
-    }
-
-    let workflows = parser.workflows;
-    let workflow_in_id = *parser.name_to_id.get("in").unwrap();
-
-    let parts = PartParser::new(&parser.data[1..]).collect_vec();
-
-    (rules, workflows, workflow_in_id, parts, parser.name_to_id)
+pub fn parse(input: &str) -> (&[Workflow; 1650], &[Rule], &[Part]) {
+    let mut crs: Cursor<u8> = input.as_ptr().into();
+    let (workflows, rules) = parse_workflows(&mut crs);
+    crs.skip("\n".len());
+    let parts = parse_parts(&mut crs);
+    (workflows, rules, parts)
 }
 
-pub fn part_1(
-    rules: &[Rule],
-    workflows: &[(u16, u16); 1650],
-    workflow_in_id: u16,
-    parts: &[Part],
-) -> usize {
+pub fn part_1(workflows: &[(u16, u16)], rules: &[Rule], parts: &[Part]) -> usize {
     parts
         .iter()
         .filter(|part| {
-            let mut current_workflow = workflows[workflow_in_id as usize];
+            let mut current_workflow = &workflows[WF_IN_ID];
             loop {
                 let rules = &rules[current_workflow.0 as usize..current_workflow.1 as usize];
                 let matching_rule = rules.iter().find(|rule| rule.is_met(part)).unwrap();
@@ -48,7 +25,7 @@ pub fn part_1(
                     OnMet::Accept => return true,
                     OnMet::Reject => return false,
                     OnMet::Continue => {
-                        current_workflow = workflows[matching_rule.on_met_id as usize];
+                        current_workflow = &workflows[matching_rule.on_met_id as usize];
                     }
                 }
             }
@@ -57,13 +34,9 @@ pub fn part_1(
         .sum::<usize>()
 }
 
-pub fn part_2(
-    rules: &[Rule],
-    workflows: &[(u16, u16); 1650],
-    name_to_id: &FxHashMap<&str, u16>,
-) -> usize {
+pub fn part_2(rules: &[Rule], workflows: &[(u16, u16); 1650]) -> usize {
     let mut stack = vec![(
-        workflows[*name_to_id.get("in").unwrap() as usize],
+        workflows[WF_IN_ID],
         [1..=4000, 1..=4000, 1..=4000, 1..=4000],
     )];
     let mut accepted = vec![];
@@ -119,74 +92,3 @@ pub fn part_2(
         })
         .sum()
 }
-
-#[derive(Debug, Clone, Copy)]
-pub struct Rule {
-    rating: Rating,
-    condition: Condition,
-    on_met: OnMet,
-    on_met_id: u16,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub enum OnMet {
-    Accept,
-    Reject,
-    Continue,
-}
-
-impl Rule {
-    fn is_met(&self, part: &Part) -> bool {
-        self.condition.is_met(part.0[self.rating as usize & 0b11])
-    }
-}
-
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub enum Rating {
-    X = 0,
-    M = 1,
-    A = 2,
-    S = 3,
-    Any = 4,
-}
-
-impl Rating {
-    #[inline(always)]
-    fn from_ascii_char(c: u8) -> Self {
-        const LUT: [Rating; 121] = Rating::_create_lut();
-        LUT[c as usize]
-    }
-
-    const fn _create_lut() -> [Rating; 121] {
-        let mut lut = [Rating::Any; 121];
-        lut[b'x' as usize] = Rating::X;
-        lut[b'm' as usize] = Rating::M;
-        lut[b'a' as usize] = Rating::A;
-        lut[b's' as usize] = Rating::S;
-        lut
-    }
-}
-
-#[derive(Debug, Clone, Copy)]
-#[repr(u8)]
-pub enum Condition {
-    LessThan(u16) = b'<',
-    GreaterThan(u16) = b'>',
-}
-
-impl Condition {
-    #[inline(always)]
-    fn from_ascii_char(c: u8, value: u32) -> Self {
-        unsafe { std::mem::transmute(c as u32 | value << 16) }
-    }
-
-    fn is_met(&self, value: u16) -> bool {
-        match self {
-            Self::LessThan(n) => value < *n,
-            Self::GreaterThan(n) => value > *n,
-        }
-    }
-}
-
-#[derive(Debug)]
-pub struct Part([u16; 4]);

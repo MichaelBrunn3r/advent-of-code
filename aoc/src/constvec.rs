@@ -8,7 +8,22 @@ pub struct ConstVec<T, const CAPACITY: usize> {
     pub len: u16,
 }
 
-impl<T, const CAPACITY: usize> ConstVec<T, CAPACITY> {
+impl<T: Copy, const CAPACITY: usize> ConstVec<T, CAPACITY> {
+    #[allow(clippy::uninit_assumed_init)]
+    pub const fn new(fill: T) -> Self {
+        Self {
+            data: [fill; CAPACITY],
+            len: 0,
+        }
+    }
+
+    pub const fn with_length(fill: T, len: u16) -> Self {
+        Self {
+            data: [fill; CAPACITY],
+            len,
+        }
+    }
+
     #[track_caller]
     pub fn push(&mut self, value: T) {
         self.data[self.len as usize] = value;
@@ -47,5 +62,13 @@ impl<T, const CAPACITY: usize> DerefMut for ConstVec<T, CAPACITY> {
     #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.data.as_mut()
+    }
+}
+
+impl<T, const CAPACITY: usize> std::ops::Index<usize> for ConstVec<T, CAPACITY> {
+    type Output = T;
+    #[inline]
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.data[index]
     }
 }

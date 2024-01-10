@@ -3,6 +3,7 @@ use std::ops::{AddAssign, MulAssign};
 
 pub trait U8PtrExt {
     fn as_str(&self, n: usize) -> &str;
+    fn skip(&mut self, n: usize);
 
     // unsigned int
     fn parse_uint<T: From<u8> + MulAssign + AddAssign, const N: usize>(&mut self) -> T;
@@ -29,6 +30,9 @@ pub trait U8PtrExt {
 impl U8PtrExt for *const u8 {
     fn as_str(&self, n: usize) -> &str {
         unsafe { std::slice::from_raw_parts(*self, n).as_str_unchecked() }
+    }
+    fn skip(&mut self, n: usize) {
+        *self = unsafe { self.add(n) };
     }
 
     #[track_caller]
@@ -116,5 +120,55 @@ impl U8PtrExt for *const u8 {
             *self = self.sub(seperator);
             nums
         }
+    }
+}
+
+#[derive(Clone, Copy)]
+pub struct Cursor<T> {
+    pub ptr: *const T,
+}
+
+impl<T> Cursor<T> {
+    pub fn skip(&mut self, n: usize) {
+        unsafe { self.ptr = self.ptr.add(n) }
+    }
+
+    pub fn take(&mut self) -> T {
+        unsafe {
+            let val = self.ptr.read();
+            self.ptr = self.ptr.add(1);
+            val
+        }
+    }
+}
+
+impl Cursor<u8> {
+    #[track_caller]
+    pub fn parse_uint_n_digits<T: From<u8> + MulAssign + AddAssign>(&mut self, digits: usize) -> T {
+        unsafe {
+            let mut num: T = (self.ptr.read() - b'0').into();
+            self.ptr = self.ptr.add(1);
+
+            for _ in 1..digits {
+                num *= 10.into();
+                num += (self.ptr.read() - b'0').into();
+                self.ptr = self.ptr.add(1);
+            }
+            num
+        }
+    }
+}
+
+impl<T> From<*const T> for Cursor<T> {
+    fn from(ptr: *const T) -> Self {
+        Self { ptr }
+    }
+}
+
+impl<T> std::ops::Index<usize> for Cursor<T> {
+    type Output = T;
+    #[track_caller]
+    fn index(&self, index: usize) -> &Self::Output {
+        unsafe { &*self.ptr.add(index) }
     }
 }
