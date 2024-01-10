@@ -1,5 +1,8 @@
 pub mod parse;
-use aoc::Cursor;
+use std::ops::RangeInclusive;
+
+use aoc::{ConstVec, Cursor};
+use arrayvec::ArrayVec;
 use parse::{
     parse_parts, parse_workflows, Condition, OnMet, Part, Rating, Rule, Workflow, WF_IN_ID,
 };
@@ -34,26 +37,35 @@ pub fn part_1(workflows: &[(u16, u16)], rules: &[Rule], parts: &[Part]) -> usize
         .sum::<usize>()
 }
 
+static mut STACK: ConstVec<((u16, u16), [RangeInclusive<u16>; 4]), 16> =
+    unsafe { std::mem::zeroed() };
+static mut ACCEPTED: ConstVec<[RangeInclusive<u16>; 4], 600> = unsafe { std::mem::zeroed() };
+
 pub fn part_2(rules: &[Rule], workflows: &[(u16, u16); 1650]) -> usize {
-    let mut stack = vec![(
+    let stack = unsafe { &mut STACK };
+    stack.clear();
+    stack.push((
         workflows[WF_IN_ID],
         [1..=4000, 1..=4000, 1..=4000, 1..=4000],
-    )];
-    let mut accepted = vec![];
+    ));
+
+    let accepted = unsafe { &mut ACCEPTED };
+    accepted.clear();
 
     while let Some((workflow_id, mut xmas_ranges)) = stack.pop() {
         for rule in &rules[workflow_id.0 as usize..workflow_id.1 as usize] {
-            match rule.rating {
-                Rating::Any => match rule.on_met {
-                    OnMet::Accept => {
-                        accepted.push(xmas_ranges.clone());
-                    }
-                    OnMet::Continue => {
-                        stack.push((workflows[rule.on_met_id as usize], xmas_ranges.clone()));
-                    }
-                    _ => {}
-                },
-                Rating::X | Rating::M | Rating::A | Rating::S => {
+            match rule.condition {
+                // Reject all
+                Condition::LessThan(4001) => {}
+                // Accept all
+                Condition::LessThan(4002) => {
+                    accepted.push(xmas_ranges.clone());
+                }
+                // Continue all
+                Condition::LessThan(4003) => {
+                    stack.push((workflows[rule.on_met_id as usize], xmas_ranges.clone()));
+                }
+                _ => {
                     let rating_idx = rule.rating as usize;
 
                     let mut new_ranges = xmas_ranges.clone();

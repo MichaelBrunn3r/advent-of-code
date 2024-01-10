@@ -186,6 +186,7 @@ name = "aoc-2023-19"
 version = "0.1.0"
 dependencies = [
  "aoc",
+ "arrayvec",
  "criterion",
  "fxhash",
  "itertools 0.12.0",

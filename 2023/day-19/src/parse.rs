@@ -95,11 +95,13 @@ fn parse_terminal_rule(crs: &mut Cursor<u8>, rule: &mut Rule) {
         b'A' => {
             crs.skip("A".len());
             rule.on_met = OnMet::Accept;
+            rule.condition = Condition::LessThan(4002);
             // rule.rating, rule.condition and rule.on_met_id are already have the correct values
         }
         _ => {
             let wf_name_len = if crs[2] == b'}' { 2 } else { 3 };
             rule.on_met = OnMet::Continue;
+            rule.condition = Condition::LessThan(4003);
             rule.on_met_id = parse_wf_name_to_id(crs, wf_name_len);
         }
     }

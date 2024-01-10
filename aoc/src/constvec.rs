@@ -8,26 +8,21 @@ pub struct ConstVec<T, const CAPACITY: usize> {
     pub len: u16,
 }
 
-impl<T: Copy, const CAPACITY: usize> ConstVec<T, CAPACITY> {
-    #[allow(clippy::uninit_assumed_init)]
-    pub const fn new(fill: T) -> Self {
-        Self {
-            data: [fill; CAPACITY],
-            len: 0,
-        }
-    }
-
-    pub const fn with_length(fill: T, len: u16) -> Self {
-        Self {
-            data: [fill; CAPACITY],
-            len,
-        }
-    }
-
+impl<T: Debug, const CAPACITY: usize> ConstVec<T, CAPACITY> {
     #[track_caller]
     pub fn push(&mut self, value: T) {
         self.data[self.len as usize] = value;
         self.len += 1;
+    }
+
+    pub fn pop(&mut self) -> Option<T> {
+        if self.len == 0 {
+            return None;
+        }
+        unsafe {
+            self.len -= 1;
+            Some(std::ptr::read(self.as_ptr().add(self.len as usize)))
+        }
     }
 
     #[track_caller]
@@ -39,6 +34,20 @@ impl<T: Copy, const CAPACITY: usize> ConstVec<T, CAPACITY> {
     #[track_caller]
     pub fn clear(&mut self) {
         self.len = 0;
+    }
+
+    pub fn iter(&self) -> std::slice::Iter<'_, T> {
+        self.data[..self.len as usize].iter()
+    }
+}
+
+impl<T: Copy, const CAPACITY: usize> ConstVec<T, CAPACITY> {
+    #[allow(clippy::uninit_assumed_init)]
+    pub const fn new(fill: T) -> Self {
+        Self {
+            data: [fill; CAPACITY],
+            len: 0,
+        }
     }
 }
 
