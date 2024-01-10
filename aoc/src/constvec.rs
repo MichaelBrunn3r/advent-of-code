@@ -31,6 +31,12 @@ impl<T: Copy, const CAPACITY: usize> ConstVec<T, CAPACITY> {
     }
 
     #[track_caller]
+    pub fn emplace_back(&mut self) -> &mut T {
+        self.len += 1;
+        &mut self.data[self.len as usize - 1]
+    }
+
+    #[track_caller]
     pub fn clear(&mut self) {
         self.len = 0;
     }

@@ -20,13 +20,13 @@ pub fn parse_workflows(crs: &mut Cursor<u8>) -> (&'static [Workflow; 1650], &'st
 
             let wf_rules_start = RULES.len;
 
-            RULES.push(parse_rule(crs));
+            parse_rule(crs, RULES.emplace_back());
             loop {
                 crs.skip(",".len());
                 if crs[1] == b'<' || crs[1] == b'>' {
-                    RULES.push(parse_rule(crs));
+                    parse_rule(crs, RULES.emplace_back());
                 } else {
-                    RULES.push(parse_terminal_rule(crs));
+                    parse_terminal_rule(crs, RULES.emplace_back());
                     break;
                 }
             }
@@ -43,72 +43,64 @@ pub fn parse_workflows(crs: &mut Cursor<u8>) -> (&'static [Workflow; 1650], &'st
 pub fn parse_parts(crs: &mut Cursor<u8>) -> &'static [Part] {
     unsafe {
         for part in PARTS.iter_mut() {
-            crs.skip("{".len());
-
-            let mut xmas = [0u16, 0, 0, 0];
-            for rating in &mut xmas {
-                crs.skip("x=".len());
+            for rating in &mut part.0 {
+                crs.skip("{x=".len()); // Also skips ',m=', ',a=' or ',s='
                 let num_rating_digits = get_num_rating_digits(crs);
                 *rating = crs.parse_uint_n_digits(num_rating_digits);
-                crs.skip(",".len()); // Also skips terminating '}'
             }
-            crs.skip("\n".len());
-
-            part.0 = xmas;
+            crs.skip("}\n".len());
         }
 
         &PARTS
     }
 }
 
-fn parse_rule(crs: &mut Cursor<u8>) -> Rule {
-    let rating = Rating::from_ascii_char(crs.take());
+fn parse_rule(crs: &mut Cursor<u8>, rule: &mut Rule) {
+    rule.rating = Rating::from_ascii_char(crs.take());
     let condition_type = crs.take();
 
     let num_condition_digits = get_on_met_separator_offset(crs);
-    let condition_value: u32 = crs.parse_uint_n_digits(num_condition_digits);
+    rule.condition = Condition::from_ascii_char(
+        condition_type,
+        crs.parse_uint_n_digits(num_condition_digits),
+    );
     crs.skip(":".len());
 
-    let condition = Condition::from_ascii_char(condition_type, condition_value);
-
-    let (on_met, on_met_id) = match crs[0] {
+    match crs[0] {
         b'A' => {
             crs.skip("A".len());
-            (OnMet::Accept, u16::MAX)
+            rule.on_met = OnMet::Accept;
+            rule.on_met_id = u16::MAX;
         }
         b'R' => {
             crs.skip("R".len());
-            (OnMet::Reject, u16::MAX)
+            rule.on_met = OnMet::Reject;
+            rule.on_met_id = u16::MAX;
         }
         _ => {
             let wf_name_len = if crs[2] == b',' { 2 } else { 3 };
             let on_met_id = parse_wf_name_to_id(crs, wf_name_len);
-            (OnMet::Continue, on_met_id)
+            rule.on_met = OnMet::Continue;
+            rule.on_met_id = on_met_id;
         }
     };
-
-    Rule {
-        rating,
-        condition,
-        on_met,
-        on_met_id,
-    }
 }
 
-fn parse_terminal_rule(crs: &mut Cursor<u8>) -> Rule {
+fn parse_terminal_rule(crs: &mut Cursor<u8>, rule: &mut Rule) {
     match crs[0] {
         b'R' => {
             crs.skip("R".len());
-            Rule::new_reject_all()
+            // All fields are already have the correct values because of the default rule
         }
         b'A' => {
             crs.skip("A".len());
-            Rule::new_accept_all()
+            rule.on_met = OnMet::Accept;
+            // rule.rating, rule.condition and rule.on_met_id are already have the correct values
         }
         _ => {
             let wf_name_len = if crs[2] == b'}' { 2 } else { 3 };
-            let on_met_wf_id = parse_wf_name_to_id(crs, wf_name_len);
-            Rule::new_continue_all(on_met_wf_id)
+            rule.on_met = OnMet::Continue;
+            rule.on_met_id = parse_wf_name_to_id(crs, wf_name_len);
         }
     }
 }

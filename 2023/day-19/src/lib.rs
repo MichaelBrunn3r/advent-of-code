@@ -1,4 +1,4 @@
-mod parse;
+pub mod parse;
 use aoc::Cursor;
 use parse::{
     parse_parts, parse_workflows, Condition, OnMet, Part, Rating, Rule, Workflow, WF_IN_ID,
