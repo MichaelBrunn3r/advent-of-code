@@ -1,6 +1,4 @@
-#![allow(unused_imports, unused_variables)]
-
-use aoc_2023_20::*;
+use aoc_2023_20::{parse::parse, *};
 
 fn main() {
     let input = aoc::read_input_to_string();

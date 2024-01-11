@@ -20,6 +20,13 @@ impl<D, const CAPACITY: usize> ConstVec<D, CAPACITY> {
         }
     }
 
+    pub const fn zeroed_with_len(len: u16) -> Self {
+        Self {
+            data: unsafe { std::mem::zeroed() },
+            len,
+        }
+    }
+
     #[allow(clippy::uninit_assumed_init)]
     pub const fn new_filled(fill: D) -> Self
     where
@@ -74,7 +81,11 @@ impl<D, const CAPACITY: usize> ConstVec<D, CAPACITY> {
     }
 
     pub fn iter(&self) -> std::slice::Iter<'_, D> {
-        self.as_ref().iter()
+        (self.as_ref() as &[D]).iter()
+    }
+
+    pub fn set_len(&mut self, new_len: u16) {
+        self.len = new_len;
     }
 
     fn as_ptr(&self) -> *const D {
@@ -98,6 +109,12 @@ impl<D, const C: usize> AsRef<[D]> for ConstVec<D, C> {
     }
 }
 
+impl<D, const C: usize> AsRef<[D; C]> for ConstVec<D, C> {
+    fn as_ref(&self) -> &[D; C] {
+        unsafe { &*(self.data.as_ptr() as *const [MaybeUninit<D>; C] as *const [D; C]) }
+    }
+}
+
 impl<D, const CAPACITY: usize> Deref for ConstVec<D, CAPACITY> {
     type Target = [D];
     #[inline]
@@ -108,6 +125,7 @@ impl<D, const CAPACITY: usize> Deref for ConstVec<D, CAPACITY> {
 
 impl<D, const CAPACITY: usize> DerefMut for ConstVec<D, CAPACITY> {
     #[inline]
+    #[track_caller]
     fn deref_mut(&mut self) -> &mut Self::Target {
         unsafe { &mut *(&mut self.data[..self.len as usize] as *mut [MaybeUninit<D>] as *mut [D]) }
     }
@@ -117,7 +135,14 @@ impl<D, const CAPACITY: usize> std::ops::Index<usize> for ConstVec<D, CAPACITY> 
     type Output = D;
     #[inline]
     fn index(&self, index: usize) -> &Self::Output {
-        &self.as_ref()[index]
+        &(self.as_ref() as &[D])[index]
+    }
+}
+
+impl<D, const CAPACITY: usize> std::ops::IndexMut<usize> for ConstVec<D, CAPACITY> {
+    #[inline]
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut (self.as_mut() as &mut [D])[index]
     }
 }
 

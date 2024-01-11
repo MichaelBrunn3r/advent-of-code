@@ -1,4 +1,4 @@
-use aoc_2023_20::*;
+use aoc_2023_20::parse::parse;
 use criterion::{criterion_group, criterion_main, Criterion};
 
 fn bench(c: &mut Criterion) {

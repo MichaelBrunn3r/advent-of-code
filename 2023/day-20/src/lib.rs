@@ -1,15 +1,7 @@
-#![allow(unused_imports, unused_variables)]
-
 pub mod parse;
 
-use aoc::prelude::*;
-use arrayvec::ArrayVec;
-use core::num;
-use itertools::Itertools;
-use parse::{FlipFlop, ModuleParser, PARSER};
-use regex::Regex;
+use parse::{ModuleID, Modules};
 use std::arch::asm;
-use std::{collections::VecDeque, fmt::Formatter, ops};
 
 // L = low pulse, H = high pulse, FF = FlipFlop
 const N: usize = 1000;
@@ -20,24 +12,13 @@ const NUM_L_TO_BROADCASTER: usize = N;
 const NUM_L_FROM_BROADCASTER: usize = NUM_CYCLES * N;
 const NUM_L_BETWEEN_COUNTER_FFS: usize = N - N.count_ones() as usize;
 const NUM_H_BETWEEN_COUNTER_FFS: usize = N;
-const NUM_L_TO_CYCLE_CONJ: usize = calc_l_to_cycle_conjunction(N);
+const NUM_L_TO_CYCLE_CONJ: usize = calc_l_to_cycle_conjunction();
 const NUM_H_TO_CYCLE_CONJ: usize = calc_h_to_cycle_conjunction(N);
 
-pub fn parse(input: &str) -> ([u16; 4], [u16; 4], &'static [FlipFlop; 65536]) {
-    let parser = unsafe { &mut PARSER };
-    parser.parse(input.as_bytes());
-
-    (
-        parser.broadcaster_outputs,
-        parser.cycle_conjunctions,
-        &parser.modules,
-    )
-}
-
 pub fn part_1(
-    broadcaster_outputs: &[u16; 4],
-    modules: &[FlipFlop; 65536],
-    cycle_conjunctions: &[u16; 4],
+    broadcaster_outputs: &[ModuleID; 4],
+    modules: &Modules,
+    cycle_conjunctions: &[ModuleID; 4],
 ) -> usize {
     let mut num_low =
         NUM_L_TO_BROADCASTER + NUM_L_FROM_BROADCASTER + NUM_CYCLES * NUM_L_BETWEEN_COUNTER_FFS;
@@ -106,9 +87,9 @@ pub fn part_1(
 const MAX_CYCLE_PERIOD: usize = 2usize.pow(NUM_FFS_PER_CYCLE);
 
 pub fn part_2(
-    broadcaster_outputs: &[u16; 4],
-    modules: &[FlipFlop; 65536],
-    cycle_conjunctions: &[u16; 4],
+    broadcaster_outputs: &[ModuleID; 4],
+    modules: &Modules,
+    cycle_conjunctions: &[ModuleID; 4],
 ) -> usize {
     let mut result = 1;
     for &broadcast_output in broadcaster_outputs {
@@ -149,7 +130,7 @@ pub fn part_2(
     result
 }
 
-const fn calc_l_to_cycle_conjunction(n: usize) -> usize {
+const fn calc_l_to_cycle_conjunction() -> usize {
     let mut sum = 0usize;
     let mut i = 1;
     while i <= 10 {

@@ -1,118 +1,94 @@
-use aoc::U8SliceExt;
-use arrayvec::ArrayVec;
-use core::num;
+use aoc::prelude::*;
 
-pub static mut PARSER: ModuleParser = ModuleParser::new_const();
+pub type ModuleID = u16;
+pub type Modules = [FlipFlop; 65535];
+static mut MODULES: [FlipFlop; 65535] = unsafe { std::mem::zeroed() };
 
-pub struct FlipFlop {
-    pub outputs: [u16; 2],
-}
+pub fn parse(input: &str) -> ([ModuleID; 4], [ModuleID; 4], &'static Modules) {
+    let mut crs = input.as_ptr();
+    let mut broadcaster_outputs = [0; 4];
+    let mut num_cycle_conjunctions = 0;
+    let mut cycle_conjunctions = [0; 4];
 
-pub struct ModuleParser {
-    pub modules: [FlipFlop; 65536],
-    pub broadcaster_outputs: [u16; 4],
-    pub cycle_conjunctions: [u16; 4],
-    num_cycle_conjunctions: usize,
-}
-
-impl ModuleParser {
-    pub const fn new_const() -> Self {
-        Self {
-            modules: unsafe { std::mem::zeroed() },
-            broadcaster_outputs: [0; 4],
-            cycle_conjunctions: [0; 4],
-            num_cycle_conjunctions: 0,
-        }
-    }
-
-    unsafe fn count_conjunction_outputs(data: *const u8) -> usize {
-        // #Outputs: {1:5, 4:4}
-        if *data.offset(2) == b'\n' {
-            1
-        } else {
-            5
-        }
-    }
-
-    unsafe fn count_flipflop_outputs(data: *const u8) -> usize {
-        // #Outputs: {1:16, 2:32}
-        if *data.offset(2) == b'\n' {
-            1
-        } else {
-            2
-        }
-    }
-
-    unsafe fn parse_module_outputs_inplace<const N: usize>(
-        num_outputs: usize,
-        outputs: &mut [u16],
-        mut data: *const u8,
-    ) -> *mut u8 {
-        outputs.iter_mut().take(num_outputs - 1).for_each(|output| {
-            *output = Self::hash(data);
-            data = data.add("aa, ".len());
-        });
-
-        // Last output has no comma and ends with a newline
-        outputs[num_outputs - 1] = Self::hash(data);
-        data = data.add("aa\n".len());
-
-        data as *mut u8
-    }
-
-    unsafe fn hash(name: *const u8) -> u16 {
-        (name as *const u16).read()
-    }
-
-    fn reset(&mut self) {
-        self.num_cycle_conjunctions = 0;
-    }
-
-    pub fn parse(&mut self, data: &[u8]) {
-        self.reset();
-        let mut data = data.as_ptr();
-
+    unsafe {
         for _ in 0..58 {
-            unsafe {
-                match *data {
-                    b'b' => {
-                        data = data.add("broadcaster -> ".len());
-                        data = Self::parse_module_outputs_inplace::<4>(
-                            4,
-                            &mut self.broadcaster_outputs,
-                            data,
-                        );
-                    }
-                    b'%' => {
-                        let hash = Self::hash(data.offset(1));
-                        data = data.add("%aa -> ".len());
-
-                        let num_module_outputs = Self::count_flipflop_outputs(data);
-
-                        data = Self::parse_module_outputs_inplace::<2>(
-                            num_module_outputs,
-                            &mut self.modules[hash as usize].outputs,
-                            data,
-                        );
-                    }
-                    b'&' => {
-                        let hash = Self::hash(data.offset(1));
-                        data = data.add("%aa -> ".len());
-
-                        let num_module_outputs = Self::count_conjunction_outputs(data);
-                        if num_module_outputs == 5 {
-                            self.cycle_conjunctions[self.num_cycle_conjunctions] = hash; // Only store cycle conjunctions
-                            self.num_cycle_conjunctions += 1;
-
-                            data = data.add("aa, bb, cc, dd, ee\n".len());
-                        // Skip outputs
-                        } else {
-                            data = data.add("aa\n".len()); // Skip other conjunctions
-                        }
-                    }
-                    _ => unreachable!(),
+            match *crs {
+                b'b' => {
+                    crs.skip("broadcaster -> ".len());
+                    parse_module_outputs_inplace::<4>(4, &mut broadcaster_outputs, &mut crs);
                 }
+                b'%' => {
+                    let hash = hash(crs.add(1));
+                    crs.skip("%aa -> ".len());
+
+                    let num_module_outputs = count_flipflop_outputs(crs);
+
+                    parse_module_outputs_inplace::<2>(
+                        num_module_outputs,
+                        &mut MODULES[hash as usize].outputs,
+                        &mut crs,
+                    );
+                }
+                b'&' => {
+                    let hash = hash(crs.add(1));
+                    crs.skip("%aa -> ".len());
+
+                    let num_module_outputs = count_conjunction_outputs(crs);
+                    if num_module_outputs == 5 {
+                        cycle_conjunctions[num_cycle_conjunctions] = hash; // Only store cycle conjunctions
+                        num_cycle_conjunctions += 1;
+
+                        crs.skip("aa, bb, cc, dd, ee\n".len());
+                    // Skip outputs
+                    } else {
+                        crs.skip("aa\n".len()); // Skip other conjunctions
+                    }
+                }
+                _ => unreachable!(),
             }
         }
+
+        (broadcaster_outputs, cycle_conjunctions, &MODULES)
     }
+}
+
+unsafe fn parse_module_outputs_inplace<const N: usize>(
+    num_outputs: usize,
+    outputs: &mut [ModuleID],
+    crs: &mut *const u8,
+) {
+    outputs.iter_mut().take(num_outputs - 1).for_each(|output| {
+        *output = hash(*crs);
+        crs.skip("aa, ".len());
+    });
+
+    // Last output has no comma and ends with a newline
+    outputs[num_outputs - 1] = hash(*crs);
+    crs.skip("aa\n".len());
+}
+
+unsafe fn count_conjunction_outputs(crs: *const u8) -> usize {
+    // #Outputs: {1:5, 4:4}
+    if *crs.offset(2) == b'\n' {
+        1
+    } else {
+        5
+    }
+}
+
+unsafe fn count_flipflop_outputs(crs: *const u8) -> usize {
+    // #Outputs: {1:16, 2:32}
+    if *crs.offset(2) == b'\n' {
+        1
+    } else {
+        2
+    }
+}
+
+unsafe fn hash(name: *const u8) -> ModuleID {
+    (name as *const ModuleID).read()
+}
+
+pub struct FlipFlop {
+    pub outputs: [ModuleID; 2],
 }
