@@ -2,7 +2,7 @@ use aoc::{ConstVec, Cursor};
 static mut WF_HASH_TO_ID: [u16; 65536] = gen_wf_hash_to_id();
 static mut WORKFLOWS: [Workflow; 1650] = unsafe { std::mem::zeroed() };
 static mut MAX_WF_ID: u16 = 0;
-static mut RULES: ConstVec<Rule, 1599> = ConstVec::new(Rule::new_reject_all());
+static mut RULES: ConstVec<Rule, 1599> = ConstVec::new_filled(Rule::new_reject_all());
 const NUM_PARTS: usize = 200;
 static mut PARTS: [Part; NUM_PARTS] = unsafe { std::mem::zeroed() };
 pub const WF_IN_ID: usize = 0;

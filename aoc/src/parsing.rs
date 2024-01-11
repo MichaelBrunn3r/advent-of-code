@@ -4,6 +4,8 @@ use std::ops::{AddAssign, MulAssign};
 pub trait U8PtrExt {
     fn as_str(&self, n: usize) -> &str;
     fn skip(&mut self, n: usize);
+    fn take(&mut self) -> u8;
+    fn peek(&self) -> u8;
 
     // unsigned int
     fn parse_uint<T: From<u8> + MulAssign + AddAssign, const N: usize>(&mut self) -> T;
@@ -33,6 +35,16 @@ impl U8PtrExt for *const u8 {
     }
     fn skip(&mut self, n: usize) {
         *self = unsafe { self.add(n) };
+    }
+    fn take(&mut self) -> u8 {
+        unsafe {
+            let val = self.read();
+            *self = self.add(1);
+            val
+        }
+    }
+    fn peek(&self) -> u8 {
+        unsafe { self.read() }
     }
 
     #[track_caller]

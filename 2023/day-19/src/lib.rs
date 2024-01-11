@@ -2,10 +2,7 @@ pub mod parse;
 use std::ops::RangeInclusive;
 
 use aoc::{ConstVec, Cursor};
-use arrayvec::ArrayVec;
-use parse::{
-    parse_parts, parse_workflows, Condition, OnMet, Part, Rating, Rule, Workflow, WF_IN_ID,
-};
+use parse::{parse_parts, parse_workflows, Condition, OnMet, Part, Rule, Workflow, WF_IN_ID};
 
 pub fn parse(input: &str) -> (&[Workflow; 1650], &[Rule], &[Part]) {
     let mut crs: Cursor<u8> = input.as_ptr().into();

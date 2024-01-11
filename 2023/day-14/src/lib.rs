@@ -1,13 +1,15 @@
-use aoc::prelude::*;
-use std::collections::HashMap;
+#![feature(stdsimd)]
 
-const SPHERE: u8 = b'O';
-const CUBE: u8 = b'#';
-const EMPTY: u8 = b'.';
+use aoc::{prelude::*, ConstVec};
+use std::{arch::x86_64::_mm_prefetch, collections::HashMap};
+
+const SPHERE: u8 = b'O'; // 0100_1111;
+const CUBE: u8 = b'#'; //   0010_0010;
+const EMPTY: u8 = b'.'; //  0010_1110;
 const COLS: usize = 101;
 
 pub fn part_1(input: &str) -> usize {
-    tilt_north_and_calc_load(input.as_bytes(), input.find('\n').unwrap())
+    tilt_north_and_calc_load(input)
 }
 
 pub fn part_2(input: &mut str) -> usize {
@@ -24,6 +26,37 @@ pub fn part_2(input: &mut str) -> usize {
     calc_load(platform, size)
 }
 
+// Part 1 doesn't need any preprocessing, so we can just use the input string as is.
+pub fn tilt_north_and_calc_load(input: &str) -> usize {
+    let mut column_stops = [0; 100];
+    let mut total_load = 0;
+
+    let mut crs = input.as_ptr();
+    for row in 0..100 {
+        unsafe {
+            _mm_prefetch(crs.add(64) as *const _, 0);
+            _mm_prefetch(crs.add(128) as *const _, 0);
+            _mm_prefetch(column_stops.as_ptr() as *const _, 0);
+            _mm_prefetch(column_stops.as_ptr().add(64) as *const _, 0);
+        };
+        for stop in &mut column_stops {
+            match crs.take() {
+                SPHERE => {
+                    total_load += 100 - *stop;
+                    *stop += 1;
+                }
+                CUBE => {
+                    *stop = row + 1;
+                }
+                _ => {}
+            }
+        }
+        crs.skip("\n".len());
+    }
+
+    total_load
+}
+
 pub fn calc_load(platform: &[u8], size: usize) -> usize {
     let mut total_load = 0;
 
@@ -31,28 +64,6 @@ pub fn calc_load(platform: &[u8], size: usize) -> usize {
         for c in line {
             if *c == SPHERE {
                 total_load += load;
-            }
-        }
-    }
-
-    total_load
-}
-
-pub fn tilt_north_and_calc_load(platform: &[u8], size: usize) -> usize {
-    let mut current_stops = [size + 1; COLS];
-    let mut total_load = 0;
-
-    for (line, load) in platform.chunks_exact(size + 1).zip((1..size + 1).rev()) {
-        for (col, c) in line.iter().enumerate() {
-            match *c {
-                SPHERE => {
-                    current_stops[col] -= 1;
-                    total_load += current_stops[col];
-                }
-                CUBE => {
-                    current_stops[col] = load;
-                }
-                _ => {}
             }
         }
     }
