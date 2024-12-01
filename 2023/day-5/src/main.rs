@@ -2,10 +2,10 @@ use aoc_2023_5::*;
 
 fn main() {
     let input = aoc::read_input_to_string();
-    let (seeds, map_sections) = parse(&input);
+    let input = parse(&input);
 
-    println!("Part 1: {}", part_1(&seeds, &map_sections));
-    println!("Part 2: {}", part_2(&seeds, &map_sections));
+    println!("Part 1: {}", part_1(input));
+    println!("Part 2: {}", part_2(input));
 }
 
 #[cfg(test)]

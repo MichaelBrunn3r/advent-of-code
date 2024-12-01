@@ -63,6 +63,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "aoc-2023"
+version = "0.1.0"
+dependencies = [
+ "aoc",
+ "aoc-2023-1",
+ "aoc-2023-10",
+ "aoc-2023-11",
+ "aoc-2023-2",
+ "aoc-2023-3",
+ "aoc-2023-4",
+ "aoc-2023-5",
+ "aoc-2023-6",
+ "aoc-2023-7",
+ "aoc-2023-8",
+ "aoc-2023-9",
+ "criterion",
+]
+
+[[package]]
 name = "aoc-2023-1"
 version = "0.1.0"
 dependencies = [

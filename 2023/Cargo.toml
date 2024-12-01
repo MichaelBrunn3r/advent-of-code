@@ -1,0 +1,23 @@
+[package]
+name = "aoc-2023"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+aoc-2023-1 = { path = "./day-1" }
+aoc-2023-2 = { path = "./day-2" }
+aoc-2023-3 = { path = "./day-3" }
+aoc-2023-4 = { path = "./day-4" }
+aoc-2023-5 = { path = "./day-5" }
+aoc-2023-6 = { path = "./day-6" }
+aoc-2023-7 = { path = "./day-7" }
+aoc-2023-8 = { path = "./day-8" }
+aoc-2023-9 = { path = "./day-9" }
+aoc-2023-10 = { path = "./day-10" }
+aoc-2023-11 = { path = "./day-11" }
+criterion = {workspace = true}
+aoc = { path = "../aoc" }
+
+[[bench]]
+name = "all"
+harness = false

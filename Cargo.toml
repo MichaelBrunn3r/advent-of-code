@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 
-members = ["*/day-*", "aoc"]
+members = ["*/day-*", "aoc", "2023"]
 
 [workspace.dependencies]
 regex = "1.10.2"
@@ -22,3 +22,4 @@ fxhash = "0.2.1"
 # opt-level = 3
 # panic = "abort"
 # lto = "fat"
+
