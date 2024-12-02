@@ -8,17 +8,9 @@ alias r := run
 run:
     cargo run -p aoc-{{today}}
 
-alias rn := run-nightly
-run-nightly:
-    cargo +nightly run -p aoc-{{today}}
-
 alias rd := run-day
 run-day year day:
     cargo run -p aoc-{{year}}-{{day}}
-
-alias rdn := run-day-nightly
-run-day-nightly year day:
-    cargo +nightly run -p aoc-{{year}}-{{day}}
 
 # Test
 
@@ -60,17 +52,9 @@ alias b := bench
 bench:
     cargo bench -p aoc-{{today}}
 
-alias bn := bench-nightly
-bench-nightly:
-    cargo +nightly bench -p aoc-{{today}}
-
 alias b1 := bench1
 bench1:
     cargo bench -p aoc-{{today}} --bench part_1 -- --noplot
-
-alias b1n := bench1-nightly
-bench1-nightly:
-    cargo +nightly bench -p aoc-{{today}} --bench part_1 -- --noplot
 
 alias b2 := bench2
 bench2:
@@ -79,7 +63,3 @@ bench2:
 alias bd := bench-day
 bench-day year day benchmark:
     cargo bench -p aoc-{{year}}-{{day}} --bench {{benchmark}}
-
-alias bdn := bench-day-nightly
-bench-day-nightly year day benchmark:
-    cargo +nightly bench -p aoc-{{year}}-{{day}} --bench {{benchmark}}
