@@ -6,11 +6,9 @@ pub fn part_1(input: &str) -> usize {
         .split("\n")
         .filter(|line| !line.is_empty())
         .map(|line| {
-            line
-                .split(" ")
-                .map(|digits| digits.as_bytes().parse_ascii_digits() as i32)
+            LevelIterator{crs: line.as_ptr()}
                 .tuple_windows()
-                .map(|(a, b)| a - b)
+                .map(|(a, b)| a as i32 - b as i32)
                 .tuple_windows()
                 .all(|(a, b)| {
                     return (a >= 1 && a <= 3 && b >= 1 && b <= 3) 
@@ -19,4 +17,31 @@ pub fn part_1(input: &str) -> usize {
         })
         .filter(|line| *line)
         .count()
+}
+
+
+struct LevelIterator {
+    crs: *const u8,
+}
+
+impl Iterator for LevelIterator {
+    type Item = u8;
+
+    fn next(&mut self) -> Option<u8> {
+        if self.crs.peek() == b'\n' {
+            return None;
+        }
+
+        let mut num = self.crs.take() - b'0';
+        if self.crs.peek() >= b'0' {
+            num *= 10;
+            num += self.crs.take() - b'0';
+        }
+
+        if self.crs.peek() == b' ' {
+            self.crs.take();
+        }
+
+        return Some(num);
+    }
 }
