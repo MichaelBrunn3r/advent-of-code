@@ -8,12 +8,12 @@ def "main init" [day?:int, year?:int] {
     let year = if ($year == null) {$today | get year} else $year
 
     # Create day directory
-    let out_dir = $"($env.FILE_PWD)\\($year)\\day-($day)"
+    let out_dir = $"($env.FILE_PWD)/($year)/day-($day)"
     mkdir -v $out_dir
 
     # Create Description.md
     let html_day = fetch_day $day $year
-    # create_description $html_day ($"($out_dir)\\TASKS.md") $day $year
+    # create_description $html_day ($"($out_dir)/TASKS.md") $day $year
 
     # Copy template
     copy_template $out_dir
@@ -23,11 +23,11 @@ def "main init" [day?:int, year?:int] {
 
     create_input $day $year $out_dir
 
-    replace_template_strings ($"($out_dir)\\Cargo.toml") $day $year
-    replace_template_strings ($"($out_dir)\\README.md") $day $year
-    replace_template_strings ($"($out_dir)\\benches\\part_1.rs") $day $year
-    replace_template_strings ($"($out_dir)\\benches\\part_2.rs") $day $year
-    replace_template_strings ($"($out_dir)\\src\\main.rs") $day $year
+    replace_template_strings ($"($out_dir)/Cargo.toml") $day $year
+    replace_template_strings ($"($out_dir)/README.md") $day $year
+    replace_template_strings ($"($out_dir)/benches/part_1.rs") $day $year
+    replace_template_strings ($"($out_dir)/benches/part_2.rs") $day $year
+    replace_template_strings ($"($out_dir)/src/main.rs") $day $year
 }
 
 def "main update" [day?:int, year?:int] {
@@ -35,11 +35,11 @@ def "main update" [day?:int, year?:int] {
     let year = if ($year == null) {$today | get year} else $year
 
     # Create day directory
-    let out_dir = $"($env.FILE_PWD)\\($year)\\day-($day)"
+    let out_dir = $"($env.FILE_PWD)/($year)/day-($day)"
 
     # Create Description.md
     let html_day = fetch_day $day $year
-    # create_description $html_day ($"($out_dir)\\TASKS.md") $day $year
+    # create_description $html_day ($"($out_dir)/TASKS.md") $day $year
 
     # Save examples and solutions
     create_examples_with_solutions $html_day $out_dir
@@ -56,7 +56,7 @@ def replace_template_strings [file: string, day: int, year: int] {
 
 def create_input [day: int, year: int, out_dir: string] {
     let input = fetch_input $day $year
-    $input | save ($"($out_dir)\\input.txt") -f
+    $input | save ($"($out_dir)/input.txt") -f
 }
 
 def create_description [html: string, dest: string, day: int, year: int] {
@@ -64,11 +64,11 @@ def create_description [html: string, dest: string, day: int, year: int] {
 }
 
 def copy_template [dest: string] {
-    cp -r template\* $dest
+    cp -r ./template/* $dest
 }
 
 def create_examples_with_solutions [html: string, project_dir: string] {
-    let examples_dir = ($"($project_dir)\\examples")
+    let examples_dir = ($"($project_dir)/examples")
     mkdir -v $examples_dir
 
     let examples = $html | query web -q '.day-desc pre'
@@ -77,12 +77,12 @@ def create_examples_with_solutions [html: string, project_dir: string] {
         let example = $examples | get $i
         let solution = $solutions | reverse | get 0
 
-        let ex_path = ($"($examples_dir)\\($i).txt")
+        let ex_path = ($"($examples_dir)/($i).txt")
         if ($ex_path | path exists ) {} else {
             $example | save $ex_path
         }
 
-        let sol_path = ($"($examples_dir)\\($i)_solution.txt")
+        let sol_path = ($"($examples_dir)/($i)_solution.txt")
         if ($sol_path | path exists ) {} else {
             $solution | save $sol_path
         }

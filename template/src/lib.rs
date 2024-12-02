@@ -1,6 +1,9 @@
 use aoc::prelude::*;
 use itertools::Itertools;
-use regex::Regex;
+
+pub fn parse(input: &str) {
+
+}
 
 pub fn part_1(input: &str) -> usize {
     0
