@@ -1,16 +1,10 @@
 # {{year}} Day {{day}}
 
-## Benchmarks (i5-1240P, with parsing, no I/O)
+# 2024 Day 1
 
-- Parse: ???
-- Part 1: ???
-- Part 2: ???
-
-|        | b   |
-| ------ | --- |
-| Parse  | ?   |
-| Part 1 | ?   |
-| Part 2 | ?   |
-| All    | ?   |
-
-## Explanation
+|        | i5-12600K |
+| ------ | --------- |
+| Parse  | ?         |
+| Part 1 | ?         |
+| Part 2 | ?         |
+| All    | ?         |

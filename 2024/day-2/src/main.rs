@@ -1,8 +1,7 @@
-use {{crate_name}}::*;
+use aoc_2024_2::*;
 
 fn main() {
     let input = aoc::read_input_to_string();
-    parse(&input);
 
     println!("Part 1: {}", part_1(&input));
     println!("Part 2: {}", part_2(&input));
@@ -12,13 +11,14 @@ fn main() {
 mod tests {
     use super::*;
 
-    // #[test]
-    // fn test_part_1() {
-    //     assert_eq!(part_1(&aoc::read_input_to_string()), 0);
-    // }
+    #[test]
+    fn test_part_1() {
+        assert_eq!(part_1(&aoc::read_input_to_string()), 591);
+    }
 
     // #[test]
     // fn test_part_2() {
-    //     assert_eq!(part_2(&aoc::read_input_to_string()), 0);
+    //     parse(&aoc::read_input_to_string(), &mut left, &mut right);
+    //     assert_eq!(part_2(&mut left, &mut right), 0);
     // }
 }

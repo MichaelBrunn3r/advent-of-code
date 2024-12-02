@@ -1,5 +1,5 @@
 [package]
-name = "{{package_name}}"
+name = "aoc-2024-2"
 version = "0.1.0"
 edition = "2021"
 
@@ -11,10 +11,6 @@ itertools = { workspace = true }
 rayon = { workspace = true }
 criterion = {workspace = true}
 rand = {workspace = true}
-
-[[bench]]
-name = "parse"
-harness = false
 
 [[bench]]
 name = "part_1"
