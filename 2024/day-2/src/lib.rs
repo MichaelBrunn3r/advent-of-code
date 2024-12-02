@@ -1,24 +1,62 @@
-use std::io::Read;
-
 use aoc::prelude::*;
 use itertools::Itertools;
 
+const NUM_REPORTS: usize = 1000;
+
 pub fn part_1(input: &str) -> usize {
-    input
-        .split("\n")
-        .filter(|line| !line.is_empty())
-        .map(|line| {
-            LevelIterator{crs: line.as_ptr()}
-                .tuple_windows()
-                .map(|(a, b)| a as i32 - b as i32)
-                .tuple_windows()
-                .all(|(a, b)| {
-                    return (a >= 1 && a <= 3 && b >= 1 && b <= 3) 
-                        || (a <= -1 && a >= -3 && b <= -1 && b >= -3);
-                })
-        })
-        .filter(|line| *line)
-        .count()
+    let mut num_safe = 0;
+
+    let mut crs = input.as_ptr();
+    'reports: for _ in 0..NUM_REPORTS {
+        let first = parse_level(&mut crs);
+        crs.take();
+        let mut prev = parse_level(&mut crs);
+        crs.take();
+
+        let increasing = first < prev;
+        if first == prev || first.abs_diff(prev) > 3 {
+            skip_to_next_line(&mut crs);
+            continue 'reports;
+        }
+
+        loop {
+            let level = parse_level(&mut crs);
+
+            if level == prev
+                || level.abs_diff(prev) > 3
+                || (increasing && prev > level)
+                || (!increasing && prev < level)
+            {
+                skip_to_next_line(&mut crs);
+                continue 'reports;
+            }
+            
+            let separator = crs.take();
+            prev = level;
+
+            if separator == b'\n' {
+                break;
+            }
+        }
+
+        num_safe += 1;
+    }
+
+    num_safe
+}
+
+fn parse_level(crs: &mut *const u8) -> u8 {
+    let mut num = crs.take() - b'0';    
+    if crs.peek() >= b'0' {
+        num *= 10;
+        num += crs.take() - b'0';
+    }
+
+    num
+}
+
+fn skip_to_next_line(crs: &mut *const u8) {
+    while crs.take() != b'\n' {}
 }
 
 pub fn part_2(input: &str) -> usize {
