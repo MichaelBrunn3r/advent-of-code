@@ -16,9 +16,8 @@ mod tests {
         assert_eq!(part_1(&aoc::read_input_to_string()), 591);
     }
 
-    // #[test]
-    // fn test_part_2() {
-    //     parse(&aoc::read_input_to_string(), &mut left, &mut right);
-    //     assert_eq!(part_2(&mut left, &mut right), 0);
-    // }
+    #[test]
+    fn test_part_2() {
+        assert_eq!(part_2(&aoc::read_input_to_string()), 621);
+    }
 }

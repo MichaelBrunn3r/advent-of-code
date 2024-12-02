@@ -1,3 +1,5 @@
+use std::io::Read;
+
 use aoc::prelude::*;
 use itertools::Itertools;
 
@@ -19,6 +21,32 @@ pub fn part_1(input: &str) -> usize {
         .count()
 }
 
+pub fn part_2(input: &str) -> usize {
+    input
+        .split("\n")
+        .filter(|line| !line.is_empty())
+        .map(|line| {
+            let levels = LevelIterator{crs: line.as_ptr()}.collect_vec();
+
+            for skipi in 0..levels.len() {
+                if levels[..skipi].iter().chain(levels[skipi+1..].iter())
+                    .tuple_windows()
+                    .map(|(a, b)| *a as i32 - *b as i32)
+                    .tuple_windows()
+                    .all(|(a, b)| {
+                        return (a >= 1 && a <= 3 && b >= 1 && b <= 3) 
+                            || (a <= -1 && a >= -3 && b <= -1 && b >= -3);
+                    })
+                {
+                    return true;
+                }
+            }
+
+            false
+        })
+        .filter(|line| *line)
+        .count()
+}
 
 struct LevelIterator {
     crs: *const u8,
