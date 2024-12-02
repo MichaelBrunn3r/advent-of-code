@@ -2,18 +2,21 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
-  outputs = {
-    self,
-    nixpkgs,
-    ...
-  }: let
+  outputs = {nixpkgs, ...}: let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
   in {
-    devShells.x86_64-linux.default = pkgs.mkShell {
+    devShells.${system}.default = pkgs.mkShell {
       nativeBuildInputs = with pkgs; [
         just
+        rustc
+        cargo
+        gcc
+        rustfmt
+        clippy
       ];
+
+      RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
     };
   };
 }

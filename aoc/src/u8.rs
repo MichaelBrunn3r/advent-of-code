@@ -4,6 +4,7 @@ pub trait U8SliceExt {
     fn as_str_unchecked(&self) -> &str;
     fn split_at_range_unchecked(&self, range: &Range<usize>) -> (&[u8], &[u8]);
     fn parse_ascii_digits(&self) -> usize;
+    fn parse_n_ascii_digits(&self, n: usize) -> u32;
 }
 
 impl U8SliceExt for [u8] {
@@ -24,6 +25,20 @@ impl U8SliceExt for [u8] {
             num *= 10;
             num += (c - b'0') as usize;
         }
+        num
+    }
+
+    fn parse_n_ascii_digits(&self, n: usize) -> u32 {
+        debug_assert!(n >= 1);
+        debug_assert!(n < self.len());
+
+        let mut num = (self[0] - b'0') as u32;
+
+        for &c in &self[1..n] {
+            num *= 10;
+            num += (c - b'0') as u32;
+        }
+
         num
     }
 }
