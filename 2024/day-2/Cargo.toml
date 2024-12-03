@@ -19,7 +19,3 @@ harness = false
 [[bench]]
 name = "part_2"
 harness = false
-
-[[bench]]
-name = "all"
-harness = false
