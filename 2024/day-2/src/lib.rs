@@ -1,4 +1,6 @@
-use aoc::prelude::*;
+#![feature(iter_collect_into)]
+
+use aoc::{prelude::*};
 use itertools::Itertools;
 
 const NUM_REPORTS: usize = 1000;
@@ -7,52 +9,43 @@ pub fn part_1(input: &str) -> usize {
     let mut crs = input.as_ptr();
 
     (0..NUM_REPORTS).into_iter()
-        .map(|_| {
-            let mut level_pairs = LevelIterator::new(&mut crs).tuple_windows();
-            
-            let first: (u8, u8) = level_pairs.next().unwrap();
-            let diff = first.1 as i32 - first.0 as i32;
-
-            if diff > 0 {
-                diff <= 3 && level_pairs.all(|(a, b)| {
-                    a < b && b - a <= 3
-                })
-            } else if diff < 0 {
-                diff >= -3 && level_pairs.all(|(a, b)| {
-                    a > b && a - b <= 3
-                })
-            } else {
-                false
-            }
-        })
+        .map(|_| is_report_safe(LevelIterator::new(&mut crs).tuple_windows()))
         .fold(0, |acc, safe| acc + safe as usize)
 }
 
 pub fn part_2(input: &str) -> usize {
     let mut crs = input.as_ptr();
+    let mut levels = Vec::with_capacity(10);
 
     (0..NUM_REPORTS).into_iter()
         .map(|_| {
-            let levels = LevelIterator::new(&mut crs).collect_vec();
-
-            for skipi in 0..levels.len() {
-                if levels[..skipi].iter().chain(levels[skipi+1..].iter())
-                    .tuple_windows()
-                    .map(|(a, b)| *a as i32 - *b as i32)
-                    .tuple_windows()
-                    .all(|(a, b)| {
-                        return (a >= 1 && a <= 3 && b >= 1 && b <= 3) 
-                            || (a <= -1 && a >= -3 && b <= -1 && b >= -3);
-                    })
-                {
-                    return true;
-                }
-            }
-
-            false
+            levels.clear();
+            LevelIterator::new(&mut crs).collect_into(&mut levels);
+            (0..levels.len()).into_iter()
+                .any(|skip_idx| {
+                    let patched_levels = levels[..skip_idx].iter().chain(levels[skip_idx+1..].iter());
+                    is_report_safe(patched_levels.map(|x| *x).tuple_windows())
+                })
         })
         .filter(|line| *line)
         .count()
+}
+
+fn is_report_safe(mut level_pairs: impl Iterator<Item=(u8, u8)>) -> bool {
+    let first = level_pairs.next().unwrap();
+    let diff = first.1 as i32 - first.0 as i32;
+
+    if diff > 0 {
+        diff <= 3 && level_pairs.all(|(a, b)| {
+            a < b && b - a <= 3
+        })
+    } else if diff < 0 {
+        diff >= -3 && level_pairs.all(|(a, b)| {
+            a > b && a - b <= 3
+        })
+    } else {
+        false
+    }
 }
 
 struct LevelIterator<'a> {
