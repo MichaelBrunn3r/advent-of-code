@@ -12,13 +12,13 @@ fn main() {
 mod tests {
     use super::*;
 
-    // #[test]
-    // fn test_part_1() {
-    //     assert_eq!(part_1(&aoc::read_input_to_string()), 0);
-    // }
+    #[test]
+    fn test_part_1() {
+        assert_eq!(part_1(&aoc::read_input_to_string()), 0);
+    }
 
-    // #[test]
-    // fn test_part_2() {
-    //     assert_eq!(part_2(&aoc::read_input_to_string()), 0);
-    // }
+    #[test]
+    fn test_part_2() {
+        assert_eq!(part_2(&aoc::read_input_to_string()), 0);
+    }
 }

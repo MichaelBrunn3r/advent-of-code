@@ -2,6 +2,16 @@ set shell := ["nu", "-c"]
 
 today := `date now | date to-table | get 0 | get year day | str join -`
 
+# Init
+
+alias id := init-day
+init-day year day:
+    nu aoc.nu render_template {{year}} {{day}}
+    nu aoc.nu save_input {{year}} {{day}}
+
+render_template year day:
+    nu aoc.nu render_template {{year}} {{day}}
+
 # Run
 
 alias r := run
@@ -25,16 +35,6 @@ test-day year day:
 alias tdn := test-day-nightly
 test-day-nightly year day:
     cargo +nightly test -p aoc-{{year}}-{{day}}
-
-# Init
-
-alias i := init
-init:
-    nu aoc.nu init
-
-alias id := init-day
-init-day year day:
-    nu aoc.nu init {{year}} {{day}}
 
 # Update
 
