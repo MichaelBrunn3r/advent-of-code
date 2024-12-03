@@ -31,11 +31,11 @@ def get_path_of_day [year:int, day:int] {
 def render_template [dest: string, year: int, day: int] {
     cp -r ./template/* $dest
 
-    replace_template_strings ($"($dest)/Cargo.toml") $day $year
-    replace_template_strings ($"($dest)/README.md") $day $year
-    replace_template_strings ($"($dest)/benches/part_1.rs") $day $year
-    replace_template_strings ($"($dest)/benches/part_2.rs") $day $year
-    replace_template_strings ($"($dest)/src/main.rs") $day $year
+    replace_template_strings ($"($dest)/Cargo.toml") $year $day
+    replace_template_strings ($"($dest)/README.md") $year $day
+    replace_template_strings ($"($dest)/benches/part_1.rs") $year $day
+    replace_template_strings ($"($dest)/benches/part_2.rs") $year $day
+    replace_template_strings ($"($dest)/src/main.rs") $year $day
 }
 
 def replace_template_strings [file: string, year: int, day: int] {
