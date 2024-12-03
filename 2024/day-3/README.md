@@ -1,5 +1,7 @@
 # 2024 Day 3
 
+To optimize for speed I use a lot of assumptions about **my** input while still trying to make the code work for **any** input.
+
 |              | i5-12600K |
 | ------------ | --------- |
 | Part 1       | 5.44 µs   |

@@ -1,16 +1,16 @@
 use aoc::prelude::*;
-use itertools::Itertools;
 use regex::Regex;
 
+// ASSUMPTION 1: Maximum of 3 digits per operand
 const MAX_MUL_LEN: usize = 12; // mul(123,456)
-const MIN_MUL_LEN: usize = 8;  // mul(1,2)
- 
 pub fn part_1(input: &str) -> usize {
     let mut input = input.as_bytes();
     let mut sum = 0;
     
     while input.len() >= MAX_MUL_LEN {
         if walking_match(&mut input, b"mul(") {
+            // PERF: Operands with 3 digits are most common in the input, by a large margin. By first determining the number
+            //       of digits, the branch predictor can utilize this fact.
             let num_digits = if input[1] == b',' {
                 1
             } else if input[2] == b',' {
@@ -21,6 +21,7 @@ pub fn part_1(input: &str) -> usize {
                 continue;
             };
 
+            // ASSUMPTION 2: There are only valid digits between 'mul(' and ','.
             let a = input.parse_n_ascii_digits(num_digits);
             input = &input[num_digits + 1..];
 
@@ -34,6 +35,7 @@ pub fn part_1(input: &str) -> usize {
                 continue;
             };
 
+            // ASSUMPTION 3: There are only valid digits between ',' and ')'.
             let b = input.parse_n_ascii_digits(num_digits);
             input = &input[num_digits..];
 
@@ -52,7 +54,9 @@ pub fn part_2(input: &str) -> usize {
 
     let mut enabled = true;
     while input.len() >= MAX_MUL_LEN {
+        // State enabled: Parse all 'mul(...)' and transition to state 'disabled' if we encounter a 'don't()'. Ignore all 'do()' as these won't change our state.
         if enabled {
+
             while input.len() >= MAX_MUL_LEN {
                 if walking_match(&mut input, b"mul(") {
                     let num_digits = if input[1] == b',' {
@@ -84,6 +88,8 @@ pub fn part_2(input: &str) -> usize {
                     sum += a as usize * b as usize;
                 }
 
+                // 'mul(' and 'don't()' have no overlap, so we can check for 'don't()' in every case.
+                // The order of 'mul(' then 'don't()' is arbitrary, it was faster.
                 if walking_match(&mut input, b"don't()") {
                     enabled = false;
                     break;
@@ -91,9 +97,10 @@ pub fn part_2(input: &str) -> usize {
 
                 input = &input[1..];
             }
+        // State disabled: Ignore all 'don't()' and 'mul(...)'. Transition to state 'enabled' if we encounter a 'do()'.
         } else {
             while input.len() >= MAX_MUL_LEN {
-                if walking_match(&mut input, b"do(") {
+                if walking_match(&mut input, b"do()") {
                     input = &input[1..];
                     enabled = true;
                     break;
@@ -141,6 +148,8 @@ pub fn part_2_regex(input: &str) -> usize {
     sum
 }
 
+/// Check character by character if input matches expected. After a character is checked, remove it from the input.
+/// NOTE: A raw poiner used as a cursor would have been nicer and spared us the bound checks, but also unsafe. Didn't feel like it today.
 fn walking_match(input: &mut &[u8], expected: &[u8]) -> bool {
     for c in expected {
         if !(input[0] == *c) {
