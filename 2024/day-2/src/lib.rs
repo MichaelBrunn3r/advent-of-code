@@ -8,43 +8,51 @@ pub fn part_1(input: &str) -> usize {
 
     (0..NUM_REPORTS).into_iter()
         .map(|_| {
-            LevelIterator::new(&mut crs)
-                .tuple_windows()
-                .map(|(a,b)| b as i32 - a as i32)
-                .tuple_windows()
-                .all(|(diff_ab, diff_bc)| {
-                    (diff_ab >= 1 && diff_ab <= 3 && diff_bc >= 1 && diff_bc <= 3) 
-                        || (diff_ab <= -1 && diff_ab >= -3 && diff_bc <= -1 && diff_bc >= -3)
-                })})
+            let mut level_pairs = LevelIterator::new(&mut crs).tuple_windows();
+            
+            let first: (u8, u8) = level_pairs.next().unwrap();
+            let diff = first.1 as i32 - first.0 as i32;
+
+            if diff > 0 {
+                diff <= 3 && level_pairs.all(|(a, b)| {
+                    a < b && b - a <= 3
+                })
+            } else if diff < 0 {
+                diff >= -3 && level_pairs.all(|(a, b)| {
+                    a > b && a - b <= 3
+                })
+            } else {
+                false
+            }
+        })
         .fold(0, |acc, safe| acc + safe as usize)
 }
 
 pub fn part_2(input: &str) -> usize {
-    // input
-    //     .split("\n")
-    //     .filter(|line| !line.is_empty())
-    //     .map(|line| {
-    //         let levels = LevelIterator{crs: line.as_ptr()}.collect_vec();
+    let mut crs = input.as_ptr();
 
-    //         for skipi in 0..levels.len() {
-    //             if levels[..skipi].iter().chain(levels[skipi+1..].iter())
-    //                 .tuple_windows()
-    //                 .map(|(a, b)| *a as i32 - *b as i32)
-    //                 .tuple_windows()
-    //                 .all(|(a, b)| {
-    //                     return (a >= 1 && a <= 3 && b >= 1 && b <= 3) 
-    //                         || (a <= -1 && a >= -3 && b <= -1 && b >= -3);
-    //                 })
-    //             {
-    //                 return true;
-    //             }
-    //         }
+    (0..NUM_REPORTS).into_iter()
+        .map(|_| {
+            let levels = LevelIterator::new(&mut crs).collect_vec();
 
-    //         false
-    //     })
-    //     .filter(|line| *line)
-    //     .count()
-    0
+            for skipi in 0..levels.len() {
+                if levels[..skipi].iter().chain(levels[skipi+1..].iter())
+                    .tuple_windows()
+                    .map(|(a, b)| *a as i32 - *b as i32)
+                    .tuple_windows()
+                    .all(|(a, b)| {
+                        return (a >= 1 && a <= 3 && b >= 1 && b <= 3) 
+                            || (a <= -1 && a >= -3 && b <= -1 && b >= -3);
+                    })
+                {
+                    return true;
+                }
+            }
+
+            false
+        })
+        .filter(|line| *line)
+        .count()
 }
 
 struct LevelIterator<'a> {
