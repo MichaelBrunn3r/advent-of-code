@@ -4,42 +4,19 @@ use itertools::Itertools;
 const NUM_REPORTS: usize = 1000;
 
 pub fn part_1(input: &str) -> usize {
-    let mut num_safe = 0;
-
     let mut crs = input.as_ptr();
-    'reports: for _ in 0..NUM_REPORTS {
-        let mut levels = LevelIterator::new(&mut crs);
 
-        let first = levels.next().unwrap();
-        let mut prev = levels.next().unwrap();
-
-        let increasing = first < prev;
-        if first == prev || first.abs_diff(prev) > 3 {
-            continue 'reports;
-        }
-
-        loop {
-            let level = levels.next().unwrap();
-
-            if level == prev
-                || level.abs_diff(prev) > 3
-                || (increasing && prev > level)
-                || (!increasing && prev < level)
-            {
-                continue 'reports;
-            }
-            
-            prev = level;
-
-            if levels.last_separator == b'\n' {
-                break;
-            }
-        }
-
-        num_safe += 1;
-    }
-
-    num_safe
+    (0..NUM_REPORTS).into_iter()
+        .map(|_| {
+            LevelIterator::new(&mut crs)
+                .tuple_windows()
+                .map(|(a,b)| b as i32 - a as i32)
+                .tuple_windows()
+                .all(|(diff_ab, diff_bc)| {
+                    (diff_ab >= 1 && diff_ab <= 3 && diff_bc >= 1 && diff_bc <= 3) 
+                        || (diff_ab <= -1 && diff_ab >= -3 && diff_bc <= -1 && diff_bc >= -3)
+                })})
+        .fold(0, |acc, safe| acc + safe as usize)
 }
 
 pub fn part_2(input: &str) -> usize {
@@ -102,6 +79,10 @@ impl<'a> Iterator for LevelIterator<'a> {
     type Item = u8;
 
     fn next(&mut self) -> Option<u8> {
+        if self.last_separator == b'\n' {
+            return None;
+        }
+
         let mut num = self.crs.take() - b'0';    
         if self.crs.peek() >= b'0' {
             num *= 10;
