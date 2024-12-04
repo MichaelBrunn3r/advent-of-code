@@ -1,63 +1,64 @@
 #![feature(array_windows)]
+#![feature(iter_map_windows)]
 
 use aoc::prelude::*;
 use itertools::Itertools;
 
-const SIDE_LENGTH: usize = 140;
+const LINE_LENGTH: usize = 140 + 1;
 
 pub fn part_1(input: &str) -> usize {
-    let input = input.as_bytes();
+    let bytes = input.as_bytes();
 
-    let horizontal: usize = input
-        .array_windows()
-        .map(|w: &[u8; 4]| {
-            (w == b"XMAS" || w == b"SAMX") as usize
-        })
-        .sum();
+    let horizontal: usize = bytes
+        .array_windows::<4>()
+        .filter(|&w| (w == b"XMAS" || w == b"SAMX"))
+        .count();
 
-    let vertical: usize = input
-        .chunks_exact(SIDE_LENGTH + 1)
-        .tuple_windows::<(&[u8], &[u8], &[u8], &[u8])>()
-        .map(|lines| {
-            let mut num_xmas = 0;
-            let mut buf = [0,0,0,0];
-            for i in 0..lines.0.len() {
-                buf[0] = lines.0[i];
-                buf[1] = lines.1[i];
-                buf[2] = lines.2[i];
-                buf[3] = lines.3[i];
+    let vertical: usize = bytes
+        .chunks_exact(LINE_LENGTH)
+        .map_windows::<_,_,4>(|&lines| {
+            let mut count = 0;
+            let mut buf = [0;4];
 
-                num_xmas += (buf == *b"XMAS" || buf == *b"SAMX") as usize;
+            for i in 0..LINE_LENGTH {
+                buf[0] = lines[0][i];
+                buf[1] = lines[1][i];
+                buf[2] = lines[2][i];
+                buf[3] = lines[3][i];
+
+                count += (buf == *b"XMAS" || buf == *b"SAMX") as usize;
             }
-            num_xmas
+
+            count
         })
         .sum();
 
-    let diagonal: usize = input
-        .chunks_exact(SIDE_LENGTH + 1)
+    let diagonal = bytes
+        .chunks_exact(LINE_LENGTH)
         .tuple_windows::<(&[u8], &[u8], &[u8], &[u8])>()
         .map(|lines| {
-            let mut num_xmas = 0;
-            let mut buf_down = [0,0,0,0]; // "\"
-            let mut buf_up = [0,0,0,0];   // "/"
+            let mut count = 0;
+            let mut buf_down = [0;4]; // "\"
+            let mut buf_up = [0;4];   // "/"
+            
             for i in 2..lines.0.len()-2 {
                 buf_down[0] = lines.0[i-2];
                 buf_down[1] = lines.1[i-1];
                 buf_down[2] = lines.2[i];
                 buf_down[3] = lines.3[i+1];
 
-                num_xmas += (buf_down == *b"XMAS" || buf_down == *b"SAMX") as usize;
+                count += (buf_down == *b"XMAS" || buf_down == *b"SAMX") as usize;
 
                 buf_up[0] = lines.3[i-2];
                 buf_up[1] = lines.2[i-1];
                 buf_up[2] = lines.1[i];
                 buf_up[3] = lines.0[i+1];
 
-                num_xmas += (buf_up == *b"XMAS" || buf_up == *b"SAMX") as usize;
+                count += (buf_up == *b"XMAS" || buf_up == *b"SAMX") as usize;
             }
-            num_xmas
+            count
         })
-        .sum();
+        .sum::<usize>();
 
     horizontal + vertical + diagonal
 }
@@ -65,25 +66,25 @@ pub fn part_1(input: &str) -> usize {
 pub fn part_2(input: &str) -> usize {
     input
         .as_bytes()
-        .chunks_exact(SIDE_LENGTH + 1)
-        .tuple_windows::<(&[u8], &[u8], &[u8])>()
+        .chunks_exact(LINE_LENGTH)
+        .tuple_windows::<(_,_,_)>()
         .map(|lines| {
-            let mut num_x_mas = 0;
-            let mut buf_down = [0,0,0]; // "\"
-            let mut buf_up = [0,0,0];   // "/"
+            let mut count = 0;
+            let mut buf_down = [0;3]; // "\"
+            let mut buf_up = [b'A';3];   // "/"
+
             for i in 1..lines.0.len()-2 {
                 buf_down[0] = lines.0[i-1];
                 buf_down[1] = lines.1[i];
                 buf_down[2] = lines.2[i+1];
 
                 buf_up[0] = lines.2[i-1];
-                buf_up[1] = lines.1[i];
                 buf_up[2] = lines.0[i+1];
 
-                num_x_mas += ((buf_down == *b"MAS" || buf_down == *b"SAM")
+                count += ((buf_down == *b"MAS" || buf_down == *b"SAM")
                     && (buf_up == *b"MAS" || buf_up == *b"SAM")) as usize;
             }
-            num_x_mas
+            count
         })
         .sum()
 }
