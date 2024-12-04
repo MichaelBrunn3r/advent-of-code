@@ -1,4 +1,4 @@
-use {{crate_name}}::*;
+use aoc_2024_4::*;
 
 fn main() {
     let input = aoc::read_input_to_string();
@@ -12,11 +12,11 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        assert_eq!(part_1(&aoc::read_input_to_string()), 0);
+        assert_eq!(part_1(&aoc::read_input_to_string()), 2517);
     }
 
     #[test]
     fn test_part_2() {
-        assert_eq!(part_2(&aoc::read_input_to_string()), 0);
+        assert_eq!(part_2(&aoc::read_input_to_string()), 1960);
     }
 }

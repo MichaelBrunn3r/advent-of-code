@@ -1,10 +1,6 @@
 use aoc::prelude::*;
 use itertools::Itertools;
 
-pub fn parse(input: &str) {
-
-}
-
 pub fn part_1(input: &str) -> usize {
     0
 }
