@@ -5,7 +5,7 @@ const OPERATIONAL: u8 = b'.';
 const DAMAGED: u8 = b'#';
 const UNKOWN: u8 = b'?';
 
-pub fn part_1(input: &str) -> usize {
+pub fn p1(input: &str) -> usize {
     let mut runs = Vec::new();
     let mut memo = FxHashMap::with_capacity_and_hasher(9257, FxBuildHasher::default());
 
@@ -33,7 +33,7 @@ pub fn part_1(input: &str) -> usize {
     }
 }
 
-pub fn part_2(input: &str) -> usize {
+pub fn p2(input: &str) -> usize {
     let mut runs = Vec::new();
     let mut springs = Vec::new();
     let mut memo = FxHashMap::with_capacity_and_hasher(512, FxBuildHasher::default());

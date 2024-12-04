@@ -1,11 +1,11 @@
-use aoc_2023_3::{part_1, part_2, prepare_input};
+use aoc_2023_3::{p1, p2, prepare_input};
 
 fn main() {
     let input = aoc::read_input_to_string();
     let lines = prepare_input(&input);
 
-    println!("Part 1: {}", part_1(&input));
-    println!("Part 2: {}", part_2(&lines));
+    println!("Part 1: {}", p1(&input));
+    println!("Part 2: {}", p2(&lines));
 }
 
 #[cfg(test)]
@@ -15,14 +15,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_part_1() {
-        assert_eq!(part_1(&aoc::read_input_to_string()), 527369);
+    fn test_p1() {
+        assert_eq!(p1(&aoc::read_input_to_string()), 527369);
     }
 
     #[test]
-    fn test_part_2() {
+    fn test_p2() {
         assert_eq!(
-            part_2(&prepare_input(&aoc::read_input_to_string())),
+            p2(&prepare_input(&aoc::read_input_to_string())),
             73074886
         );
     }

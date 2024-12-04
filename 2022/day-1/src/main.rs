@@ -5,11 +5,11 @@ use std::path::PathBuf;
 
 fn main() {
     let input = aoc::read_input_to_string();
-    println!("Max total calories: {}", part_1(&input));
-    println!("Total calories of top 3: {}", part_2(&input));
+    println!("Max total calories: {}", p1(&input));
+    println!("Total calories of top 3: {}", p2(&input));
 }
 
-fn part_1(input: &str) -> usize {
+fn p1(input: &str) -> usize {
     input
         .split("\n\n")
         .map(|elf| elf.lines().map(|line| line.parse::<usize>().unwrap()).sum())
@@ -17,7 +17,7 @@ fn part_1(input: &str) -> usize {
         .unwrap()
 }
 
-fn part_2(input: &str) -> usize {
+fn p2(input: &str) -> usize {
     let mut elves = input
         .split("\n\n")
         .map(|elf| elf.lines().map(|line| line.parse::<usize>().unwrap()).sum())
@@ -32,11 +32,11 @@ mod tests {
 
     #[test]
     fn test_example_0() {
-        aoc::assert_solution(0, part_1);
+        aoc::assert_solution(0, p1);
     }
 
     #[test]
     fn test_example_1() {
-        aoc::assert_solution(1, part_2);
+        aoc::assert_solution(1, p2);
     }
 }

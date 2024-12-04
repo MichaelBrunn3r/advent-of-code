@@ -1,7 +1,7 @@
 const NUM_CARDS: usize = 202;
 static mut WINNING_NUMBERS: [[bool; 14650]; NUM_CARDS] = unsafe { std::mem::zeroed() };
 
-pub fn part_1(input: &str) -> usize {
+pub fn p1(input: &str) -> usize {
     let mut data = input.as_ptr();
     let mut total = 0;
 
@@ -36,7 +36,7 @@ pub fn part_1(input: &str) -> usize {
 }
 
 static mut MATCHES_PER_CARD: [usize; NUM_CARDS] = unsafe { std::mem::zeroed() };
-pub fn part_2(input: &str) -> usize {
+pub fn p2(input: &str) -> usize {
     let mut memo: [usize; NUM_CARDS] = unsafe { std::mem::zeroed() };
 
     let mut data = input.as_ptr();

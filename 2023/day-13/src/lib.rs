@@ -7,7 +7,7 @@ pub fn parse(input: &str) -> Vec<Pattern> {
     input.split("\n\n").map(Pattern::parse).collect_vec()
 }
 
-pub fn part_1(patterns: &[Pattern]) -> usize {
+pub fn p1(patterns: &[Pattern]) -> usize {
     patterns
         .iter()
         .map(|pattern| {
@@ -33,7 +33,7 @@ pub fn part_1(patterns: &[Pattern]) -> usize {
         .sum()
 }
 
-pub fn part_2(patterns: &[Pattern]) -> usize {
+pub fn p2(patterns: &[Pattern]) -> usize {
     patterns
         .iter()
         .map(|pattern| {

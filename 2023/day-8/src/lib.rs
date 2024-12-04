@@ -32,7 +32,7 @@ pub fn parse(input: &'_ str) -> (&'_ [u8], &'static Network, Vec<u16>) {
     (instructions, unsafe { &NETWORK }, nodes_ending_in_a)
 }
 
-pub fn part_1(instructions: &[u8], network: &Network) -> usize {
+pub fn p1(instructions: &[u8], network: &Network) -> usize {
     let mut instructions = instructions.iter().cycle();
 
     let mut current = AAA;
@@ -52,7 +52,7 @@ pub fn part_1(instructions: &[u8], network: &Network) -> usize {
     step
 }
 
-pub fn part_2(instructions: &[u8], network: &Network, nodes_ending_in_a: &[u16]) -> usize {
+pub fn p2(instructions: &[u8], network: &Network, nodes_ending_in_a: &[u16]) -> usize {
     nodes_ending_in_a
         .par_iter()
         .map(|&node| calc_cycle_length(node, instructions, network))

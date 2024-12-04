@@ -8,8 +8,8 @@ fn bench(c: &mut Criterion) {
 
     c.bench_function("aoc_2024_1_all", |b| b.iter(|| {
         parse(&input, &mut left, &mut right);
-        part_1(&mut left, &mut right);
-        part_2(&left, &right);
+        p1(&mut left, &mut right);
+        p2(&left, &right);
     }));
 }
 

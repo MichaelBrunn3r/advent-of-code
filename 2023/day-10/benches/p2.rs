@@ -4,8 +4,8 @@ use criterion::{criterion_group, criterion_main, Criterion};
 fn bench(c: &mut Criterion) {
     let grid = parse(aoc::read_input_to_string());
 
-    c.bench_function("aoc_2023_10_part_2", |b| {
-        b.iter(|| part_2(&mut grid.clone()))
+    c.bench_function("aoc_2023_10_p2", |b| {
+        b.iter(|| p2(&mut grid.clone()))
     });
 }
 

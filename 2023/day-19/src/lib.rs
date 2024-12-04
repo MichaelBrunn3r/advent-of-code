@@ -12,7 +12,7 @@ pub fn parse(input: &str) -> (&[Workflow; 1650], &[Rule], &[Part]) {
     (workflows, rules, parts)
 }
 
-pub fn part_1(workflows: &[(u16, u16)], rules: &[Rule], parts: &[Part]) -> usize {
+pub fn p1(workflows: &[(u16, u16)], rules: &[Rule], parts: &[Part]) -> usize {
     parts
         .iter()
         .filter(|part| {
@@ -38,7 +38,7 @@ static mut STACK: ConstVec<((u16, u16), [RangeInclusive<u16>; 4]), 16> =
     unsafe { std::mem::zeroed() };
 static mut ACCEPTED: ConstVec<[RangeInclusive<u16>; 4], 600> = unsafe { std::mem::zeroed() };
 
-pub fn part_2(rules: &[Rule], workflows: &[(u16, u16); 1650]) -> usize {
+pub fn p2(rules: &[Rule], workflows: &[(u16, u16); 1650]) -> usize {
     let stack = unsafe { &mut STACK };
     stack.clear();
     stack.push((

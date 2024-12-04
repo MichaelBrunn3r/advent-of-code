@@ -13,7 +13,7 @@ const SPLIT_H: u8 = b'-';
 const WALL: u8 = b'?';
 
 // 11043 too high
-pub fn part_1(input: &str) -> usize {
+pub fn p1(input: &str) -> usize {
     let size = input.find('\n').unwrap();
     let mut tiles = input
         .as_bytes()
@@ -123,7 +123,7 @@ pub fn part_1(input: &str) -> usize {
         .sum()
 }
 
-pub fn part_2(input: &str) -> usize {
+pub fn p2(input: &str) -> usize {
     0
 }
 

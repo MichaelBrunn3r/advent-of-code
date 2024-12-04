@@ -8,11 +8,11 @@ const CUBE: u8 = b'#'; //   0010_0010;
 const EMPTY: u8 = b'.'; //  0010_1110;
 const COLS: usize = 101;
 
-pub fn part_1(input: &str) -> usize {
+pub fn p1(input: &str) -> usize {
     tilt_north_and_calc_load(input)
 }
 
-pub fn part_2(input: &mut str) -> usize {
+pub fn p2(input: &mut str) -> usize {
     let size = input.find('\n').unwrap();
     let platform = unsafe { input.as_bytes_mut() };
 

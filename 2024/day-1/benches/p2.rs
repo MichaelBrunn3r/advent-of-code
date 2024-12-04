@@ -10,7 +10,7 @@ fn bench(c: &mut Criterion) {
     left.sort_unstable();
     right.sort_unstable();
 
-    c.bench_function("aoc_2024_1_part_2", |b| b.iter(|| part_2(&left, &right)));
+    c.bench_function("aoc_2024_1_p2", |b| b.iter(|| p2(&left, &right)));
 }
 
 criterion_group!(benches, bench);

@@ -13,7 +13,7 @@ pub fn parse(input: &str) -> ([usize; NUM_SEEDS], Vec<Vec<RangeToRangeMap>>) {
     }
 }
 
-pub fn part_1((seeds, map_sections): &([usize; NUM_SEEDS], [Vec<RangeToRangeMap>])) -> usize {
+pub fn p1((seeds, map_sections): &([usize; NUM_SEEDS], [Vec<RangeToRangeMap>])) -> usize {
     let mut min = usize::MAX;
     for seed in seeds.iter() {
         let mut mapped = *seed;
@@ -35,7 +35,7 @@ pub fn part_1((seeds, map_sections): &([usize; NUM_SEEDS], [Vec<RangeToRangeMap>
     min
 }
 
-pub fn part_2((seeds, map_sections): &([usize; NUM_SEEDS], [Vec<RangeToRangeMap>])) -> usize {
+pub fn p2((seeds, map_sections): &([usize; NUM_SEEDS], [Vec<RangeToRangeMap>])) -> usize {
     let mut seed_ranges = seeds.iter().tuples().map(|(&a, &b)| a..a + b).collect_vec();
 
     for map_section in map_sections.iter() {

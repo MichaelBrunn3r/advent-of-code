@@ -5,8 +5,8 @@ fn bench(c: &mut Criterion) {
     let input = aoc::read_input_to_string();
     let (workflows, rules, _) = parse(&input);
 
-    c.bench_function("aoc_2023_19_part_2", |b| {
-        b.iter(|| black_box(part_2(rules, workflows)))
+    c.bench_function("aoc_2023_19_p2", |b| {
+        b.iter(|| black_box(p2(rules, workflows)))
     });
 }
 

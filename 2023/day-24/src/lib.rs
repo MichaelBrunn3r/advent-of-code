@@ -14,7 +14,7 @@ pub fn parse(input: &str) -> &[Hail] {
     }
 }
 
-pub fn part_1(hailstones: &[Hail]) -> usize {
+pub fn p1(hailstones: &[Hail]) -> usize {
     let mut interactions = 0;
     for i in 0..hailstones.len() {
         let a = &hailstones[i];
@@ -41,7 +41,7 @@ pub fn part_1(hailstones: &[Hail]) -> usize {
     interactions
 }
 
-pub fn part_2(hailstones: &[Hail]) -> usize {
+pub fn p2(hailstones: &[Hail]) -> usize {
     let p2 = hailstones[1].pos.sub(&hailstones[0].pos);
     let p3 = hailstones[2].pos.sub(&hailstones[0].pos);
     let v2 = hailstones[1].vel.sub(&hailstones[0].vel);

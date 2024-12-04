@@ -1,5 +1,5 @@
 const NUM_LINES: usize = 1000;
-pub fn part_1(input: &str) -> usize {
+pub fn p1(input: &str) -> usize {
     let mut input = input.as_ptr();
     let mut sum = 0;
 
@@ -39,7 +39,7 @@ const SEVEN: u32 = 0b01100101_01110110_01100101_01110011; // eves
 const EIGHT: u32 = 0b01101000_01100111_01101001_01100101; // hgie
 const NINE: u32 = 0b01100101_01101110_01101001_01101110; // enin
 
-pub fn part_2(input: &str) -> usize {
+pub fn p2(input: &str) -> usize {
     let mut input = input.as_ptr();
     let mut sum = 0;
 

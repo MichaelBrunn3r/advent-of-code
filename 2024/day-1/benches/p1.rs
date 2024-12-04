@@ -7,8 +7,8 @@ fn bench(c: &mut Criterion) {
     let mut right: [u32; 1000] = unsafe { std::mem::zeroed() };
     parse(&input, &mut left, &mut right);
 
-    c.bench_function("aoc_2024_1_part_1", |b| {
-        b.iter_with_large_drop(|| part_1(&mut left.clone(), &mut right.clone()));
+    c.bench_function("aoc_2024_1_p1", |b| {
+        b.iter_with_large_drop(|| p1(&mut left.clone(), &mut right.clone()));
     });
 }
 

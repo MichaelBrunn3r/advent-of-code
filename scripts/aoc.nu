@@ -1,4 +1,6 @@
-$env.AOC_COOKIE = (open $"($env.FILE_PWD)/AOC_COOKIE")
+#! /run/current-system/sw/bin/nu
+
+$env.AOC_COOKIE = open $"($env.FILE_PWD)/AOC_COOKIE"
 let today = (date now | date to-table | get 0)
 
 def main [] {}
@@ -25,7 +27,7 @@ def "main save_input" [year?:int, day?:int] {
 }
 
 def get_path_of_day [year:int, day:int] {
-    return $"($env.FILE_PWD)/($year)/day-($day)"
+    return $"($env.FILE_PWD)/../($year)/day-($day)"
 }
 
 def render_template [dest: string, year: int, day: int] {
@@ -33,8 +35,8 @@ def render_template [dest: string, year: int, day: int] {
 
     replace_template_strings ($"($dest)/Cargo.toml") $year $day
     replace_template_strings ($"($dest)/README.md") $year $day
-    replace_template_strings ($"($dest)/benches/part_1.rs") $year $day
-    replace_template_strings ($"($dest)/benches/part_2.rs") $year $day
+    replace_template_strings ($"($dest)/benches/p1.rs") $year $day
+    replace_template_strings ($"($dest)/benches/p2.rs") $year $day
     replace_template_strings ($"($dest)/src/main.rs") $year $day
 }
 
@@ -73,8 +75,8 @@ def fetch_input [year: int, day: int] {
 
 #     replace_template_strings ($"($out_dir)/Cargo.toml") $day $year
 #     replace_template_strings ($"($out_dir)/README.md") $day $year
-#     replace_template_strings ($"($out_dir)/benches/part_1.rs") $day $year
-#     replace_template_strings ($"($out_dir)/benches/part_2.rs") $day $year
+#     replace_template_strings ($"($out_dir)/benches/p1.rs") $day $year
+#     replace_template_strings ($"($out_dir)/benches/p2.rs") $day $year
 #     replace_template_strings ($"($out_dir)/src/main.rs") $day $year
 # }
 

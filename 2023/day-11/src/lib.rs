@@ -1,8 +1,8 @@
-pub fn part_1(input: &str) -> usize {
+pub fn p1(input: &str) -> usize {
     sum_distances(input, 1)
 }
 
-pub fn part_2(input: &str, expansion_rate: usize) -> usize {
+pub fn p2(input: &str, expansion_rate: usize) -> usize {
     sum_distances(input, expansion_rate)
 }
 

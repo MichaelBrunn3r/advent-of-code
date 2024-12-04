@@ -7,7 +7,7 @@ pub fn parse(input: &str, left: &mut [u32], right: &mut [u32]) {
     }
 }
 
-pub fn part_1(left: &mut [u32], right: &mut [u32]) -> usize {
+pub fn p1(left: &mut [u32], right: &mut [u32]) -> usize {
     debug_assert!(!left.is_sorted());
     debug_assert!(!right.is_sorted());
 
@@ -21,7 +21,7 @@ pub fn part_1(left: &mut [u32], right: &mut [u32]) -> usize {
         .sum()
 }
 
-pub fn part_2(left: &[u32], right: &[u32]) -> usize {
+pub fn p2(left: &[u32], right: &[u32]) -> usize {
     debug_assert!(left.is_sorted());
     debug_assert!(right.is_sorted());
 

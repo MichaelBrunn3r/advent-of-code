@@ -2,13 +2,13 @@ use std::arch::x86_64::{__m256i, _mm256_mullo_epi16, _mm256_set_epi16, _mm256_st
 
 use itertools::Itertools;
 
-pub fn part_1(input: &str) -> usize {
+pub fn p1(input: &str) -> usize {
     SplitIter::new(&input.as_bytes()[..input.len() - 1])
         .map(|s| hash(s) % 256)
         .sum()
 }
 
-pub fn part_2(input: &str) -> usize {
+pub fn p2(input: &str) -> usize {
     let mut boxes = vec![Box::<7>::new(); 256];
 
     SplitIter::new(&input.as_bytes()[..input.len() - 1]).for_each(|step| {
@@ -139,7 +139,7 @@ impl<'i> Iterator for SplitIter<'i> {
     }
 }
 
-pub fn part_2_avx(input: &str) -> usize {
+pub fn p2_avx(input: &str) -> usize {
     let mut boxes = vec![Box::<7>::new(); 256];
 
     SplitIter::new(&input.as_bytes()[..input.len() - 1]).for_each(|step| {

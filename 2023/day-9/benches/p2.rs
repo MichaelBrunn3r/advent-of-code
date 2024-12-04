@@ -5,7 +5,7 @@ fn bench(c: &mut Criterion) {
     let input = aoc::read_input_to_string();
     let data = parse(&input);
 
-    c.bench_function("aoc_2023_9_part_2", |b| b.iter(|| part_2(data)));
+    c.bench_function("aoc_2023_9_p2", |b| b.iter(|| p2(data)));
 }
 
 criterion_group!(benches, bench);

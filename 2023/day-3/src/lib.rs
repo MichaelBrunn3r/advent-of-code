@@ -1,6 +1,6 @@
 use regex::Regex;
 
-pub fn part_1(input: &str) -> usize {
+pub fn p1(input: &str) -> usize {
     let re = Regex::new(r"\d+").expect("invalid regex");
 
     let mut part_numbers: Vec<usize> = Vec::new();
@@ -66,7 +66,7 @@ pub fn part_1(input: &str) -> usize {
     part_numbers.iter().sum()
 }
 
-pub fn part_2(lines: &[Vec<u8>]) -> usize {
+pub fn p2(lines: &[Vec<u8>]) -> usize {
     let mut sum = 0;
 
     for pos in star_positions(lines) {
@@ -170,7 +170,7 @@ mod test {
     #[test]
     fn test_part_numbers() {
         assert_eq!(
-            part_1(
+            p1(
                 &r"467..114..
                   ...*......
                   ..35..633.
@@ -230,7 +230,7 @@ mod test {
     #[test]
     fn test_sum_gear_ratios() {
         assert_eq!(
-            part_2(&prepare_input(
+            p2(&prepare_input(
                 r"467..114..
                   ...*......
                   ..35..633.
@@ -247,7 +247,7 @@ mod test {
 
         assert_eq!(
             // 992 * 806 + 405 * 67 + 819 * 478 + 196 * 313 + 675*861 + 276 * 155 + 692 * 985 + 207 * 160 + 80 * 31 + 938 * 233 + 75 * 997 + 285 * 521 + 181 * 606 + 946 * 437
-            part_2(&prepare_input(
+            p2(&prepare_input(
                 r"............................................................................................................................................
                   ........405...819.........514..............201....*....*806.....196......*........*............../...........@..................644....*195.
                   ........*......*.................@.....276......538.992...........*....720.692..880........+117.266..207.........+..........................

@@ -5,11 +5,11 @@ use regex::Regex;
 
 fn main() {
     let input = aoc::read_input_to_string();
-    println!("Part 1: {}", part_1(&input));
-    println!("Part 2: {}", part_2(&input));
+    println!("Part 1: {}", p1(&input));
+    println!("Part 2: {}", p2(&input));
 }
 
-fn part_1(input: &str) -> usize {
+fn p1(input: &str) -> usize {
     input
         .lines()
         .map(|line| line.split_at(line.len() / 2))
@@ -33,7 +33,7 @@ fn item_to_priority(c: char) -> usize {
     }
 }
 
-fn part_2(input: &str) -> usize {
+fn p2(input: &str) -> usize {
     input
         .lines()
         .chunks(3)
@@ -78,11 +78,11 @@ mod tests {
 
     #[test]
     fn test_example_0() {
-        aoc::assert_solution(0, part_1);
+        aoc::assert_solution(0, p1);
     }
 
     #[test]
     fn test_example_1() {
-        aoc::assert_solution(1, part_2);
+        aoc::assert_solution(1, p2);
     }
 }

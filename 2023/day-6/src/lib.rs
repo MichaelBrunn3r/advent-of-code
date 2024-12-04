@@ -9,7 +9,7 @@ use aoc::U8PtrExt;
 // d + x^2 = th
 // h^2 - th + d = 0
 
-pub fn part_1(input: &str) -> usize {
+pub fn p1(input: &str) -> usize {
     let mut data = input.as_ptr();
     unsafe {
         data = data.add("Time:        ".len());
@@ -39,7 +39,7 @@ pub fn part_1(input: &str) -> usize {
     }
 }
 
-pub fn part_2(input: &str) -> usize {
+pub fn p2(input: &str) -> usize {
     let mut data = input.as_ptr();
     unsafe {
         data = data.add("Time:   ".len());

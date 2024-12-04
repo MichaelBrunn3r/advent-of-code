@@ -1,4 +1,4 @@
-pub fn part_1(input: &str) -> usize {
+pub fn p1(input: &str) -> usize {
     let mut data = input.as_ptr();
     let mut sum = 0;
 
@@ -70,7 +70,7 @@ pub fn part_1(input: &str) -> usize {
     sum
 }
 
-pub fn part_2(input: &str) -> usize {
+pub fn p2(input: &str) -> usize {
     let mut data = input.as_ptr();
     let mut sum = 0usize;
 

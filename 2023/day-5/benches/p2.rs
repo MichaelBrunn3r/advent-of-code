@@ -5,8 +5,8 @@ fn bench(c: &mut Criterion) {
     let input = aoc::read_input_to_string();
     let (seeds, map_sections) = parse(&input);
 
-    c.bench_function("aoc_2023_5_part_2", |b| {
-        b.iter(|| part_2(&seeds, &map_sections))
+    c.bench_function("aoc_2023_5_p2", |b| {
+        b.iter(|| p2(&seeds, &map_sections))
     });
 }
 

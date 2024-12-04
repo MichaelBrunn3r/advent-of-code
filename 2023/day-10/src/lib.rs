@@ -5,7 +5,7 @@ pub fn parse(input: String) -> Grid {
     Grid::from_ascii_str(input.as_bytes().to_vec())
 }
 
-pub fn part_1(grid: &Grid) -> usize {
+pub fn p1(grid: &Grid) -> usize {
     let start = grid.find_start();
 
     let (a, b) = grid.connected_neighbours(start);
@@ -27,7 +27,7 @@ pub fn part_1(grid: &Grid) -> usize {
     step
 }
 
-pub fn part_2(grid: &mut Grid) -> usize {
+pub fn p2(grid: &mut Grid) -> usize {
     let start = grid.find_start();
 
     let (a, b) = grid.connected_neighbours(start);

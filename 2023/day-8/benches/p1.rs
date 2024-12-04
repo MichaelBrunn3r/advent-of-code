@@ -5,8 +5,8 @@ fn bench(c: &mut Criterion) {
     let input = aoc::read_input_to_string();
     let (instructions, network, _) = parse(&input);
 
-    c.bench_function("aoc_2023_8_part_1", |b| {
-        b.iter(|| part_1(instructions, network))
+    c.bench_function("aoc_2023_8_p1", |b| {
+        b.iter(|| p1(instructions, network))
     });
 }
 

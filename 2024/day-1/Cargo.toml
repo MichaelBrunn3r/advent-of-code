@@ -19,11 +19,11 @@ name = "parse"
 harness = false
 
 [[bench]]
-name = "part_1"
+name = "p1"
 harness = false
 
 [[bench]]
-name = "part_2"
+name = "p2"
 harness = false
 
 [[bench]]

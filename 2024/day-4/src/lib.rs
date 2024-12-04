@@ -6,7 +6,7 @@ use itertools::Itertools;
 
 const LINE_LENGTH: usize = 140 + 1;
 
-pub fn part_1(input: &str) -> usize {
+pub fn p1(input: &str) -> usize {
     let bytes = input.as_bytes();
 
     let horizontal: usize = bytes
@@ -63,7 +63,7 @@ pub fn part_1(input: &str) -> usize {
     horizontal + vertical + diagonal
 }
 
-pub fn part_2(input: &str) -> usize {
+pub fn p2(input: &str) -> usize {
     input
         .as_bytes()
         .chunks_exact(LINE_LENGTH)

@@ -10,26 +10,26 @@ fn bench(c: &mut Criterion) {
     c.bench_function("aoc_2023_all", |b| {
         b.iter(|| {
             // Day 1
-            aoc_2023_1::part_1(&in_day1);
-            aoc_2023_1::part_2(&in_day1);
+            aoc_2023_1::p1(&in_day1);
+            aoc_2023_1::p2(&in_day1);
 
             // Day 2
-            aoc_2023_2::part_1(&in_day2);
-            aoc_2023_2::part_2(&in_day2);
+            aoc_2023_2::p1(&in_day2);
+            aoc_2023_2::p2(&in_day2);
 
             // Day 3
             let in_day3_parsed = aoc_2023_3::prepare_input(&in_day3);
-            aoc_2023_3::part_1(&in_day3);
-            aoc_2023_3::part_2(&in_day3_parsed);
+            aoc_2023_3::p1(&in_day3);
+            aoc_2023_3::p2(&in_day3_parsed);
 
             // Day 4
-            aoc_2023_4::part_1(&in_day4);
-            aoc_2023_4::part_2(&in_day4);
+            aoc_2023_4::p1(&in_day4);
+            aoc_2023_4::p2(&in_day4);
 
             // Day 5
             let in_day5_parsed = aoc_2023_5::parse(&in_day5);
-            aoc_2023_5::part_1(&in_day5_parsed);
-            aoc_2023_5::part_2(&in_day5_parsed);
+            aoc_2023_5::p1(&in_day5_parsed);
+            aoc_2023_5::p2(&in_day5_parsed);
         })
     });
 }

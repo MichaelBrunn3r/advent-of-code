@@ -9,13 +9,13 @@ const NUM_VALUES: usize = NUM_HISTORIES * VALUES_PER_HISTORY;
 type Data = [i32; NUM_VALUES + 201];
 static mut DATA: Data = unsafe { std::mem::zeroed() };
 
-pub fn part_1(data: &Data) -> i32 {
+pub fn p1(data: &Data) -> i32 {
     let mut buffer: Data = unsafe { std::mem::zeroed() };
     buffer.copy_from_slice(data);
     predict_and_sum(&mut buffer)
 }
 
-pub fn part_2(data: &Data) -> i32 {
+pub fn p2(data: &Data) -> i32 {
     let mut buffer: Data = unsafe { std::mem::zeroed() };
     for (i, val) in data.iter().rev().skip(2).enumerate() {
         buffer[i] = *val;

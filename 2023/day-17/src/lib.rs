@@ -3,7 +3,7 @@ use itertools::Itertools;
 // 1000 too low
 // 1100 too high
 // 1104 too high
-pub fn part_1(input: &mut str) -> usize {
+pub fn p1(input: &mut str) -> usize {
     let map = parse_map(input);
     let size = map.len();
 
@@ -121,7 +121,7 @@ pub fn part_1(input: &mut str) -> usize {
     res.cost
 }
 
-pub fn part_2(input: &str) -> usize {
+pub fn p2(input: &str) -> usize {
     0
 }
 

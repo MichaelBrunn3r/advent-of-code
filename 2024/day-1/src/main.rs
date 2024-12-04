@@ -9,8 +9,8 @@ fn main() {
     let mut right: [u32; 1000] = unsafe { std::mem::zeroed() };
     parse(&input, &mut left, &mut right);
 
-    println!("Part 1: {}", part_1(&mut left, &mut right));
-    println!("Part 2: {}", part_2(&mut left, &mut right));
+    println!("Part 1: {}", p1(&mut left, &mut right));
+    println!("Part 2: {}", p2(&mut left, &mut right));
 }
 
 #[cfg(test)]
@@ -18,16 +18,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_part_1() {
+    fn test_p1() {
         let mut left: [u32; 1000] = unsafe { std::mem::zeroed() };
         let mut right: [u32; 1000] = unsafe { std::mem::zeroed() };
         parse(&aoc::read_input_to_string(), &mut left, &mut right);
 
-        assert_eq!(part_1(&mut left, &mut right), 1320851);
+        assert_eq!(p1(&mut left, &mut right), 1320851);
     }
 
     #[test]
-    fn test_part_2() {
+    fn test_p2() {
         let mut left: [u32; 1000] = unsafe { std::mem::zeroed() };
         let mut right: [u32; 1000] = unsafe { std::mem::zeroed() };
         parse(&aoc::read_input_to_string(), &mut left, &mut right);
@@ -35,6 +35,6 @@ mod tests {
         left.sort_unstable();
         right.sort_unstable();
 
-        assert_eq!(part_2(&mut left, &mut right), 26859182);
+        assert_eq!(p2(&mut left, &mut right), 26859182);
     }
 }

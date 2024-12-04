@@ -15,7 +15,7 @@ const NUM_H_BETWEEN_COUNTER_FFS: usize = N;
 const NUM_L_TO_CYCLE_CONJ: usize = calc_l_to_cycle_conjunction();
 const NUM_H_TO_CYCLE_CONJ: usize = calc_h_to_cycle_conjunction(N);
 
-pub fn part_1(
+pub fn p1(
     broadcaster_outputs: &[ModuleID; 4],
     modules: &Modules,
     cycle_conjunctions: &[ModuleID; 4],
@@ -86,7 +86,7 @@ pub fn part_1(
 
 const MAX_CYCLE_PERIOD: usize = 2usize.pow(NUM_FFS_PER_CYCLE);
 
-pub fn part_2(
+pub fn p2(
     broadcaster_outputs: &[ModuleID; 4],
     modules: &Modules,
     cycle_conjunctions: &[ModuleID; 4],

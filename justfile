@@ -6,11 +6,11 @@ today := `date now | date to-table | get 0 | get year day | str join -`
 
 alias id := init-day
 init-day year day:
-    nu aoc.nu render_template {{year}} {{day}}
-    nu aoc.nu save_input {{year}} {{day}}
+    nu scripts/aoc.nu render_template {{year}} {{day}}
+    nu scripts/aoc.nu save_input {{year}} {{day}}
 
 render_template year day:
-    nu aoc.nu render_template {{year}} {{day}}
+    nu scripts/aoc.nu render_template {{year}} {{day}}
 
 # Run
 
@@ -40,11 +40,11 @@ test-day-nightly year day:
 
 alias u := update
 update:
-    nu aoc.nu update
+    nu scripts/aoc.nu update
 
 alias ud := update-day
 update-day year day:
-    nu aoc.nu update {{day}} {{year}}
+    nu scripts/aoc.nu update {{day}} {{year}}
 
 # Bench
 
@@ -54,11 +54,11 @@ bench:
 
 alias b1 := bench1
 bench1:
-    cargo bench -p aoc-{{today}} --bench part_1 -- --noplot
+    cargo bench -p aoc-{{today}} --bench p1 -- --noplot
 
 alias b2 := bench2
 bench2:
-    cargo bench -p aoc-{{today}} --bench part_2
+    cargo bench -p aoc-{{today}} --bench p2
 
 alias bd := bench-day
 bench-day year day benchmark:

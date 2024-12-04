@@ -4,8 +4,8 @@ fn main() {
     let input = aoc::read_input_to_string();
     let (workflows, rules, parts) = parse(&input);
 
-    println!("Part 1: {}", part_1(workflows, rules, parts));
-    println!("Part 2: {}", part_2(rules, workflows));
+    println!("Part 1: {}", p1(workflows, rules, parts));
+    println!("Part 2: {}", p2(rules, workflows));
 }
 
 #[cfg(test)]
@@ -18,7 +18,7 @@ mod tests {
         let input = aoc::read_input_to_string();
         let (workflows, rules, parts) = parse(&input);
 
-        assert_eq!(part_1(workflows, rules, parts), 418498);
-        assert_eq!(part_2(rules, workflows), 123331556462603)
+        assert_eq!(p1(workflows, rules, parts), 418498);
+        assert_eq!(p2(rules, workflows), 123331556462603)
     }
 }

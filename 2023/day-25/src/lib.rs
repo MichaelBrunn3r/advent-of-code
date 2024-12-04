@@ -2,7 +2,7 @@ use std::fmt::{Debug, Formatter};
 
 static mut GRAPH: [ConstVec<u16, 8>; 1 << 16] = unsafe { std::mem::zeroed() };
 
-pub fn part_1(input: &str) -> usize {
+pub fn p1(input: &str) -> usize {
     let mut data = input.as_ptr();
     unsafe {
         GRAPH = std::mem::zeroed();
@@ -27,7 +27,7 @@ pub fn part_1(input: &str) -> usize {
     0
 }
 
-pub fn part_2(input: &str) -> usize {
+pub fn p2(input: &str) -> usize {
     0
 }
 

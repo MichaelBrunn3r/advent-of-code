@@ -3,7 +3,7 @@ use regex::Regex;
 
 // ASSUMPTION 1: Maximum of 3 digits per operand
 const MAX_MUL_LEN: usize = 12; // mul(123,456)
-pub fn part_1(input: &str) -> usize {
+pub fn p1(input: &str) -> usize {
     let mut input = input.as_bytes();
     let mut sum = 0;
     
@@ -48,7 +48,7 @@ pub fn part_1(input: &str) -> usize {
     sum
 }
 
-pub fn part_2(input: &str) -> usize {
+pub fn p2(input: &str) -> usize {
     let mut input = input.as_bytes();
     let mut sum = 0;
 
@@ -114,7 +114,7 @@ pub fn part_2(input: &str) -> usize {
     sum
 }
 
-pub fn part_1_regex(input: &str) -> usize {
+pub fn p1_regex(input: &str) -> usize {
     let p = Regex::new(r"mul\((\d+),(\d+)\)").unwrap();
 
     let mut sum = 0;
@@ -128,7 +128,7 @@ pub fn part_1_regex(input: &str) -> usize {
     sum
 }
 
-pub fn part_2_regex(input: &str) -> usize {
+pub fn p2_regex(input: &str) -> usize {
     let p = Regex::new(r"(?<do>do\(\))|(?<dont>don't\(\))|(?<mul>mul\((?<a>\d+),(?<b>\d+)\))").unwrap();
 
     let mut sum = 0;

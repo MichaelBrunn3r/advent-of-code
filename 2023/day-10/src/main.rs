@@ -1,10 +1,10 @@
 use aoc_2023_10::*;
 
 fn main() {
-    println!("Part 1: {}", part_1(&parse(aoc::read_input_to_string())));
+    println!("Part 1: {}", p1(&parse(aoc::read_input_to_string())));
     println!(
         "Part 2: {}",
-        part_2(&mut parse(aoc::read_input_to_string()))
+        p2(&mut parse(aoc::read_input_to_string()))
     );
 }
 
@@ -13,12 +13,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_part_1() {
-        assert_eq!(part_1(&parse(aoc::read_input_to_string())), 7145);
+    fn test_p1() {
+        assert_eq!(p1(&parse(aoc::read_input_to_string())), 7145);
     }
 
     #[test]
-    fn test_part_2() {
-        assert_eq!(part_2(&mut parse(aoc::read_input_to_string())), 445);
+    fn test_p2() {
+        assert_eq!(p2(&mut parse(aoc::read_input_to_string())), 445);
     }
 }

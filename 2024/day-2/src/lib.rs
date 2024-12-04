@@ -5,7 +5,7 @@ use itertools::Itertools;
 
 const NUM_REPORTS: usize = 1000;
 
-pub fn part_1(input: &str) -> usize {
+pub fn p1(input: &str) -> usize {
     let mut crs = input.as_ptr();
 
     (0..NUM_REPORTS).into_iter()
@@ -13,7 +13,7 @@ pub fn part_1(input: &str) -> usize {
         .fold(0, |acc, safe| acc + safe as usize)
 }
 
-pub fn part_2(input: &str) -> usize {
+pub fn p2(input: &str) -> usize {
     let mut crs = input.as_ptr();
     let mut levels = Vec::with_capacity(10);
 
