@@ -5,18 +5,12 @@ use itertools::Itertools;
 
 const NUM_LINES: usize = 140;
 
-// 2449 too low
-// 2490 too low
 pub fn part_1(input: &str) -> usize {
-    let horizontal: usize = input.split("\n")
-        .take(NUM_LINES)
-        .map(|l| {
-            l.as_bytes()
-                .array_windows()
-                .map(|x: &[u8; 4]| {
-                    (x == b"XMAS" || x == b"SAMX") as usize
-                })
-                .sum::<usize>()
+    let horizontal: usize = input
+        .as_bytes()
+        .array_windows()
+        .map(|w: &[u8; 4]| {
+            (w == b"XMAS" || w == b"SAMX") as usize
         })
         .sum();
 
