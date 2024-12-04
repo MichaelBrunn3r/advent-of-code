@@ -5,10 +5,10 @@ use itertools::Itertools;
 
 const SIDE_LENGTH: usize = 140;
 
-
 pub fn part_1(input: &str) -> usize {
+    let input = input.as_bytes();
+
     let horizontal: usize = input
-        .as_bytes()
         .array_windows()
         .map(|w: &[u8; 4]| {
             (w == b"XMAS" || w == b"SAMX") as usize
@@ -16,7 +16,6 @@ pub fn part_1(input: &str) -> usize {
         .sum();
 
     let vertical: usize = input
-        .as_bytes()
         .chunks_exact(SIDE_LENGTH + 1)
         .tuple_windows::<(&[u8], &[u8], &[u8], &[u8])>()
         .map(|lines| {
@@ -35,7 +34,6 @@ pub fn part_1(input: &str) -> usize {
         .sum();
 
     let diagonal: usize = input
-        .as_bytes()
         .chunks_exact(SIDE_LENGTH + 1)
         .tuple_windows::<(&[u8], &[u8], &[u8], &[u8])>()
         .map(|lines| {
