@@ -2,8 +2,9 @@ use aoc_2024_5::*;
 
 fn main() {
     let input = aoc::read_input_to_string();
-    println!("Part 1: {}", p1(&input));
-    println!("Part 2: {}", p2(&input));
+    let rules = parse(&input);
+    println!("Part 1: {}", p1(&input, &rules));
+    println!("Part 2: {}", p2(&input, &rules));
 }
 
 #[cfg(test)]
@@ -12,11 +13,15 @@ mod tests {
 
     #[test]
     fn test_p1() {
-        assert_eq!(p1(&aoc::read_input_to_string()), 4959);
+        let input = aoc::read_input_to_string();
+    let rules = parse(&input);
+        assert_eq!(p1(&input, &rules), 4959);
     }
 
     #[test]
     fn test_p2() {
-        assert_eq!(p2(&aoc::read_input_to_string()), 4655);
+        let input = aoc::read_input_to_string();
+        let rules = parse(&input);  
+        assert_eq!(p2(&input, &rules), 4655);
     }
 }
