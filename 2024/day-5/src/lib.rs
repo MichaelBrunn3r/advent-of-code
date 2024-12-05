@@ -2,7 +2,7 @@ use aoc::prelude::*;
 use itertools::Itertools;
 
 const NUM_LINES_RULES: usize = 1176;
-const LINE_LENGTH_RULES: usize = 6; // ASSUMPTION 1: All rules match the pattern '\d\d\|\d\d\n'
+const LINE_LENGTH_RULES: usize = "12|34\n".len(); // ASSUMPTION 1: All rules match the pattern '\d\d\|\d\d\n'
 const NUM_LINES_UPDATES: usize = 191;
 
 pub fn parse(input: &str) -> Vec<Vec<u8>> {
@@ -93,15 +93,7 @@ pub fn p2(input: &str, rules: &[Vec<u8>]) -> usize {
 
 fn is_correctly_ordered(pages: &[u8], rules: &[Vec<u8>]) -> bool {
     for i in 0..pages.len() {
-        let page = pages[i];
-        for il in 0..i {
-            let before_il = &rules[pages[il] as usize];
-            if before_il.contains(&page) {
-                return false
-            }
-        }
-
-        let before_i = &rules[page as usize];
+        let before_i = &rules[pages[i] as usize];
         for ir in i+1..pages.len() {
             if before_i.contains(&pages[ir]) {
                 return false;
