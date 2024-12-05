@@ -9,8 +9,9 @@ init-day year day:
     nu scripts/aoc.nu render_template {{year}} {{day}}
     nu scripts/aoc.nu save_input {{year}} {{day}}
 
-render_template year day:
-    nu scripts/aoc.nu render_template {{year}} {{day}}
+alias si := save-input
+save-input year day:
+    nu scripts/aoc.nu save_input {{year}} {{day}}
 
 # Run
 
@@ -32,10 +33,6 @@ alias td := test-day
 test-day year day:
     cargo test -p aoc-{{year}}-{{day}}
 
-alias tdn := test-day-nightly
-test-day-nightly year day:
-    cargo +nightly test -p aoc-{{year}}-{{day}}
-
 # Update
 
 alias u := update
@@ -49,16 +46,8 @@ update-day year day:
 # Bench
 
 alias b := bench
-bench:
-    cargo bench -p aoc-{{today}}
-
-alias b1 := bench1
-bench1:
-    cargo bench -p aoc-{{today}} --bench p1 -- --noplot
-
-alias b2 := bench2
-bench2:
-    cargo bench -p aoc-{{today}} --bench p2
+bench benchmark:
+    cargo bench -p aoc-{{today}} --bench {{benchmark}}
 
 alias bd := bench-day
 bench-day year day benchmark:

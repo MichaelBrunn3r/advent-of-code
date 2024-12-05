@@ -3,13 +3,17 @@
 $env.AOC_COOKIE = open $"($env.FILE_PWD)/AOC_COOKIE"
 let today = (date now | date to-table | get 0)
 
+#
+# CLI commands
+# 
+
 def main [] {}
 
 def "main render_template" [year?:int, day?:int] {
     let year = $year | default ($today | get year)
     let day = $day | default ($today | get day)
 
-    let out_dir = get_path_of_day $year $day
+    let out_dir = path_day_root $year $day
     mkdir -v $out_dir
 
     render_template $out_dir $year $day
@@ -19,14 +23,74 @@ def "main save_input" [year?:int, day?:int] {
     let year = $year | default ($today | get year)
     let day = $day | default ($today | get day)
 
-    let out_dir = get_path_of_day $year $day
+    let out_dir = path_day_root $year $day
     mkdir -v $out_dir
 
     let input = fetch_input $year $day
     $input | save ($"($out_dir)/input.txt") -f
 }
 
-def get_path_of_day [year:int, day:int] {
+def "main gen_benchmarks_table" [year?:int, day?:int] {
+    let year = $year | default ($today | get year)
+    let day = $day | default ($today | get day)
+    let day_root = path_day_root $year $day
+
+    let text_lib = open $"($day_root)/src/lib.rs"
+
+    let bench_name = ls $"($day_root)/benches" | each {|e| $e.name | path basename | str replace ".rs" ""}
+    let bench_loc = $bench_name | each {|n| $text_lib | get_line_of_match $"pub fn ($n)" }
+    let bench_name_md = $bench_name | zip $bench_loc | each {|e| if $e.1 != -1 {$"[($e.0)]\(./src/lib.rs#L($e.1)\)"} else {$e.0}}
+    let bench_time = $bench_name | each {|n| get_bench_time_ns $year $day $n | format_bench_time }
+    let all_benches = $bench_name | wrap name | merge ($bench_time | wrap time) | merge ($bench_name_md | wrap name_md)
+
+    let benches = $all_benches | filter {|row| $row.name in [parse p1 p2]} | select name_md time | rename Benchmark Time
+    let other_benches = $all_benches | filter {|row| not ($row.name in [parse p1 p2])} | select name_md time | rename Other Time
+
+    mut text_readme = open $"($day_root)/README.md"
+    $text_readme = str_replace_region $text_readme benches $"\n($benches | to md -p)\n"
+    $text_readme = str_replace_region $text_readme other_benches $"\n($other_benches | to md -p)\n"
+    $text_readme | save -f $"($day_root)/README.md"
+}
+
+#
+# Utils
+#
+
+def get_line_of_match [pattern: string] {
+    let matches = $in | enumerate_lines | update str {|row| $row.str | parse --regex $pattern } | filter {|row| $row.str | is-not-empty }
+    if ($matches | is-empty) {
+        -1
+    } else {
+        $matches | first | get line
+    }
+}
+
+def enumerate_lines [] {
+    $in | lines | enumerate | rename line str | update line {|row| $row.line + 1}
+}
+
+def get_bench_time_ns [year: int, day:int, benchmark: string] {
+    open $"target/criterion/aoc_($year)_($day)_($benchmark)/new/estimates.json" | get slope.point_estimate
+}
+
+def format_bench_time [] {
+    if $in <= 1000 {
+        $"($in)ns" | into duration | format duration ns
+    } else if $in <= 1000000 {
+        $"($in)ns" | into duration | format duration us
+    } else if $in <= 1000000000 {
+        $"($in)ns" | into duration | format duration ms
+    }
+}
+
+def str_replace_region [str: string, name: string, replace: string] {
+    let idx_begin = ($str | str index-of $"<!-- BEGIN ($name) -->")
+    let idx_end = ($str | str index-of $"<!-- END ($name) -->")
+
+    ($str | str substring ..($idx_begin + 14 + ($name | str length))) + $replace + ($str | str substring $idx_end..)
+}
+
+def path_day_root [year:int, day:int] {
     return $"($env.FILE_PWD)/../($year)/day-($day)"
 }
 

@@ -1,6 +1,8 @@
 # {{year}} Day {{day}}
 
-|        | i5-12600K |
-| ------ | --------- |
-| Part 1 | ?         |
-| Part 2 | ?         |
+## Benchmarks
+
+<!-- BEGIN benches -->
+<!-- END benches -->
+<!-- BEGIN other_benches -->
+<!-- END other_benches -->

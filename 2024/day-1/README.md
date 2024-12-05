@@ -1,8 +1,17 @@
 # 2024 Day 1
 
-|        | i5-12600K |
-| ------ | --------- |
-| Parse  | 3.53 µs    |
-| Part 1 | 9.66 µs    |
-| Part 2 | 1.04 µs    |
-| All    | 14.99 µs   |
+## Benchmarks
+
+<!-- BEGIN benches -->
+| Benchmark                | Time     |
+| ------------------------ | -------- |
+| [p1](./src/lib.rs#L10)   | 9.62 µs |
+| [p2](./src/lib.rs#L24)   | 947 ns   |
+| [parse](./src/lib.rs#L3) | 3.53 µs |
+<!-- END benches -->
+<!-- BEGIN other_benches -->
+| Other | Time      |
+| ----- | --------- |
+| all   | 14.47 µs |
+
+<!-- END other_benches -->

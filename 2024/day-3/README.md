@@ -2,9 +2,17 @@
 
 To optimize for speed I use a lot of assumptions about **my** input while still trying to make the code work for **any** input.
 
-|              | i5-12600K |
-| ------------ | --------- |
-| Part 1       | 5.44 µs   |
-| Part 1 Regex | 131.49 µs |
-| Part 2       | 6.82 µs   |
-| Part 2 Regex | 251.38 µs |
+## Benchmarks
+
+<!-- BEGIN benches -->
+| Benchmark              | Time     |
+| ---------------------- | -------- |
+| [p1](./src/lib.rs#L6)  | 8.80 µs |
+| [p2](./src/lib.rs#L51) | 7.28 µs |
+<!-- END benches -->
+<!-- BEGIN other_benches -->
+| Other                         | Time       |
+| ----------------------------- | ---------- |
+| [p1_regex](./src/lib.rs#L117) | 132.16 µs |
+| [p2_regex](./src/lib.rs#L131) | 252.24 µs |
+<!-- END other_benches -->

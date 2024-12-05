@@ -19,3 +19,11 @@ harness = false
 [[bench]]
 name = "p2"
 harness = false
+
+[[bench]]
+name = "p1_regex"
+harness = false
+
+[[bench]]
+name = "p2_regex"
+harness = false
