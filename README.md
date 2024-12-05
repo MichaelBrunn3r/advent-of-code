@@ -1,5 +1,15 @@
 # Advent of Code 🎄 Solutions
 
+### 2024 (Total: <!-- BEGIN Total_2024 --> `?µs = ?ms` <!-- END Total_2024 -->)
+<!-- BEGIN Table_2024 -->
+| Day | Problem                              |                         |
+| --- | ------------------------------------ | ----------------------: |
+| 1   | [Historian Hysteria](./2024/day-1)** |              `14.99 µs` |
+| 2   | [Red-Nosed Reports](./2024/day-2)**  |    `5.73 µs` `12.22 µs` |
+| 3   | [Mull It Over](./2024/day-3)**       |     `5.44 µs` `6.82 µs` |
+| 4   | [Ceres Search](./2024/day-4)**       | `52.233 µs` `12.165 µs` |
+<!-- END Table_2024 -->
+
 ### 2023 (Total: `11952.528456µs = 11.9ms`)
 
 | Day | Problem                                                                |     Parse, Part 1, Part 2 |                                                             |

@@ -5,23 +5,23 @@ const NUM_LINES_RULES: usize = 1176;
 const LINE_LENGTH_RULES: usize = "12|34\n".len(); // ASSUMPTION 1: All rules match the pattern '\d\d\|\d\d\n'
 const NUM_LINES_UPDATES: usize = 191;
 
-pub fn parse(input: &str) -> Vec<Vec<u8>> {
+pub fn parse(input: &str) -> Vec<[bool;100]> {
     let bytes = input.as_bytes();
 
-    let mut rules = vec![Vec::<u8>::new(); 100];
+    let mut rules = vec![[false;100]; 100];
     bytes
         .chunks_exact(LINE_LENGTH_RULES)
         .take(NUM_LINES_RULES)
         .for_each(|l| {
-            let a = l.parse_n_ascii_digits(2) as u8;
+            let a = l.parse_n_ascii_digits(2) as usize;
             let b = l[3..].parse_n_ascii_digits(2) as usize;
-            rules[b].push(a);
+            rules[b][a] = true;
         });
 
     rules
 }
 
-pub fn p1(input: &str, rules: &[Vec<u8>]) -> usize {
+pub fn p1(input: &str, rules: &[[bool;100]]) -> usize {
     let bytes = input.as_bytes();
 
     bytes[(LINE_LENGTH_RULES * NUM_LINES_RULES)+1..]
@@ -53,7 +53,7 @@ pub fn p1(input: &str, rules: &[Vec<u8>]) -> usize {
 // 11,22,33     = 8  = 3*2 + (3-1)
 // 11,22,33,44  = 11 = 4*2 + (4-1)
 
-pub fn p2(input: &str, rules: &[Vec<u8>]) -> usize {
+pub fn p2(input: &str, rules: &[[bool;100]]) -> usize {
     let bytes = input.as_bytes();
 
     bytes[(LINE_LENGTH_RULES * NUM_LINES_RULES)+1..]
@@ -77,7 +77,7 @@ pub fn p2(input: &str, rules: &[Vec<u8>]) -> usize {
                 let page = pages[i];
                 for il in (0..i).rev() {
                     let before_il = &rules[pages[il] as usize];
-                    if !before_il.contains(&page) {
+                    if !before_il[page as usize] {
                         break;
                     }
 
@@ -91,11 +91,11 @@ pub fn p2(input: &str, rules: &[Vec<u8>]) -> usize {
         .sum()
 }
 
-fn is_correctly_ordered(pages: &[u8], rules: &[Vec<u8>]) -> bool {
+fn is_correctly_ordered(pages: &[u8], rules: &[[bool;100]]) -> bool {
     for i in 0..pages.len() {
         let before_i = &rules[pages[i] as usize];
         for ir in i+1..pages.len() {
-            if before_i.contains(&pages[ir]) {
+            if before_i[pages[ir] as usize] {
                 return false;
             }
         }
