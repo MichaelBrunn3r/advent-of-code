@@ -7,10 +7,11 @@ const NUM_LINES_UPDATES: usize = 191;
 const NUM_PAGES: usize = 90;
 
 type Rules = [[bool;NUM_PAGES]; NUM_PAGES];
+type Update = Vec<u8>;
 
 static mut RULES: [[bool; NUM_PAGES]; NUM_PAGES] = unsafe{std::mem::zeroed()};
 
-pub fn parse(input: &str) -> (&Rules, Vec<Vec<u8>>) {
+pub fn parse(input: &str) -> (&Rules, Vec<Update>, Vec<Update>) {
     let bytes = input.as_bytes();
     unsafe{RULES = std::mem::zeroed()};
 
@@ -23,10 +24,13 @@ pub fn parse(input: &str) -> (&Rules, Vec<Vec<u8>>) {
             unsafe{RULES[page_to_idx(b)][page_to_idx(a)] = true;}
         });
 
-    let mut updates = vec![Vec::new(); NUM_LINES_UPDATES];
+    let mut correct_updates = Vec::new();
+    let mut wrong_updates = Vec::new();
+
     let mut crs = &bytes[(LINE_LENGTH_RULES * NUM_LINES_RULES)+1..];
     for i in 0..NUM_LINES_UPDATES {
-        let pages = &mut updates[i];
+        let mut pages = Vec::new();
+
         loop {
             pages.push(crs.parse_n_ascii_digits(2) as u8);
             crs = &crs[2..]; // Skip page number
@@ -37,32 +41,29 @@ pub fn parse(input: &str) -> (&Rules, Vec<Vec<u8>>) {
                 break;
             }
         }
+
+        if is_correctly_ordered(&pages, unsafe{&RULES}) {
+            correct_updates.push(pages);
+        } else {
+            wrong_updates.push(pages);
+        }
     }
 
-    (unsafe{&RULES}, updates)
+    (unsafe{&RULES}, correct_updates, wrong_updates)
 }
 
-pub fn p1(rules: &Rules, updates: &[Vec<u8>]) -> usize {
-    updates
+pub fn p1(correct_updates: &[Update]) -> usize {
+    correct_updates
         .iter()
-        .filter_map(|pages| {
-            if !is_correctly_ordered(&pages, &rules) {
-                return None
-            }
-            Some(pages[pages.len()/2] as usize)
+        .map(|pages| {
+            pages[pages.len()/2] as usize
         })
         .sum()
 }
 
-// 11           = 2  = 2*1 + (1-1)
-// 11,22        = 5  = 2*2 + (2-1)
-// 11,22,33     = 8  = 3*2 + (3-1)
-// 11,22,33,44  = 11 = 4*2 + (4-1)
-
-pub fn p2(rules: &Rules, updates: Vec<Vec<u8>>) -> usize {
-    updates
+pub fn p2(rules: &Rules, wrong_updates: Vec<Update>) -> usize {
+    wrong_updates
         .into_iter()
-        .filter(|pages| !is_correctly_ordered(pages, &rules))
         .map(|mut pages| {
             for i in 1..pages.len() {
                 let page = pages[i];
