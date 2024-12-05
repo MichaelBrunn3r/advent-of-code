@@ -1,11 +1,16 @@
 use aoc_2024_5::*;
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
 
 fn bench(c: &mut Criterion) {
     let input = aoc::read_input_to_string();
-    let rules = parse(&input);
+    let (rules, updates) = parse(&input);
 
-    c.bench_function("aoc_2024_5_p2", |b| b.iter(|| p2(&input, &rules)));
+    c.bench_function(
+        "aoc_2024_5_p2", 
+        |b| b.iter_batched(
+            || {updates.clone()},
+            |updates| p2(&rules, updates),
+            BatchSize::SmallInput));
 }
 
 criterion_group!(benches, bench);

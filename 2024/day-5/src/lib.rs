@@ -7,7 +7,7 @@ const NUM_LINES_UPDATES: usize = 191;
 const NUM_PAGES: usize = 90;
 type LUT = [bool;NUM_PAGES];
 
-pub fn parse(input: &str) -> Vec<LUT> {
+pub fn parse(input: &str) -> (Vec<LUT>, Vec<Vec<u8>>) {
     let bytes = input.as_bytes();
 
     let mut rules = vec![[false; NUM_PAGES]; NUM_PAGES];
@@ -20,13 +20,7 @@ pub fn parse(input: &str) -> Vec<LUT> {
             rules[page_to_idx(b)][page_to_idx(a)] = true;
         });
 
-    rules
-}
-
-pub fn p1(input: &str, rules: &[LUT]) -> usize {
-    let bytes = input.as_bytes();
-
-    bytes[(LINE_LENGTH_RULES * NUM_LINES_RULES)+1..]
+    let updates = bytes[(LINE_LENGTH_RULES * NUM_LINES_RULES)+1..]
         .split(|&b| b == b'\n')
         .take(NUM_LINES_UPDATES)
         .map(|mut l| {
@@ -41,6 +35,14 @@ pub fn p1(input: &str, rules: &[LUT]) -> usize {
 
             pages
         })
+        .collect_vec();
+
+    (rules, updates)
+}
+
+pub fn p1(rules: &[LUT], updates: &[Vec<u8>]) -> usize {
+    updates
+        .iter()
         .filter_map(|pages| {
             if !is_correctly_ordered(&pages, &rules) {
                 return None
@@ -55,24 +57,9 @@ pub fn p1(input: &str, rules: &[LUT]) -> usize {
 // 11,22,33     = 8  = 3*2 + (3-1)
 // 11,22,33,44  = 11 = 4*2 + (4-1)
 
-pub fn p2(input: &str, rules: &[LUT]) -> usize {
-    let bytes = input.as_bytes();
-
-    bytes[(LINE_LENGTH_RULES * NUM_LINES_RULES)+1..]
-        .split(|&b| b == b'\n')
-        .take(NUM_LINES_UPDATES)
-        .map(|mut l| {
-            let mut pages = vec![l.parse_n_ascii_digits(2) as u8];
-            l = &l[2..];
-
-            while l.len() >= 2 {
-                l = &l[1..];
-                pages.push(l.parse_n_ascii_digits(2) as u8);
-                l = &l[2..];
-            }
-
-            pages
-        })
+pub fn p2(rules: &[LUT], updates: Vec<Vec<u8>>) -> usize {
+    updates
+        .into_iter()
         .filter(|pages| !is_correctly_ordered(pages, &rules))
         .map(|mut pages| {
             for i in 1..pages.len() {
