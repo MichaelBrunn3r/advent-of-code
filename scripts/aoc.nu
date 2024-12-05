@@ -44,7 +44,7 @@ def "main gen_benchmarks_table" [year?:int, day?:int] {
     let bench_loc = $bench_name | each {|n| $text_lib | get_line_of_match $"pub fn ($n)" }
     let bench_name_md = $bench_name | zip $bench_loc | each {|e| if $e.1 != -1 {$"[($e.0)]\(./src/lib.rs#L($e.1)\)"} else {$e.0}}
     let bench_time = $bench_name | each {|n| get_bench_time_ns $year $day $n | format_bench_time }
-    let all_benches = $bench_name | wrap name | merge ($bench_time | wrap time) | merge ($bench_name_md | wrap name_md)
+    let all_benches = $bench_name | wrap name | merge ($bench_time | wrap time) | merge ($bench_name_md | wrap name_md) | merge ($bench_loc | wrap loc) | sort-by loc
 
     let benches = $all_benches | filter {|row| $row.name in [parse p1 p2]} | select name_md time | rename Benchmark Time
     let other_benches = $all_benches | filter {|row| not ($row.name in [parse p1 p2])} | select name_md time | rename Other Time

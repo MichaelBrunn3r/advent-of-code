@@ -3,15 +3,15 @@
 ## Benchmarks
 
 <!-- BEGIN benches -->
-| Benchmark                | Time     |
-| ------------------------ | -------- |
-| [p1](./src/lib.rs#L10)   | 9.62 µs |
-| [p2](./src/lib.rs#L24)   | 947 ns   |
+| Benchmark                | Time    |
+| ------------------------ | ------- |
 | [parse](./src/lib.rs#L3) | 3.53 µs |
+| [p1](./src/lib.rs#L10)   | 9.62 µs |
+| [p2](./src/lib.rs#L24)   | 947 ns  |
 <!-- END benches -->
 <!-- BEGIN other_benches -->
-| Other | Time      |
-| ----- | --------- |
+| Other | Time     |
+| ----- | -------- |
 | all   | 14.47 µs |
 
 <!-- END other_benches -->
