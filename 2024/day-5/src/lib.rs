@@ -23,22 +23,21 @@ pub fn parse(input: &str) -> (&Rules, Vec<Vec<u8>>) {
             unsafe{RULES[page_to_idx(b)][page_to_idx(a)] = true;}
         });
 
-    let updates = bytes[(LINE_LENGTH_RULES * NUM_LINES_RULES)+1..]
-        .split(|&b| b == b'\n')
-        .take(NUM_LINES_UPDATES)
-        .map(|mut l| {
-            let mut pages = vec![l.parse_n_ascii_digits(2) as u8];
-            l = &l[2..];
+    let mut updates = vec![Vec::new(); NUM_LINES_UPDATES];
+    let mut crs = &bytes[(LINE_LENGTH_RULES * NUM_LINES_RULES)+1..];
+    for i in 0..NUM_LINES_UPDATES {
+        let pages = &mut updates[i];
+        loop {
+            pages.push(crs.parse_n_ascii_digits(2) as u8);
+            crs = &crs[2..]; // Skip page number
 
-            while l.len() >= 2 {
-                l = &l[1..];
-                pages.push(l.parse_n_ascii_digits(2) as u8);
-                l = &l[2..];
+            let c= crs[0];
+            crs = &crs[1..]; // Skip ',' or '\n'
+            if c == b'\n' {
+                break;
             }
-
-            pages
-        })
-        .collect_vec();
+        }
+    }
 
     (unsafe{&RULES}, updates)
 }
