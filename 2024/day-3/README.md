@@ -1,4 +1,4 @@
-# 2024 Day 3
+# [2024 Day 3 - Mull It Over](https://adventofcode.com/2024/day/3)
 
 To optimize for speed I use a lot of assumptions about **my** input while still trying to make the code work for **any** input.
 

@@ -1,4 +1,4 @@
-# {{year}} Day {{day}}
+# [{{year}} Day {{day}} - {{title}}](https://adventofcode.com/{{year}}/day/{{day}})
 
 ## Benchmarks
 

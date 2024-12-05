@@ -13,10 +13,13 @@ def "main render_template" [year?:int, day?:int] {
     let year = $year | default ($today | get year)
     let day = $day | default ($today | get day)
 
+    let html_day = fetch_day $year $day
+    let $title = $html_day | parse -r '-- Day \d+: (?<title>.*) ---' | first | get title
+
     let out_dir = path_day_root $year $day
     mkdir -v $out_dir
 
-    render_template $out_dir $year $day
+    render_template $out_dir $year $day $title
 }
 
 def "main save_input" [year?:int, day?:int] {
@@ -94,27 +97,32 @@ def path_day_root [year:int, day:int] {
     return $"($env.FILE_PWD)/../($year)/day-($day)"
 }
 
-def render_template [dest: string, year: int, day: int] {
+def render_template [dest: string, year: int, day: int, title: string] {
     cp -r ./template/* $dest
 
-    replace_template_strings ($"($dest)/Cargo.toml") $year $day
-    replace_template_strings ($"($dest)/README.md") $year $day
-    replace_template_strings ($"($dest)/benches/p1.rs") $year $day
-    replace_template_strings ($"($dest)/benches/p2.rs") $year $day
-    replace_template_strings ($"($dest)/src/main.rs") $year $day
+    replace_template_strings ($"($dest)/Cargo.toml") $year $day $title
+    replace_template_strings ($"($dest)/README.md") $year $day $title
+    replace_template_strings ($"($dest)/benches/p1.rs") $year $day $title
+    replace_template_strings ($"($dest)/benches/p2.rs") $year $day $title
+    replace_template_strings ($"($dest)/src/main.rs") $year $day $title
 }
 
-def replace_template_strings [file: string, year: int, day: int] {
+def replace_template_strings [file: string, year: int, day: int, title: string] {
     let content = open $file --raw
     let content = ($content | str replace --all '{{package_name}}' $'aoc-($year)-($day)')
     let content = ($content | str replace --all '{{crate_name}}' $'aoc_($year)_($day)')
     let content = ($content | str replace --all '{{year}}' $'($year)')
     let content = ($content | str replace --all '{{day}}' $'($day)')
+    let content = ($content | str replace --all '{{title}}' $'($title)')
     $content | save $file -f
 }
 
 def fetch_input [year: int, day: int] {
     http get --headers [Cookie session=($env.AOC_COOKIE)] https://adventofcode.com/($year)/day/($day)/input
+}
+
+def fetch_day [year: int, day: int] {
+    http get --headers [Cookie session=($env.AOC_COOKIE)] https://adventofcode.com/($year)/day/($day)
 }
 
 # def "main init" [day?:int, year?:int] {
@@ -159,8 +167,6 @@ def fetch_input [year: int, day: int] {
 #     create_examples_with_solutions $html_day $out_dir
 # }
 
-
-
 # def create_input [day: int, year: int, out_dir: string] {
 #     let input = fetch_input $day $year
 #     $input | save ($"($out_dir)/input.txt") -f
@@ -169,8 +175,6 @@ def fetch_input [year: int, day: int] {
 # def create_description [html: string, dest: string, day: int, year: int] {
 #     day_html_to_markdown $html $day $year | query web --query '.day-desc' | save $dest -f
 # }
-
-
 
 # def create_examples_with_solutions [html: string, project_dir: string] {
 #     let examples_dir = ($"($project_dir)/examples")
@@ -193,13 +197,6 @@ def fetch_input [year: int, day: int] {
 #         }
 #     }
 # }
-
-
-# def fetch_day [day: int, year: int] {
-#     http get --headers [Cookie session=($env.AOC_COOKIE)] https://adventofcode.com/($year)/day/($day)
-# }
-
-
 
 # def day_html_to_markdown [html: string, day: int, year: int] {
 #     mut html = $html
