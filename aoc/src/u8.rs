@@ -30,7 +30,7 @@ impl U8SliceExt for [u8] {
 
     fn parse_n_ascii_digits(&self, n: usize) -> u32 {
         debug_assert!(n >= 1);
-        debug_assert!(n < self.len());
+        debug_assert!(n <= self.len());
 
         let mut num = (self[0] - b'0') as u32;
 
