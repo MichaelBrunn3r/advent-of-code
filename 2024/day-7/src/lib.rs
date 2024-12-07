@@ -2,7 +2,7 @@ use core::{num, slice};
 
 use aoc::prelude::*;
 use itertools::Itertools;
-use rayon::iter::{ParallelBridge, ParallelIterator};
+use rayon::iter::{IntoParallelRefIterator, ParallelBridge, ParallelIterator};
 
 const NUM_LINES: usize = 850;
 // Operand digits: 1->3342, 2->1601, 3->1248
@@ -37,17 +37,16 @@ pub fn parse(input: &str) -> Vec<(usize,Vec<(usize, usize)>)> {
 }
 
 pub fn p1(lines: &[(usize,Vec<(usize, usize)>)]) -> usize {
-    let mut stack = Vec::new();
     lines
-        .iter()
-        .filter_map(|(test, numbers)| {
-            stack.clear();
+        .par_iter()
+        .map(|(test, numbers)| {
+            let mut stack = Vec::with_capacity(11);
             stack.push((numbers.len()-1, *test));
 
             while let Some((i, rest)) = stack.pop() {
                 if i == 0 {
                     if rest == numbers[i].0 {
-                        return Some(*test);
+                        return *test;
                     }
                     continue;
                 }
@@ -63,23 +62,22 @@ pub fn p1(lines: &[(usize,Vec<(usize, usize)>)]) -> usize {
                 }
             }
 
-            None
+            0
         })
         .sum()
 }
 
 pub fn p2(lines: &[(usize,Vec<(usize, usize)>)]) -> usize {
-    let mut stack = Vec::with_capacity(11);
     lines
-        .iter()
-        .filter_map(|(test, numbers)| {
-            stack.clear();
+        .par_iter()
+        .map(|(test, numbers)| {
+            let mut stack = Vec::with_capacity(11);
             stack.push((numbers.len()-1, *test));
 
             while let Some((i, rest)) = stack.pop() {
                 if i == 0 {
                     if rest == numbers[i].0 {
-                        return Some(*test);
+                        return *test;
                     }
                     continue;
                 }
@@ -100,7 +98,7 @@ pub fn p2(lines: &[(usize,Vec<(usize, usize)>)]) -> usize {
                 }
             }
 
-            None
+            0
         })
         .sum()
 }
