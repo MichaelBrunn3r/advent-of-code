@@ -5,19 +5,44 @@ use itertools::Itertools;
 use rayon::iter::{ParallelBridge, ParallelIterator};
 
 const NUM_LINES: usize = 850;
+// Operand digits: 1->3342, 2->1601, 3->1248
+
 
 pub fn parse(input: &str) -> Vec<(usize,Vec<(usize, usize)>)> {
-    input
-        .as_bytes()
-        .split(|&c| c == b'\n')
-        .take(NUM_LINES)
-        .map(|l| {
-            let mut parts = l.split(|&c| c == b' ');
-            let test = parts.next().unwrap().split_last().unwrap().1.parse_ascii_digits();
-            let numbers = parts.map(|p| (p.parse_ascii_digits(), p.len())).collect_vec();
-            (test, numbers)
-        })
-        .collect_vec()
+    let mut bytes = input.as_bytes();
+
+    let mut equations = Vec::new();
+    for _ in 0..NUM_LINES {
+        let mut operands = Vec::new();
+
+        let num_digits = position_colon(bytes);
+
+        let test = bytes[..num_digits].parse_ascii_digits();
+        bytes = &bytes[num_digits+2..];
+
+        loop {
+            let num_digits = if bytes[1] < b'0' {
+                1
+            } else if bytes[2] < b'0' {
+                2
+            } else {
+                3
+            };
+
+            let operand = bytes[..num_digits].parse_ascii_digits();
+            operands.push((operand, num_digits));
+            
+            let separator = bytes[num_digits];
+            bytes = &bytes[num_digits+1..];
+            if separator == b'\n' {
+                break;
+            }
+        }
+
+        equations.push((test, operands));
+    }
+
+    equations
 }
 
 pub fn p1(lines: &[(usize,Vec<(usize, usize)>)]) -> usize {
@@ -90,3 +115,34 @@ pub fn p2(lines: &[(usize,Vec<(usize, usize)>)]) -> usize {
 }
 
 const LUT_POW_10: [usize; 5] = [1, 10, 100, 1000, 10000];
+
+// Test digits: 2->4, 3->33, 4->77, 5->91, 6->112, 7->116, 8->116, 9->120, 10->87, 11->60, 12->21, 13->10, 14->3
+fn position_colon(bytes: &[u8]) -> usize {
+    if bytes[9] == b':' {
+        9
+    } else if bytes[8] == b':' {
+        8
+    } else if bytes[7] == b':' {
+        7
+    } else if bytes[6] == b':' {
+        6
+    } else if bytes[5] == b':' {
+        5
+    } else if bytes[10] == b':' {
+        10
+    } else if bytes[4] == b':' {
+        4
+    } else if bytes[11] == b':' {
+        11
+    } else if bytes[3] == b':' {
+        3
+    } else if bytes[12] == b':' {
+        12
+    } else if bytes[13] == b':' {
+        13
+    } else if bytes[2] == b':' {
+        2
+    } else {
+        14
+    }
+}
