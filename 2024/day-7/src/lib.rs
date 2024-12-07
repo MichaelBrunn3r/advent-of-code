@@ -70,8 +70,10 @@ fn is_valid_plus_mul_concat(test: usize, numbers: &[usize], sum: usize) -> bool 
         || is_valid_plus_mul_concat(test, &numbers[1..], concat(sum, numbers[0]))
 }
 
-fn concat(a: usize, b: usize) -> usize {
-    let mut r = a.to_string();
-    r.push_str(&b.to_string());
-    r.as_bytes().parse_ascii_digits()
+fn concat(mut a: usize, b: usize) -> usize {
+    let num_digits = ((b as f64).log10() + 1.0).floor() as usize;
+    for _ in 0..num_digits {
+        a *= 10;
+    }
+    a + b
 }
