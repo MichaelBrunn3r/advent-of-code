@@ -3,8 +3,7 @@ use aoc_2024_7::*;
 fn main() {
     let input = aoc::read_input_to_string();
     let lines = parse(&input);
-    println!("Part 1: {}", p1(&lines));
-    println!("Part 2: {}", p2(&lines));
+    println!("Part 1&2: {:?}", p(&lines));
 }
 
 #[cfg(test)]
@@ -14,12 +13,6 @@ mod tests {
     #[test]
     fn test_p1() {
         let lines = parse(&aoc::read_input_to_string());
-        assert_eq!(p1(&lines), 663613490587);
-    }
-
-    #[test]
-    fn test_p2() {
-        let lines = parse(&aoc::read_input_to_string());
-        assert_eq!(p2(&lines), 110365987435001);
+        assert_eq!(p(&lines), (663613490587, 110365987435001));
     }
 }
