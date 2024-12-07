@@ -61,6 +61,10 @@ fn is_valid_plus_mul_concat(test: usize, numbers: &[(usize, usize)], sum: usize)
         return sum == test;
     }
 
+    if sum > test {
+        return false;
+    }
+
     return is_valid_plus_mul_concat(test, &numbers[1..], sum*numbers[0].0)
         || is_valid_plus_mul_concat(test, &numbers[1..], sum+numbers[0].0)
         || is_valid_plus_mul_concat(test, &numbers[1..], concat(sum, numbers[0].0, numbers[0].1))
