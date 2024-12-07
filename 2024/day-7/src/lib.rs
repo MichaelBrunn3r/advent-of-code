@@ -21,30 +21,29 @@ pub fn parse(input: &str) -> Vec<(usize,Vec<(usize, usize)>)> {
 }
 
 pub fn p1(lines: &[(usize,Vec<(usize, usize)>)]) -> usize {
-    let mut stack = Vec::with_capacity(11);
+    let mut stack = Vec::new();
     lines
         .iter()
         .filter_map(|(test, numbers)| {
             stack.clear();
-            stack.push((1, numbers[0].0));
+            stack.push((numbers.len()-1, *test));
 
-            while let Some((i, sum)) = stack.pop() {
-                let add = sum + numbers[i].0;
-                let mul = sum * numbers[i].0;
-
-                if i >= numbers.len()-1 {
-                    if add == *test || mul == *test {
+            while let Some((i, rest)) = stack.pop() {
+                if i == 0 {
+                    if rest == numbers[i].0 {
                         return Some(*test);
                     }
                     continue;
                 }
-
-                if add <= *test {
-                    stack.push((i+1, add));
+                
+                if rest >= numbers[i].0 {
+                    stack.push((i-1, rest - numbers[i].0));
+                } else {
+                    continue;
                 }
-
-                if mul <= *test {
-                    stack.push((i+1, mul));
+                
+                if rest % numbers[i].0 == 0 {
+                    stack.push((i-1, rest / numbers[i].0));
                 }
             }
 
@@ -59,36 +58,30 @@ pub fn p2(lines: &[(usize,Vec<(usize, usize)>)]) -> usize {
         .iter()
         .filter_map(|(test, numbers)| {
             stack.clear();
-            stack.push((1, numbers[0].0));
+            stack.push((numbers.len()-1, *test));
 
-            while let Some((i, sum)) = stack.pop() {
-
-                if i >= numbers.len()-1 {
-                    let add = sum + numbers[i].0;
-                    let mul = sum * numbers[i].0;
-                    let conc = concat(sum , numbers[i].0, numbers[i].1);
-                    
-                    if add == *test || mul == *test || conc == *test {
-                        return Some(test);
+            while let Some((i, rest)) = stack.pop() {
+                if i == 0 {
+                    if rest == numbers[i].0 {
+                        return Some(*test);
                     }
                     continue;
                 }
-
-                let add = sum + numbers[i].0;
-                if add >= *test + 1 {
+                
+                if rest >= numbers[i].0 {
+                    stack.push((i-1, rest - numbers[i].0));
+                } else {
                     continue;
                 }
-                stack.push((i+1, add));
-
-                let mul = sum * numbers[i].0;
-                if mul >= *test + 10 {
-                    continue;
+                
+                if rest % numbers[i].0 == 0 {
+                    stack.push((i-1, rest / numbers[i].0));
                 }
-                stack.push((i+1, mul));
 
-
-                let conc = concat(sum , numbers[i].0, numbers[i].1);
-                stack.push((i+1, conc));
+                let div = rest / LUT_POW_10[numbers[i].1];
+                if div * LUT_POW_10[numbers[i].1] + numbers[i].0 == rest {
+                    stack.push((i-1, div));
+                }
             }
 
             None
@@ -96,6 +89,4 @@ pub fn p2(lines: &[(usize,Vec<(usize, usize)>)]) -> usize {
         .sum()
 }
 
-fn concat(a: usize, b: usize, num_digits_b: usize) -> usize {
-    a * (10usize.pow(num_digits_b as u32)) + b
-}
+const LUT_POW_10: [usize; 5] = [1, 10, 100, 1000, 10000];
