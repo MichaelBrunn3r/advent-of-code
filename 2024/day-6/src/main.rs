@@ -17,6 +17,6 @@ mod tests {
 
     #[test]
     fn test_p2() {
-        assert_eq!(p2(&aoc::read_input_to_string()), 0);
+        assert_eq!(p2(&aoc::read_input_to_string()), 1812);
     }
 }
