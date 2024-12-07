@@ -33,8 +33,8 @@ pub fn parse(input: &str) -> Vec<(usize,Vec<(usize, usize)>)> {
     equations
 }
 
-pub fn p(lines: &[(usize,Vec<(usize, usize)>)]) -> (usize, usize) {
-    lines
+pub fn p(equations: &[(usize,Vec<(usize, usize)>)]) -> (usize, usize) {
+    equations
         .par_iter()
         .map(|(test, numbers)| {
             let mut stack = Vec::with_capacity(11);
