@@ -12,7 +12,7 @@ pub fn p1(input: &str) -> usize {
         .map(|mut l| {
             let mut parts = l.split(|&c| c == b' ');
             let test = parts.next().unwrap().split_last().unwrap().1.parse_ascii_digits();
-            let numbers = parts.map(|p| p.parse_ascii_digits()).collect_vec();
+            let numbers = parts.map(|p| (p.parse_ascii_digits(), p.len())).collect_vec();
             (test, numbers)
         })
         .filter_map(|(test, numbers)| {
@@ -34,7 +34,7 @@ pub fn p2(input: &str) -> usize {
         .map(|l| {
             let mut parts = l.split(|&c| c == b' ');
             let test = parts.next().unwrap().split_last().unwrap().1.parse_ascii_digits();
-            let numbers = parts.map(|p| p.parse_ascii_digits()).collect_vec();
+            let numbers = parts.map(|p| (p.parse_ascii_digits(), p.len())).collect_vec();
             (test, numbers)
         })
         .filter_map(|(test, numbers)| {
@@ -47,7 +47,7 @@ pub fn p2(input: &str) -> usize {
         .sum()
 }
 
-fn is_valid_plus_mul(test: usize, numbers: &[usize], sum: usize) -> bool {
+fn is_valid_plus_mul(test: usize, numbers: &[(usize, usize)], sum: usize) -> bool {
     if numbers.len() == 0 {
         return sum == test;
     }
@@ -56,23 +56,22 @@ fn is_valid_plus_mul(test: usize, numbers: &[usize], sum: usize) -> bool {
         return false;
     }
 
-    return is_valid_plus_mul(test, &numbers[1..], sum*numbers[0])
-        || is_valid_plus_mul(test, &numbers[1..], sum+numbers[0])
+    return is_valid_plus_mul(test, &numbers[1..], sum*numbers[0].0)
+        || is_valid_plus_mul(test, &numbers[1..], sum+numbers[0].0)
 }
 
-fn is_valid_plus_mul_concat(test: usize, numbers: &[usize], sum: usize) -> bool {
+fn is_valid_plus_mul_concat(test: usize, numbers: &[(usize, usize)], sum: usize) -> bool {
     if numbers.len() == 0 {
         return sum == test;
     }
 
-    return is_valid_plus_mul_concat(test, &numbers[1..], sum*numbers[0])
-        || is_valid_plus_mul_concat(test, &numbers[1..], sum+numbers[0])
-        || is_valid_plus_mul_concat(test, &numbers[1..], concat(sum, numbers[0]))
+    return is_valid_plus_mul_concat(test, &numbers[1..], sum*numbers[0].0)
+        || is_valid_plus_mul_concat(test, &numbers[1..], sum+numbers[0].0)
+        || is_valid_plus_mul_concat(test, &numbers[1..], concat(sum, numbers[0].0, numbers[0].1))
 }
 
-fn concat(mut a: usize, b: usize) -> usize {
-    let num_digits = ((b as f64).log10() + 1.0).floor() as usize;
-    for _ in 0..num_digits {
+fn concat(mut a: usize, b: usize, num_digits_b: usize) -> usize {
+    for _ in 0..num_digits_b {
         a *= 10;
     }
     a + b
