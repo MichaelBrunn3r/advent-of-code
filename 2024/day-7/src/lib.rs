@@ -3,32 +3,9 @@ use itertools::Itertools;
 
 const NUM_LINES: usize = 850;
 
-pub fn p1(input: &str) -> usize {
-    let bytes = input.as_bytes();
-
-    bytes
-        .split(|&c| c == b'\n')
-        .take(NUM_LINES)
-        .map(|mut l| {
-            let mut parts = l.split(|&c| c == b' ');
-            let test = parts.next().unwrap().split_last().unwrap().1.parse_ascii_digits();
-            let numbers = parts.map(|p| (p.parse_ascii_digits(), p.len())).collect_vec();
-            (test, numbers)
-        })
-        .filter_map(|(test, numbers)| {
-            if is_valid_plus_mul(test, &numbers, 0) {
-                Some(test)
-            } else {
-                None
-            }
-        })
-        .sum()
-}
-
-pub fn p2(input: &str) -> usize {
-    let bytes = input.as_bytes();
-
-    bytes
+pub fn parse(input: &str) -> Vec<(usize,Vec<(usize, usize)>)> {
+    input
+        .as_bytes()
         .split(|&c| c == b'\n')
         .take(NUM_LINES)
         .map(|l| {
@@ -37,8 +14,27 @@ pub fn p2(input: &str) -> usize {
             let numbers = parts.map(|p| (p.parse_ascii_digits(), p.len())).collect_vec();
             (test, numbers)
         })
+        .collect_vec()
+}
+
+pub fn p1(lines: &[(usize,Vec<(usize, usize)>)]) -> usize {
+    lines
+        .iter()
         .filter_map(|(test, numbers)| {
-            if is_valid_plus_mul_concat(test, &numbers, 0) {
+            if is_valid_plus_mul(*test, &numbers, 0) {
+                Some(test)
+            } else {
+                None
+            }
+        })
+        .sum()
+}
+
+pub fn p2(lines: &[(usize,Vec<(usize, usize)>)]) -> usize {
+    lines
+        .iter()
+        .filter_map(|(test, numbers)| {
+            if is_valid_plus_mul_concat(*test, &numbers, 0) {
                 Some(test)
             } else {
                 None
