@@ -6,7 +6,7 @@
 | Benchmark              | Time       |
 | ---------------------- | ---------- |
 | [p1](./src/lib.rs#L6)  | 834.89 µs |
-| [p2](./src/lib.rs#L28) | 43.98 ms   |
+| [p2](./src/lib.rs#L28) | 42.00 ms   |
 <!-- END benches -->
 <!-- BEGIN other_benches -->
 

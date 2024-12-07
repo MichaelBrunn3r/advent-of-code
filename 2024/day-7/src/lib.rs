@@ -70,9 +70,6 @@ fn is_valid_plus_mul_concat(test: usize, numbers: &[(usize, usize)], sum: usize)
         || is_valid_plus_mul_concat(test, &numbers[1..], concat(sum, numbers[0].0, numbers[0].1))
 }
 
-fn concat(mut a: usize, b: usize, num_digits_b: usize) -> usize {
-    for _ in 0..num_digits_b {
-        a *= 10;
-    }
-    a + b
+fn concat(a: usize, b: usize, num_digits_b: usize) -> usize {
+    a * (10usize.pow(num_digits_b as u32)) + b
 }
