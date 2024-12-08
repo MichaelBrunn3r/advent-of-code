@@ -3,10 +3,10 @@
 ## Benchmarks
 
 <!-- BEGIN benches -->
-| Benchmark                 | Time      |
-| ------------------------- | --------- |
-| [parse](./src/lib.rs#L10) | 11.87 µs |
-| [p](./src/lib.rs#L34)     | 2.24 µs  |
+| Benchmark                 | Time     |
+| ------------------------- | -------- |
+| [parse](./src/lib.rs#L10) | 4.47 µs |
+| [p](./src/lib.rs#L34)     | 1.36 µs |
 <!-- END benches -->
 <!-- BEGIN other_benches -->
 

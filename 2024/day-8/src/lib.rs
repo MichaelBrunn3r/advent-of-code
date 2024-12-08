@@ -5,7 +5,7 @@ use itertools::Itertools;
 
 const SIDE_LENGTH: usize = 50;
 const LINE_LENGTH: usize = SIDE_LENGTH+1;
-type NodeLocations = HashMap<char, HashSet<(usize, usize)>>;
+type NodeLocations = HashMap<char, Vec<(usize, usize)>>;
 
 pub fn parse(input: &str) -> NodeLocations {
     let mut node_locations = HashMap::new();
@@ -21,10 +21,10 @@ pub fn parse(input: &str) -> NodeLocations {
                 .for_each(|(x, &c)| {
                     let key = c as char;
                     if !node_locations.contains_key(&key) {
-                        node_locations.insert(key, HashSet::new());
+                        node_locations.insert(key, Vec::new());
                     }
 
-                    node_locations.get_mut(&key).unwrap().insert((x,y));
+                    node_locations.get_mut(&key).unwrap().push((x,y));
                 });
         });
 
