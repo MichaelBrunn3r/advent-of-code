@@ -37,12 +37,10 @@ pub fn p(node_locations: &NodeLocations) -> (usize, usize) {
     node_locations
         .keys()
         .for_each(|&key| {
-            let locations = Vec::from_iter(node_locations.get(&key).unwrap().iter());
-            for i in 0..locations.len() {
-                for j in i+1..locations.len() {
-                    let a = locations[i];
-                    let b = locations[j];
-
+            node_locations.get(&key).unwrap()
+                .iter()
+                .tuple_combinations()
+                .for_each(|(&a, &b)| {
                     antinode_locations_harmonics.insert((a.0 as i32, a.1 as i32));
                     antinode_locations_harmonics.insert((b.0 as i32, b.1 as i32));
 
@@ -80,8 +78,7 @@ pub fn p(node_locations: &NodeLocations) -> (usize, usize) {
                             y -= dy;
                         }
                     }
-                }
-            }
+                });
         });
 
     (antinode_locations.len(), antinode_locations_harmonics.len())
