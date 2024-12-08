@@ -1,15 +1,13 @@
-use std::collections::{HashMap, HashSet};
-
-use aoc::prelude::*;
+use aoc::{prelude::*, ConstVec};
 use itertools::Itertools;
 
 const SIDE_LENGTH: usize = 50;
 const LINE_LENGTH: usize = SIDE_LENGTH + 1;
-type NodeLocations = Vec<Vec<(usize, usize)>>;
 
-pub fn parse(input: &str) -> NodeLocations {
-    let mut node_locations = vec![Vec::new(); (b'z' - b'0' + 1) as usize];
+const NUM_ANTENNA_KEYS: usize = (b'z' - b'0' + 1) as usize;
+pub type NodeLocations = [ConstVec<(usize, usize), 4>; NUM_ANTENNA_KEYS];
 
+pub fn parse(input: &str, node_locations: &mut NodeLocations) {
     input
         .as_bytes()
         .chunks_exact(LINE_LENGTH)
@@ -23,8 +21,6 @@ pub fn parse(input: &str) -> NodeLocations {
                     node_locations[(c - b'0') as usize].push((x, y));
                 });
         });
-
-    node_locations
 }
 
 pub fn p(node_locations: &NodeLocations) -> (usize, usize) {

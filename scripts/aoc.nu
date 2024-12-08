@@ -73,7 +73,9 @@ def enumerate_lines [] {
 }
 
 def get_bench_time_ns [year: int, day:int, benchmark: string] {
-    open $"target/criterion/aoc_($year)_($day)_($benchmark)/new/estimates.json" | get mean.point_estimate
+    let estimates = open $"target/criterion/aoc_($year)_($day)_($benchmark)/new/estimates.json";
+    # Fall back to mean.point_estimate
+    $estimates | get slope.point_estimate
 }
 
 def format_bench_time [] {

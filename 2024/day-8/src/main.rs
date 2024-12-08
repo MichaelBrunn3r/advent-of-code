@@ -1,8 +1,10 @@
 use aoc_2024_8::*;
 
+static mut NODE_LOCATIONS: NodeLocations = unsafe{std::mem::zeroed()};
+
 fn main() {
-    let node_locations = parse(&aoc::read_input_to_string());
-    println!("Part 1&2: {:?}", p(&node_locations));
+    parse(&aoc::read_input_to_string(), unsafe{&mut NODE_LOCATIONS});
+    println!("Part 1&2: {:?}", p(unsafe{&NODE_LOCATIONS}));
 }
 
 #[cfg(test)]
@@ -11,6 +13,7 @@ mod tests {
 
     #[test]
     fn test_p() {
-        assert_eq!(p(&parse(&aoc::read_input_to_string())), (293, 934));
+        parse(&aoc::read_input_to_string(), unsafe{&mut NODE_LOCATIONS});
+        assert_eq!(p(unsafe{&NODE_LOCATIONS}), (293, 934));
     }
 }
