@@ -31,8 +31,8 @@ pub fn parse(input: &str) -> NodeLocations {
 }   
 
 pub fn p(node_locations: &NodeLocations) -> (usize, usize) {
-    let mut antinode_locations = HashSet::new();
-    let mut antinode_locations_harmonics = HashSet::new();
+    let mut antinode_locations = [0u64; SIDE_LENGTH];
+    let mut antinode_locations_harmonics = [0u64; SIDE_LENGTH];
 
     node_locations
         .values()
@@ -41,8 +41,8 @@ pub fn p(node_locations: &NodeLocations) -> (usize, usize) {
                 .iter()
                 .tuple_combinations()
                 .for_each(|(&a, &b)| {
-                    antinode_locations_harmonics.insert((a.0 as i32, a.1 as i32));
-                    antinode_locations_harmonics.insert((b.0 as i32, b.1 as i32));
+                    antinode_locations_harmonics[a.1] |= 1 << a.0;
+                    antinode_locations_harmonics[b.1] |= 1 << b.0;
 
                     let dx = b.0 as i32 - a.0 as i32;
                     let dy = b.1 as i32 - a.1 as i32;
@@ -52,11 +52,11 @@ pub fn p(node_locations: &NodeLocations) -> (usize, usize) {
                         let mut y = b.1 as i32 + dy;
 
                         if x >= 0 && x < SIDE_LENGTH as i32 && y >= 0 && y < SIDE_LENGTH as i32 {
-                            antinode_locations.insert((x,y));
+                            antinode_locations[y as usize] |= 1 << x;
                         }
 
                         while x >= 0 && x < SIDE_LENGTH as i32 && y >= 0 && y < SIDE_LENGTH as i32 {
-                            antinode_locations_harmonics.insert((x, y));
+                            antinode_locations_harmonics[y as usize] |= 1 << x;
 
                             x += dx;
                             y += dy;
@@ -68,11 +68,11 @@ pub fn p(node_locations: &NodeLocations) -> (usize, usize) {
                         let mut y = a.1 as i32 - dy;
 
                         if x >= 0 && x < SIDE_LENGTH as i32 && y >= 0 && y < SIDE_LENGTH as i32 {
-                            antinode_locations.insert((x,y));
+                            antinode_locations[y as usize] |= 1 << x;
                         }
 
                         while x >= 0 && x < SIDE_LENGTH as i32 && y >= 0 && y < SIDE_LENGTH as i32 {
-                            antinode_locations_harmonics.insert((x, y));
+                            antinode_locations_harmonics[y as usize] |= 1 << x;
 
                             x -= dx;
                             y -= dy;
@@ -81,5 +81,8 @@ pub fn p(node_locations: &NodeLocations) -> (usize, usize) {
                 });
         });
 
-    (antinode_locations.len(), antinode_locations_harmonics.len())
+    (
+        antinode_locations.iter().map(|bitmap| bitmap.count_ones() as usize).sum(),
+        antinode_locations_harmonics.iter().map(|bitmap| bitmap.count_ones() as usize).sum(),
+    )
 }
