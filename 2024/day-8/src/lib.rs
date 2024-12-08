@@ -5,10 +5,11 @@ use itertools::Itertools;
 
 const SIDE_LENGTH: usize = 50;
 const LINE_LENGTH: usize = SIDE_LENGTH+1;
-type NodeLocations = HashMap<char, Vec<(usize, usize)>>;
+type NodeLocations = Vec<Vec<(usize, usize)>>;
 
 pub fn parse(input: &str) -> NodeLocations {
-    let mut node_locations = HashMap::new();
+    let mut node_locations = vec![Vec::new(); (b'z' - b'0' + 1) as usize];
+
     input
         .as_bytes()
         .chunks_exact(LINE_LENGTH)
@@ -19,12 +20,7 @@ pub fn parse(input: &str) -> NodeLocations {
                 .enumerate()
                 .filter(|(_, &c)| c != b'.')
                 .for_each(|(x, &c)| {
-                    let key = c as char;
-                    if !node_locations.contains_key(&key) {
-                        node_locations.insert(key, Vec::new());
-                    }
-
-                    node_locations.get_mut(&key).unwrap().push((x,y));
+                    node_locations[(c - b'0') as usize].push((x,y));
                 });
         });
 
@@ -36,7 +32,7 @@ pub fn p(node_locations: &NodeLocations) -> (usize, usize) {
     let mut antinode_locations_harmonics = [0u64; SIDE_LENGTH];
 
     node_locations
-        .values()
+        .iter()
         .for_each(|node_locations| {
             node_locations
                 .iter()
