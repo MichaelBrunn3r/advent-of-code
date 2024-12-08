@@ -35,9 +35,9 @@ pub fn p(node_locations: &NodeLocations) -> (usize, usize) {
     let mut antinode_locations_harmonics = HashSet::new();
 
     node_locations
-        .keys()
-        .for_each(|&key| {
-            node_locations.get(&key).unwrap()
+        .values()
+        .for_each(|node_locations| {
+            node_locations
                 .iter()
                 .tuple_combinations()
                 .for_each(|(&a, &b)| {
