@@ -4,16 +4,17 @@ use aoc::prelude::*;
 use itertools::Itertools;
 
 const SIDE_LENGTH: usize = 50;
+const LINE_LENGTH: usize = SIDE_LENGTH+1;
 type NodeLocations = HashMap<char, HashSet<(usize, usize)>>;
 
 pub fn parse(input: &str) -> NodeLocations {
     let mut node_locations = HashMap::new();
     input
-        .split("\n")
+        .as_bytes()
+        .chunks_exact(LINE_LENGTH)
         .enumerate()
         .for_each(|(y, line)| {
-            line
-                .as_bytes()
+            line[..SIDE_LENGTH]
                 .iter()
                 .enumerate()
                 .filter(|(_, &c)| c != b'.')
