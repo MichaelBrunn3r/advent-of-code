@@ -1,9 +1,9 @@
 use aoc_2024_8::*;
 
 fn main() {
-    let input = aoc::read_input_to_string();
-    println!("Part 1: {}", p1(&input));
-    println!("Part 2: {}", p2(&input));
+    let node_locations = parse(&aoc::read_input_to_string());
+    println!("Part 1: {}", p1(&node_locations));
+    println!("Part 2: {}", p2(&node_locations));
 }
 
 #[cfg(test)]
@@ -12,11 +12,11 @@ mod tests {
 
     #[test]
     fn test_p1() {
-        assert_eq!(p1(&aoc::read_input_to_string()), 293);
+        assert_eq!(p1(&parse(&aoc::read_input_to_string())), 293);
     }
 
     #[test]
     fn test_p2() {
-        assert_eq!(p2(&aoc::read_input_to_string()), 0);
+        assert_eq!(p2(&parse(&aoc::read_input_to_string())), 934);
     }
 }

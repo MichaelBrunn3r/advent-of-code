@@ -2,8 +2,8 @@ use aoc_2024_8::*;
 use criterion::{criterion_group, criterion_main, Criterion};
 
 fn bench(c: &mut Criterion) {
-    let node_locations = parse(&aoc::read_input_to_string());
-    c.bench_function("aoc_2024_8_p2", |b| b.iter(|| p2(&node_locations)));
+    let input = aoc::read_input_to_string();
+    c.bench_function("aoc_2024_8_parse", |b| b.iter(|| parse(&input)));
 }
 
 criterion_group!(benches, bench);

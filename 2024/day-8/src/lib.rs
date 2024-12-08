@@ -4,10 +4,10 @@ use aoc::prelude::*;
 use itertools::Itertools;
 
 const SIDE_LENGTH: usize = 50;
+type NodeLocations = HashMap<char, HashSet<(usize, usize)>>;
 
-pub fn p1(input: &str) -> usize {
+pub fn parse(input: &str) -> NodeLocations {
     let mut node_locations = HashMap::new();
-
     input
         .split("\n")
         .enumerate()
@@ -26,8 +26,11 @@ pub fn p1(input: &str) -> usize {
                     node_locations.get_mut(&key).unwrap().insert((x,y));
                 });
         });
-    // println!("{:?}", node_locations);
 
+    node_locations
+}   
+
+pub fn p1(node_locations: &NodeLocations) -> usize {
     let mut antinode_locations = HashSet::new();
     node_locations
         .keys()
@@ -61,29 +64,7 @@ pub fn p1(input: &str) -> usize {
     antinode_locations.len()
 }
 
-pub fn p2(input: &str) -> usize {
-    let mut node_locations = HashMap::new();
-
-    input
-        .split("\n")
-        .enumerate()
-        .for_each(|(y, line)| {
-            line
-                .as_bytes()
-                .iter()
-                .enumerate()
-                .filter(|(_, &c)| c != b'.')
-                .for_each(|(x, &c)| {
-                    let key = c as char;
-                    if !node_locations.contains_key(&key) {
-                        node_locations.insert(key, HashSet::new());
-                    }
-
-                    node_locations.get_mut(&key).unwrap().insert((x,y));
-                });
-        });
-    // println!("{:?}", node_locations);
-
+pub fn p2(node_locations: &NodeLocations) -> usize {
     let mut antinode_locations = HashSet::new();
     node_locations
         .keys()
@@ -126,7 +107,6 @@ pub fn p2(input: &str) -> usize {
                     }
                 });
         });
-    // println!("{:?}", antinode_locations);
 
     antinode_locations.len()
 }
