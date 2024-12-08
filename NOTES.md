@@ -2,3 +2,4 @@
 - [How to set up Rust for Advent of Code](https://www.youtube.com/watch?v=fEQv-cqzbPg)
 - [The Rust Performance Book](https://nnethercote.github.io/perf-book/title-page.html)
 - [Cargo Advent of Code Helper](https://github.com/gobanos/cargo-aoc)
+- [Implementing Rayon’s Parallel Iterators - A Tutorial](https://geo-ant.github.io/blog/2022/implementing-parallel-iterators-rayon/)
