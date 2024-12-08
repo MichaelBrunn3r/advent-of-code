@@ -51,15 +51,18 @@ pub fn p(node_locations: &NodeLocations) -> (usize, usize) {
                         let mut x = b.0 as i32 + dx;
                         let mut y = b.1 as i32 + dy;
 
-                        if x >= 0 && x < SIDE_LENGTH as i32 && y >= 0 && y < SIDE_LENGTH as i32 {
+                        if in_bounds(x,y) {
                             antinode_locations[y as usize] |= 1 << x;
-                        }
-
-                        while x >= 0 && x < SIDE_LENGTH as i32 && y >= 0 && y < SIDE_LENGTH as i32 {
-                            antinode_locations_harmonics[y as usize] |= 1 << x;
-
-                            x += dx;
-                            y += dy;
+                            loop {
+                                antinode_locations_harmonics[y as usize] |= 1 << x;
+    
+                                x += dx;
+                                y += dy;
+    
+                                if !in_bounds(x,y) {
+                                    break;
+                                }
+                            }
                         }
                     }
 
@@ -67,16 +70,21 @@ pub fn p(node_locations: &NodeLocations) -> (usize, usize) {
                         let mut x = a.0 as i32 - dx;
                         let mut y = a.1 as i32 - dy;
 
-                        if x >= 0 && x < SIDE_LENGTH as i32 && y >= 0 && y < SIDE_LENGTH as i32 {
+                        if in_bounds(x,y) {
                             antinode_locations[y as usize] |= 1 << x;
+                            loop {
+                                antinode_locations_harmonics[y as usize] |= 1 << x;
+    
+                                x -= dx;
+                                y -= dy;
+    
+                                if !in_bounds(x,y) {
+                                    break;
+                                }
+                            }
                         }
 
-                        while x >= 0 && x < SIDE_LENGTH as i32 && y >= 0 && y < SIDE_LENGTH as i32 {
-                            antinode_locations_harmonics[y as usize] |= 1 << x;
 
-                            x -= dx;
-                            y -= dy;
-                        }
                     }
                 });
         });
@@ -85,4 +93,8 @@ pub fn p(node_locations: &NodeLocations) -> (usize, usize) {
         antinode_locations.iter().map(|bitmap| bitmap.count_ones() as usize).sum(),
         antinode_locations_harmonics.iter().map(|bitmap| bitmap.count_ones() as usize).sum(),
     )
+}
+
+fn in_bounds(x: i32, y: i32) -> bool {
+    x >= 0 && x < SIDE_LENGTH as i32 && y >= 0 && y < SIDE_LENGTH as i32
 }
