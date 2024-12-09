@@ -90,11 +90,16 @@ pub fn p2(input: &str) -> usize {
             } else {
                 free[free_pos].0 -= file_size;
                 free[free_pos].1 += file_size;
+
+                if free_pos < free.len() {
+                    free.pop();
+                }
             }
         } else {
             for block_idx in file_block_idx..file_block_idx+file_size {
                 checksum += block_idx * file_id;
             }
+            free.pop();
         }
     }
 
