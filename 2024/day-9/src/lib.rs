@@ -79,21 +79,17 @@ pub fn p2(input: &str) -> usize {
     files.push(((bytes.len()-2) / 2, (bytes[bytes.len()-2] - b'0') as usize, block_idx));    
 
     for (file_id, file_size, file_block_idx) in files.into_iter().rev() {
-        if let Some(free_pos) = free.iter().position(|&(size, block_idx)| size >= file_size && block_idx < file_block_idx) {
-            let (free_size, free_block_idx) = free[free_pos];
-            for block_idx in free_block_idx..free_block_idx+file_size {
-                checksum += block_idx * file_id;
-            }
-
+        let start_block_idx = if let Some(free_pos) = free.iter().position(|&(size, block_idx)| size >= file_size && block_idx < file_block_idx) {
+            let (_, free_block_idx) = free[free_pos];
             free[free_pos].0 -= file_size;
             free[free_pos].1 += file_size;
-            free.pop();
+            free_block_idx
         } else {
-            for block_idx in file_block_idx..file_block_idx+file_size {
-                checksum += block_idx * file_id;
-            }
-            free.pop();
-        }
+            file_block_idx
+        };
+
+        checksum += file_id * (start_block_idx..start_block_idx+file_size).sum::<usize>();
+        free.pop();
     }
 
     checksum
