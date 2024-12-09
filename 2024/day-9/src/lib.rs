@@ -1,5 +1,7 @@
 #![feature(ascii_char)]
 
+use std::usize;
+
 use aoc::prelude::*;
 use itertools::Itertools;
 
@@ -62,27 +64,44 @@ pub fn p2(input: &str) -> usize {
 
     let mut files = Vec::new();
     let mut free = Vec::new();
+    let mut first_free_ge = [usize::MAX; 10];
 
-    let mut i = 0;
-    let mut block_idx = 0usize;
-    while i < bytes.len()-2 {
-        let file_size = (bytes[i] - b'0') as usize; 
-        files.push((i >> 1, file_size, block_idx));
-        block_idx += file_size as usize;
-        i += 1;
-
-        let free_size = (bytes[i] - b'0') as usize;
-        free.push((free_size, block_idx));
-        block_idx += free_size as usize;
-        i += 1;
+    {
+        let mut i = 0;
+        let mut block_idx = 0usize;
+        while i < bytes.len()-2 {
+            let file_size = (bytes[i] - b'0') as usize; 
+            files.push((i >> 1, file_size, block_idx));
+            block_idx += file_size as usize;
+            i += 1;
+    
+            let free_size = (bytes[i] - b'0') as usize;
+            first_free_ge[free_size] = first_free_ge[free_size].min(free.len());
+            free.push((free_size, block_idx));
+            block_idx += free_size as usize;
+            i += 1;
+        }
+        files.push(((bytes.len()-2) / 2, (bytes[bytes.len()-2] - b'0') as usize, block_idx));
     }
-    files.push(((bytes.len()-2) / 2, (bytes[bytes.len()-2] - b'0') as usize, block_idx));    
 
-    for (file_id, file_size, file_block_idx) in files.into_iter().rev() {
-        let start_block_idx = if let Some(free_pos) = free.iter().position(|&(size, block_idx)| size >= file_size && block_idx < file_block_idx) {
-            let (_, free_block_idx) = free[free_pos];
-            free[free_pos].0 -= file_size;
-            free[free_pos].1 += file_size;
+    for &(file_id, file_size, file_block_idx) in files.iter().rev() {
+        let free_idx = first_free_ge[file_size];
+        let start_block_idx = if free_idx < free.len() {
+            let (free_size, free_block_idx) = free[free_idx];
+            let remaining_free_size = free_size - file_size;
+            free[free_idx].0 = remaining_free_size;
+            free[free_idx].1 += file_size;
+
+            for i in remaining_free_size..free_size {
+                if first_free_ge[i] >= free_idx {
+                    first_free_ge[i] = free[free_idx..].iter().position(|&(size, _)| size >= i).unwrap_or(usize::MAX).saturating_add(free_idx);
+                } else {
+                    first_free_ge[i] = free[first_free_ge[i]..free_idx].iter().position(|&(size, _)| size >= i).unwrap_or(usize::MAX).saturating_add(first_free_ge[i]);
+                }
+            }
+
+            first_free_ge[free_size] = free[free_idx..].iter().position(|&(size, _)| size >= free_size).unwrap_or(usize::MAX).saturating_add(free_idx);
+            
             free_block_idx
         } else {
             file_block_idx
