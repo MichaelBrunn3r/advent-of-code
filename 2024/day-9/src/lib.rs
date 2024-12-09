@@ -1,3 +1,5 @@
+#![feature(ascii_char)]
+
 use aoc::prelude::*;
 use itertools::Itertools;
 
@@ -54,5 +56,47 @@ pub fn p1(input: &str) -> usize {
 }
 
 pub fn p2(input: &str) -> usize {
-    0
+    let bytes = input.as_bytes();
+
+    let mut checksum = 0;
+
+    let mut files = Vec::new();
+    let mut free = Vec::new();
+
+    let mut i = 0;
+    let mut block_idx = 0usize;
+    while i < bytes.len()-2 {
+        let file_size = (bytes[i] - b'0') as usize; 
+        files.push((i >> 1, file_size, block_idx));
+        block_idx += file_size as usize;
+        i += 1;
+
+        let free_size = (bytes[i] - b'0') as usize;
+        free.push((free_size, block_idx));
+        block_idx += free_size as usize;
+        i += 1;
+    }
+    files.push(((bytes.len()-2) / 2, (bytes[bytes.len()-2] - b'0') as usize, block_idx));    
+
+    for (file_id, file_size, file_block_idx) in files.into_iter().rev() {
+        if let Some(free_pos) = free.iter().position(|&(size, block_idx)| size >= file_size && block_idx < file_block_idx) {
+            let (free_size, free_block_idx) = free[free_pos];
+            for block_idx in free_block_idx..free_block_idx+file_size {
+                checksum += block_idx * file_id;
+            }
+
+            if free_size == file_size {
+                free.remove(free_pos);
+            } else {
+                free[free_pos].0 -= file_size;
+                free[free_pos].1 += file_size;
+            }
+        } else {
+            for block_idx in file_block_idx..file_block_idx+file_size {
+                checksum += block_idx * file_id;
+            }
+        }
+    }
+
+    checksum
 }

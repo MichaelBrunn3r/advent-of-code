@@ -74,12 +74,15 @@ def enumerate_lines [] {
 
 def get_bench_time_ns [year: int, day:int, benchmark: string] {
     let estimates = open $"target/criterion/aoc_($year)_($day)_($benchmark)/new/estimates.json";
-    # Fall back to mean.point_estimate
-    $estimates | get slope.point_estimate
+    if ($estimates | get slope | is-empty) {
+        $estimates | get mean.point_estimate    
+    } else {
+        $estimates | get slope.point_estimate    
+    }
 }
 
 def format_bench_time [] {
-    if $in <= 1000 {
+    if $in <= 1000.0 {
         $"($in)ns" | into duration | format duration ns
     } else if $in <= 1000000 {
         $"($in)ns" | into duration | format duration us
