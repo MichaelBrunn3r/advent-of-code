@@ -66,21 +66,24 @@ pub fn p2(input: &str) -> usize {
     let mut first_free_ge = [usize::MAX; 10];
 
     {
-        let mut i = 0;
-        let mut block_idx = 0usize;
-        while i < bytes.len()-2 {
-            let file_size = (bytes[i] - b'0') as usize; 
-            files.push((i >> 1, file_size, block_idx));
-            block_idx += file_size as usize;
-            i += 1;
-    
-            let free_size = (bytes[i] - b'0') as usize;
-            first_free_ge[free_size] = first_free_ge[free_size].min(free.len());
-            free.push((free_size, block_idx));
-            block_idx += free_size as usize;
-            i += 1;
-        }
-        files.push(((bytes.len()-2) / 2, (bytes[bytes.len()-2] - b'0') as usize, block_idx));
+        let mut file_id = 0;
+        let mut block_idx = 0;
+
+        bytes[0..bytes.len()-2].iter()
+            .map(|&c| (c - b'0') as usize)
+            .tuples()
+            .enumerate()
+            .for_each(|(i, (file_size, free_size))| {
+                files.push((file_id, file_size, block_idx));
+                file_id += 1;
+                block_idx += file_size;
+
+                first_free_ge[free_size] = first_free_ge[free_size].min(i);
+                free.push((free_size, block_idx));
+                block_idx += free_size;
+            });
+
+        files.push((file_id, (bytes[bytes.len()-2] - b'0') as usize, block_idx));
     }
 
     for &(file_id, file_size, file_block_idx) in files.iter().rev() {
