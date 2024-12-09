@@ -62,8 +62,8 @@ pub fn p2(input: &str) -> usize {
 
     let mut checksum = 0;
 
-    let mut files = Vec::new();
-    let mut free = Vec::new();
+    let mut files = Vec::with_capacity(bytes.len()/2);
+    let mut free = Vec::with_capacity(bytes.len()/2);
     let mut first_free_ge = [usize::MAX; 10];
 
     {
@@ -92,7 +92,7 @@ pub fn p2(input: &str) -> usize {
             free[free_idx].0 = remaining_free_size;
             free[free_idx].1 += file_size;
 
-            for i in remaining_free_size..free_size {
+            for i in 0..free_size {
                 if first_free_ge[i] >= free_idx {
                     first_free_ge[i] = free[free_idx..].iter().position(|&(size, _)| size >= i).unwrap_or(usize::MAX).saturating_add(free_idx);
                 } else {
