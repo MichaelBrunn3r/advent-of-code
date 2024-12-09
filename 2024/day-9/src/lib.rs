@@ -94,7 +94,7 @@ pub fn p2(input: &str) -> usize {
             free[free_idx].0 = remaining_free_size;
             free[free_idx].1 += file_size;
 
-            for i in 0..free_size {
+            for i in 1..free_size {
                 if first_free_ge[i] >= free_idx {
                     first_free_ge[i] = free[free_idx..].iter().position(|&(size, _)| size >= i).unwrap_or(usize::MAX).saturating_add(free_idx);
                 } else {
