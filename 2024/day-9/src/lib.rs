@@ -21,10 +21,9 @@ pub fn p1(input: &str) -> usize {
         let l_file_size = bytes[l] - b'0';
         let l_file_id = l >> 1;
         l += 1;
-        for _ in 0..l_file_size {
-            checksum += block_idx * l_file_id;
-            block_idx += 1;
-        }
+
+        checksum += l_file_id * (block_idx..block_idx+l_file_size as usize).sum::<usize>();
+        block_idx += l_file_size as usize;
 
         let l_free = bytes[l] - b'0';
         l += 1;
