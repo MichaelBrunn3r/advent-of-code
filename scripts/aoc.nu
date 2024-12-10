@@ -73,7 +73,13 @@ def enumerate_lines [] {
 }
 
 def get_bench_time_ns [year: int, day:int, benchmark: string] {
-    let estimates = open $"target/criterion/aoc_($year)_($day)_($benchmark)/new/estimates.json";
+    let path = $"target/criterion/aoc_($year)_($day)_($benchmark)/new/estimates.json";
+
+    if not ($path | path exists) {
+        return 0;
+    }
+
+    let estimates = open $path;
     if ($estimates | get slope | is-empty) {
         $estimates | get mean.point_estimate    
     } else {
@@ -82,7 +88,9 @@ def get_bench_time_ns [year: int, day:int, benchmark: string] {
 }
 
 def format_bench_time [] {
-    if $in <= 1000.0 {
+    if $in <= 0.00000001 {
+        "N/A"
+    } else if $in <= 1000.0 {
         $"($in)ns" | into duration | format duration ns
     } else if $in <= 1000000 {
         $"($in)ns" | into duration | format duration us
