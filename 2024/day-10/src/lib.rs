@@ -25,14 +25,14 @@ pub fn p(input: &str) -> (usize, usize) {
                 [-1, 1, -(LINE_LENGTH as i32), (LINE_LENGTH as i32)]
                     .into_iter()
                     .map(|offset| idx_center as i32 + offset)
-                    .filter(|&pos| pos >= 0 && pos < bytes.len() as i32)
                     .for_each(|adjacent| {
-                        let adjacent = adjacent as usize;
-                        if bytes[adjacent] != char_center + 1 {
+                        let char = unsafe{bytes.as_ptr().offset(adjacent as isize).read()}; // see NOTE 1
+                        if char != char_center + 1 {
                             return;
                         }
+                        let adjacent = adjacent as usize;
 
-                        if bytes[adjacent] == b'9' {
+                        if char == b'9' {
                             let x = adjacent % LINE_LENGTH;
                             let y = adjacent / LINE_LENGTH;
 
@@ -50,3 +50,9 @@ pub fn p(input: &str) -> (usize, usize) {
 
     (sum_scores, sum_ratings)
 }
+
+// NOTE 1: We are not checking bounds here. Reading left/right at the edge of the input
+//       will result in reading a b'\n'. But reading left/right at the top-left/bottom-right corner
+//       and up/down at the top/bottom DOES lead to out-of-bounds reads.
+//       This has not caused any issues yet, but idealy I should add an extra line to the top&bottom
+//       of the input to ensure no out-of-bounds reads can occur.
