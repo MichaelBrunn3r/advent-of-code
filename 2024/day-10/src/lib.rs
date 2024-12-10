@@ -19,10 +19,10 @@ pub fn p(input: &str) -> (usize, usize) {
         .for_each(|(idx_start, _)| {
             let mut visited = [0u64; SIDE_LENGTH];
             stack.clear();
-            stack.push(idx_start);
+            stack.push(idx_start as u16);
 
             while let Some(idx_center) = stack.pop() {
-                let char_center = bytes[idx_center];
+                let char_center = bytes[idx_center as usize];
                 [-1, 1, -(LINE_LENGTH as i32), (LINE_LENGTH as i32)]
                     .into_iter()
                     .map(|offset| idx_center as i32 + offset)
@@ -43,7 +43,7 @@ pub fn p(input: &str) -> (usize, usize) {
                                 visited[y] |= 1 << x;
                             }
                         } else {
-                            stack.push(adjacent)
+                            stack.push(adjacent as u16)
                         }
                     });
             }
