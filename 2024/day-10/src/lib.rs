@@ -1,6 +1,6 @@
 #![feature(hash_set_entry)]
 
-use aoc::prelude::*;
+use aoc::{prelude::*, ConstVec};
 use itertools::Itertools;
 
 const SIDE_LENGTH: usize = 40;
@@ -8,9 +8,8 @@ const LINE_LENGTH: usize = SIDE_LENGTH + 1;
 
 pub fn p(input: &str) -> (usize, usize) {
     let bytes = input.as_bytes();
-    let mut sum_scores = 0;
-    let mut sum_ratings = 0;
-    let mut stack = Vec::with_capacity(8);
+    let (mut sum_scores, mut sum_ratings) = (0, 0);
+    let mut stack = ConstVec::<u16, 8>::new();
 
     bytes
         .iter()

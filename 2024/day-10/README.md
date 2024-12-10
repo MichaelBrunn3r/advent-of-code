@@ -5,7 +5,7 @@
 <!-- BEGIN benches -->
 | Benchmark            | Time      |
 | -------------------- | --------- |
-| [p](./src/lib.rs#L9) | 10.96 µs |
+| [p](./src/lib.rs#L9) | 10.22 µs |
 
 <!-- END benches -->
 <!-- BEGIN other_benches -->
