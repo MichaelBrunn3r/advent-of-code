@@ -1,38 +1,50 @@
 use std::collections::HashMap;
-
 use aoc::prelude::*;
 use itertools::Itertools;
 
-// 1622577954 too high
 pub fn p1(input: &str) -> usize {
-    let mut stones = input[..input.len()-1].split(" ").map(|stone| stone.as_bytes().parse_ascii_digits()).collect_vec();
-    for _ in 0..25 {
-        let mut new_stones = Vec::new();
+    let stones = input[..input.len()-1].split(" ").map(|stone| stone.as_bytes().parse_ascii_digits()).collect_vec();
+    let mut cache = HashMap::new();
 
-        for stone in stones {
-            if stone == 0 {
-                new_stones.push(1);
-                continue;
-            }
-            
-            let num_digits = stone.digits();
-            if num_digits.even() {
-                let left = stone / (10usize.pow(num_digits as u32 / 2));
-                let right = stone % (10usize.pow(num_digits as u32 / 2));
-
-                new_stones.push(left);
-                new_stones.push(right);
-            } else {
-                new_stones.push(stone * 2024);
-            }
-        }
-
-        stones = new_stones;
+    let mut num_stones = 0;
+    for stone in stones {
+        num_stones += blink(25, stone, &mut cache);
     }
 
-    stones.len()
+    num_stones
 }
 
 pub fn p2(input: &str) -> usize {
-    0
+    let stones = input[..input.len()-1].split(" ").map(|stone| stone.as_bytes().parse_ascii_digits()).collect_vec();
+    let mut cache = HashMap::new();
+
+    let mut num_stones = 0;
+    for stone in stones {
+        num_stones += blink(75, stone, &mut cache);
+    }
+
+    num_stones
+}
+
+fn blink(n: usize, stone: usize, cache: &mut HashMap<(usize, usize), usize>) -> usize {
+    let num_stones = if n == 0 {
+        1
+    } else if let Some(cached) = cache.get(&(n, stone)) {
+        *cached
+    } else if stone == 0 {
+        blink(n-1, 1, cache)
+    } else {
+        let num_digits = stone.digits();
+        if num_digits.even() {
+            let left = stone / (10usize.pow(num_digits as u32 / 2));
+            let right = stone % (10usize.pow(num_digits as u32 / 2));
+
+            blink(n-1, left, cache) + blink(n-1, right, cache)
+        } else {
+            blink(n-1, stone*2024, cache)
+        }
+    };
+
+    cache.insert((n, stone), num_stones);
+    num_stones
 }
