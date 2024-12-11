@@ -5,8 +5,8 @@ pub trait UnsignedExt: Unsigned {
     fn lcm(self, other: Self) -> Self;
     /** https://en.wikipedia.org/wiki/Hamming_distance */
     fn hamming_distance(&self, other: &Self) -> usize;
-    fn is_even(&self) -> bool;
-    fn num_digits(self) -> usize;
+    fn even(&self) -> bool;
+    fn digits(self) -> usize;
     fn bits(&self) -> usize;
 }
 
@@ -19,11 +19,11 @@ impl UnsignedExt for usize {
         (*self ^ *other).count_ones() as usize
     }
 
-    fn is_even(&self) -> bool {
+    fn even(&self) -> bool {
         self & 1 == 0
     }
 
-    fn num_digits(self) -> usize {
+    fn digits(self) -> usize {
         static POW_OF_10: [usize; 21] = [
             0,
             1,
@@ -82,12 +82,12 @@ mod tests {
     fn num_digits() {
         let mut rng = rand::thread_rng();
 
-        assert_eq!(0usize.num_digits(), 1);
-        assert_eq!(usize::MAX.num_digits(), 20);
+        assert_eq!(0usize.digits(), 1);
+        assert_eq!(usize::MAX.digits(), 20);
 
         for _ in 0..100_000 {
             let num = rng.gen_range(1..usize::MAX);
-            assert_eq!(num.num_digits(), (num.ilog10() as usize) + 1);
+            assert_eq!(num.digits(), (num.ilog10() as usize) + 1);
         }
     }
 }

@@ -19,7 +19,7 @@ fn bench(c: &mut Criterion) {
     group_all.bench_function(
         "aoc_num_digits",
         |b: &mut criterion::Bencher<'_>| {
-            b.iter(|| mixed.iter().all(|&n| black_box(n.num_digits()) > 0))
+            b.iter(|| mixed.iter().all(|&n| black_box(n.digits()) > 0))
         },
     );
     group_all.finish();
