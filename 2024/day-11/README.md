@@ -5,7 +5,7 @@
 <!-- BEGIN benches -->
 | Benchmark            | Time    |
 | -------------------- | ------- |
-| [p](./src/lib.rs#L5) | 6.29 ms |
+| [p](./src/lib.rs#L7) | 3.35 ms |
 
 <!-- END benches -->
 <!-- BEGIN other_benches -->
