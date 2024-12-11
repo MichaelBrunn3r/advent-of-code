@@ -24,8 +24,8 @@ fn count_stones(blinks: u8, stones: &mut FxHashMap<usize, usize>) -> usize {
             } else {
                 let num_digits = stone.digits();
                 if num_digits.even() {
-                    let left = stone / (10usize.pow(num_digits as u32 / 2));
-                    let right = stone % (10usize.pow(num_digits as u32 / 2));
+                    let left = stone / (pow_10(num_digits / 2));
+                    let right = stone % (pow_10(num_digits / 2));
         
                     *new.entry(left).or_default() += count;
                     *new.entry(right).or_default() += count;
@@ -44,3 +44,30 @@ fn count_stones(blinks: u8, stones: &mut FxHashMap<usize, usize>) -> usize {
 // Note 1: The trick is that we deduplicate all stones.
 //         In each iteration we process e.g. ALL stones with a 1, ALL stones with a 23425, ...
 
+fn pow_10(exp: usize) -> usize {
+    debug_assert!(exp <= 19, "10usize^x overflows for x > 19");
+    static POW_10: [usize; 20] = [
+        1,
+        10,
+        100,
+        1000,
+        10000,
+        100000,
+        1000000,
+        10000000,
+        100000000,
+        1000000000,
+        10000000000,
+        100000000000,
+        1000000000000,
+        10000000000000,
+        100000000000000,
+        1000000000000000,
+        10000000000000000,
+        100000000000000000,
+        1000000000000000000,
+        10000000000000000000
+    ];
+
+    POW_10[exp]
+}
