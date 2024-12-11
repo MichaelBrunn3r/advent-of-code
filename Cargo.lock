@@ -27,11 +27,14 @@ checksum = "7079075b41f533b8c61d2a4d073c4676e1f8b249ff94a393b0595db304e0dd87"
 name = "aoc"
 version = "0.1.0"
 dependencies = [
+ "criterion",
  "gcd",
  "itertools 0.12.0",
  "lazy_static",
  "num-traits",
  "rand",
+ "rand_pcg",
+ "rand_seeder",
 ]
 
 [[package]]
@@ -388,6 +391,19 @@ dependencies = [
  "aoc",
  "criterion",
  "indoc",
+ "itertools 0.12.0",
+ "lazy_static",
+ "rand",
+ "rayon",
+ "regex",
+]
+
+[[package]]
+name = "aoc-2024-11"
+version = "0.1.0"
+dependencies = [
+ "aoc",
+ "criterion",
  "itertools 0.12.0",
  "lazy_static",
  "rand",
@@ -906,6 +922,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
 dependencies = [
  "getrandom",
+]
+
+[[package]]
+name = "rand_pcg"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "59cad018caf63deb318e5a4586d99a24424a364f40f1e5778c29aca23f4fc73e"
+dependencies = [
+ "rand_core",
+]
+
+[[package]]
+name = "rand_seeder"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4a9febe641d2842ffc76ee962668a17578767c4e01735e4802b21ed9a24b2e4e"
+dependencies = [
+ "rand_core",
 ]
 
 [[package]]

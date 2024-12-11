@@ -11,3 +11,10 @@ rand = {workspace = true}
 gcd = {workspace = true}
 itertools = {workspace = true}
 num-traits = {workspace = true}
+criterion = {workspace = true}
+rand_pcg = {workspace = true}
+rand_seeder = {workspace = true}
+
+[[bench]]
+name = "num_digits"
+harness = false
