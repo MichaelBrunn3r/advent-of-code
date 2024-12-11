@@ -1,13 +1,12 @@
-use std::collections::HashMap;
-
 use aoc::prelude::*;
-use itertools::Itertools;
+use fxhash::FxHashMap;
 
 pub fn p(input: &str) -> (usize, usize) {
-    let mut stones = input[..input.len() - 1]
+    let mut stones = FxHashMap::default();
+    input[..input.len() - 1]
         .split(" ")
         .map(|stone| stone.as_bytes().parse_ascii_digits())
-        .counts();
+        .for_each(|stone| *stones.entry(stone).or_default() += 1);
 
     let stones_25 = count_stones(25, &mut stones);
     let stones_75 = count_stones(50, &mut stones);
@@ -15,8 +14,8 @@ pub fn p(input: &str) -> (usize, usize) {
     (stones_25, stones_75)
 }
 
-fn count_stones(blinks: u8, stones: &mut HashMap<usize, usize>) -> usize {
-    let mut new = HashMap::new(); // see Note 1
+fn count_stones(blinks: u8, stones: &mut FxHashMap<usize, usize>) -> usize {
+    let mut new = FxHashMap::default(); // see Note 1
 
     for _ in 0..blinks {
         for (stone, count) in stones.drain() {
