@@ -14,9 +14,5 @@ rand = {workspace = true}
 fxhash = {workspace = true}
 
 [[bench]]
-name = "p1"
-harness = false
-
-[[bench]]
-name = "p2"
+name = "p"
 harness = false
