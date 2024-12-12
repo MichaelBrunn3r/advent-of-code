@@ -5,8 +5,8 @@
 <!-- BEGIN benches -->
 | Benchmark              | Time       |
 | ---------------------- | ---------- |
-| [p1](./src/lib.rs#L10) | 255.01 µs |
-| [p2](./src/lib.rs#L67) | N/A        |
+| [p1](./src/lib.rs#L13) | 255.01 µs |
+| [p2](./src/lib.rs#L84) | N/A        |
 <!-- END benches -->
 <!-- BEGIN other_benches -->
 
