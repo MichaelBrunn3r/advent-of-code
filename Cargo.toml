@@ -17,6 +17,8 @@ num-traits = "0.2.17"
 fxhash = "0.2.1"
 rand_pcg = "0.3.1"
 rand_seeder = "0.3.0"
+ahash = "0.8.11"
+memoize = "0.4.2"
 
 [profile.release]
 # codegen-units = 1

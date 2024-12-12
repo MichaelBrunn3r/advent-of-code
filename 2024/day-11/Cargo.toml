@@ -12,6 +12,8 @@ rayon = { workspace = true }
 criterion = {workspace = true}
 rand = {workspace = true}
 fxhash = {workspace = true}
+ahash = {workspace = true}
+memoize = {workspace = true}
 
 [[bench]]
 name = "p"
