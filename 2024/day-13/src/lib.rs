@@ -1,14 +1,11 @@
-use core::slice;
-
 use aoc::{prelude::*, XY};
 use itertools::Itertools;
 
 const NUM_MACHINES: usize = 320;
-type Machines = [(XY<i64, i64>, XY<i64, i64>, XY<i64, i64>); NUM_MACHINES];
+pub type Machines = [(XY<i64, i64>, XY<i64, i64>, XY<i64, i64>); NUM_MACHINES];
 
-pub fn parse(input: &str) -> Machines {
+pub fn parse(input: &str, machines: &mut Machines) {
     let mut crs = input.as_ptr();
-    let mut machines: Machines = unsafe{std::mem::zeroed()};
     for i in 0..NUM_MACHINES {
         crs.skip("Button A: X+".len());
         let a = xy(
@@ -46,7 +43,6 @@ pub fn parse(input: &str) -> Machines {
         crs.skip(2);
         machines[i] = (a, b, xy(prize_x, prize_y));
     }
-    machines
 }
 
 pub fn p1(machines: &Machines) -> usize {
