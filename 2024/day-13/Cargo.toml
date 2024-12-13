@@ -1,0 +1,21 @@
+[package]
+name = "aoc-2024-13"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+regex = {workspace = true}
+lazy_static = {workspace = true}
+aoc = { workspace = true }
+itertools = { workspace = true }
+rayon = { workspace = true }
+criterion = {workspace = true}
+rand = {workspace = true}
+
+[[bench]]
+name = "p1"
+harness = false
+
+[[bench]]
+name = "p2"
+harness = false
