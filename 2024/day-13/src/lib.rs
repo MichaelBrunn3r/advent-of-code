@@ -21,9 +21,9 @@ pub fn parse(input: &str, machines: &mut Machines) {
         crs.skip("\nPrize: X=".len());
 
         // abs. freq. digits(X): 3->12, 4->123, 5->95
-        let digits_x = if unsafe{*crs.add(4)} == b',' {
+        let digits_x = if unsafe { *crs.add(4) } == b',' {
             4
-        } else if unsafe{*crs.add(5)} == b',' {
+        } else if unsafe { *crs.add(5) } == b',' {
             5
         } else {
             3
@@ -32,9 +32,9 @@ pub fn parse(input: &str, machines: &mut Machines) {
         crs.skip(", Y=".len());
 
         // abs. freq. digits(Y): 3->8, 4->213, 5->94
-        let digits_y = if unsafe{*crs.add(5)} == b'\n' && unsafe{*crs.add(6)} == b'\n' {
+        let digits_y = if unsafe { *crs.add(5) } == b'\n' && unsafe { *crs.add(6) } == b'\n' {
             5
-        } else if unsafe{*crs.add(4)} == b'\n' && unsafe{*crs.add(5)} == b'\n' {
+        } else if unsafe { *crs.add(4) } == b'\n' && unsafe { *crs.add(5) } == b'\n' {
             4
         } else {
             3
@@ -46,64 +46,42 @@ pub fn parse(input: &str, machines: &mut Machines) {
 }
 
 pub fn p1(machines: &Machines) -> usize {
-    machines.iter()
+    machines
+        .iter()
         .map(|(a, b, prize)| {
-            let start_a = {
-                let count_a = (prize.y * b.x - prize.x * b.y) / (b.x * a.y - a.x * b.y);
-                let count_b = (prize.y - count_a * a.y) / b.y;
-    
-                if count_a * a.x + count_b * b.x != prize.x || count_a < 1 || count_b < 1 {
-                    0
-                } else {
-                    (3 * count_a + count_b) as usize
-                }
-            };
+            let PyBx_PxBy = prize.y * b.x - prize.x * b.y;
+            let BxAy_AxBy = b.x * a.y - a.x * b.y;
+            let presses_a = PyBx_PxBy / BxAy_AxBy;
 
-            let start_b = {
-                let count_b = (prize.y * a.x - prize.x * a.y) / (a.x * b.y - b.x * a.y);
-                let count_a = (prize.y - count_b * b.y) / a.y;
-
-                if count_a * a.x + count_b * b.x != prize.x || count_a < 1 || count_b < 1 {
-                    0
-                } else {
-                    (3 * count_a + count_b) as usize
-                }
-            };
-
-            start_a.min(start_b)
+            if PyBx_PxBy % BxAy_AxBy == 0 {
+                let pressed_b = (prize.y - presses_a * a.y) / b.y;
+                (3 * presses_a + pressed_b) as usize
+            } else {
+                0
+            }
         })
         .sum()
 }
 
 pub fn p2(machines: &Machines) -> usize {
-    machines.iter()
+    machines
+        .iter()
         .map(|(a, b, prize)| {
             let prize = xy(prize.x + 10000000000000, prize.y + 10000000000000);
+            let PyBx_PxBy = prize.y * b.x - prize.x * b.y;
+            let BxAy_AxBy = b.x * a.y - a.x * b.y;
+            let presses_a = PyBx_PxBy / BxAy_AxBy;
 
-            let start_a = {
-                let count_a = (prize.y * b.x - prize.x * b.y) / (b.x * a.y - a.x * b.y);
-                let count_b = (prize.y - count_a * a.y) / b.y;
-    
-                if count_a * a.x + count_b * b.x != prize.x || count_a < 1 || count_b < 1 {
-                    0
-                } else {
-                    (3 * count_a + count_b) as usize
-                }
-            };
+            if PyBx_PxBy % BxAy_AxBy != 0 {
+                return 0;
+            }
 
-            let start_b = {
-                let count_b = (prize.y * a.x - prize.x * a.y) / (a.x * b.y - b.x * a.y);
-                let count_a = (prize.y - count_b * b.y) / a.y;
-
-                if count_a * a.x + count_b * b.x != prize.x || count_a < 1 || count_b < 1 {
-                    0
-                } else {
-                    (3 * count_a + count_b) as usize
-                }
-            };
-
-            start_a.min(start_b)
+            let presses_b = (prize.y - presses_a * a.y) / b.y;
+            if (prize.y - presses_a * a.y) % b.y == 0 {
+                (3 * presses_a + presses_b) as usize
+            } else {
+                0
+            }
         })
         .sum()
 }
-

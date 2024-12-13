@@ -71,6 +71,7 @@ pub mod prelude {
     pub use crate::xy;
 }
 
+#[derive(Debug)]
 pub struct XY<X, Y> {
     pub x: X,
     pub y: Y,
