@@ -6,7 +6,6 @@ use itertools::Itertools;
 const NUM_MACHINES: usize = 320;
 type Machines = [(XY<i64, i64>, XY<i64, i64>, XY<i64, i64>); NUM_MACHINES];
 
-
 pub fn parse(input: &str) -> Machines {
     let mut crs = input.as_ptr();
     let mut machines: Machines = unsafe{std::mem::zeroed()};
@@ -36,12 +35,12 @@ pub fn parse(input: &str) -> Machines {
         crs.skip(", Y=".len());
 
         // abs. freq. digits(Y): 3->8, 4->213, 5->94
-        let digits_y = if unsafe{*crs.add(3)} == b'\n' {
-            3
-        } else if unsafe{*crs.add(4)} == b'\n' {
+        let digits_y = if unsafe{*crs.add(5)} == b'\n' && unsafe{*crs.add(6)} == b'\n' {
+            5
+        } else if unsafe{*crs.add(4)} == b'\n' && unsafe{*crs.add(5)} == b'\n' {
             4
         } else {
-            5
+            3
         };
         let prize_y = crs.parse_uint_n_digits::<i64>(digits_y);
         crs.skip(2);
