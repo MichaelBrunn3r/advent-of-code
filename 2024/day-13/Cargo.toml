@@ -13,13 +13,5 @@ criterion = {workspace = true}
 rand = {workspace = true}
 
 [[bench]]
-name = "parse"
-harness = false
-
-[[bench]]
-name = "p1"
-harness = false
-
-[[bench]]
-name = "p2"
+name = "p"
 harness = false

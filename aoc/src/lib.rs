@@ -23,7 +23,7 @@ pub use string::*;
 pub use u8::*;
 
 use lazy_static::lazy_static;
-use std::path::PathBuf;
+use std::{ops::Add, path::PathBuf};
 
 lazy_static! {
     pub static ref PROJECT_DIR: PathBuf =
@@ -71,12 +71,25 @@ pub mod prelude {
     pub use crate::xy;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct XY<X, Y> {
     pub x: X,
     pub y: Y,
 }
 
-pub fn xy<X, Y>(x: X, y: Y) -> XY<X,Y> {
-    XY {x, y}
+pub fn xy<X, Y>(x: X, y: Y) -> XY<X, Y> {
+    XY { x, y }
+}
+
+impl<T> Add<i64> for XY<T, T>
+where
+    T: std::ops::Add<i64, Output = T>,
+{
+    type Output = Self;
+    fn add(self, rhs: i64) -> Self::Output {
+        Self {
+            x: self.x + rhs,
+            y: self.y + rhs,
+        }
+    }
 }
