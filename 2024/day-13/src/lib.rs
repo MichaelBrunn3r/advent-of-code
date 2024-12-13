@@ -3,29 +3,56 @@ use itertools::Itertools;
 
 type Machines = Vec<(XY<i64, i64>, XY<i64, i64>, XY<i64, i64>)>;
 
+
 pub fn parse(input: &str) -> Machines {
-    input
-        .as_bytes()
-        .split(|&b| b == b'\n')
-        .tuples()
-        .map(|(la, lb, lprize, _)| {
-            let a = xy(
-                la[12..14].parse_ascii_digits() as i64,
-                la[18..20].parse_ascii_digits() as i64,
-            );
-            let b = xy(
-                lb[12..14].parse_ascii_digits() as i64,
-                lb[18..20].parse_ascii_digits() as i64,
-            );
+    let mut bytes = input.as_bytes();
+    let mut machines = Vec::new();
+    loop {
+        bytes = &bytes["Button A: X+".len()..];
+        let a = xy(
+            bytes[..2].parse_ascii_digits() as i64,
+            bytes[6..8].parse_ascii_digits() as i64,
+        );
+        bytes = &bytes["??, Y+??\nButton B: X+".len()..];
+        let b = xy(
+            bytes[..2].parse_ascii_digits() as i64,
+            bytes[6..8].parse_ascii_digits() as i64,
+        );
+        bytes = &bytes["??, Y+??\nPrize: X=".len()..];
 
-            let pos_comma = lprize.iter().position(|&b| b == b',').unwrap();
-            let prize = xy(
-                lprize[9..pos_comma].parse_ascii_digits() as i64,
-                lprize[pos_comma + 4..].parse_ascii_digits() as i64,
-            );
+        // abs. freq. digits(X): 3->12, 4->123, 5->95
+        let digits_x = if bytes[4] == b',' {
+            4
+        } else if bytes[5] == b',' {
+            5
+        } else {
+            3
+        };
+        let prize_x = bytes.parse_n_ascii_digits(digits_x) as i64;
+        bytes = &bytes[digits_x + ", Y=".len()..];
 
-            (a, b, prize)
-        }).collect_vec()
+        // abs. freq. digits(Y): 3->8, 4->213, 5->94
+        let digits_y = if bytes[3] == b'\n' {
+            3
+        } else if bytes[4] == b'\n' {
+            4
+        } else {
+            5
+        };
+        let prize_y = bytes.parse_n_ascii_digits(digits_y) as i64;
+        bytes = &bytes[digits_y..];
+
+        bytes = &bytes[1..];
+
+        machines.push((a, b, xy(prize_x, prize_y)));
+
+        if bytes.is_empty() || bytes[0] != b'\n' {
+            break;
+        }
+
+        bytes = &bytes[1..];
+    }
+    machines
 }
 
 pub fn p1(machines: &Machines) -> usize {
