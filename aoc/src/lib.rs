@@ -68,4 +68,14 @@ pub mod prelude {
     pub use crate::slice::SliceExt;
     pub use crate::string::{CharExt, StrExt};
     pub use crate::u8::U8SliceExt;
+    pub use crate::xy;
+}
+
+pub struct XY<X, Y> {
+    pub x: X,
+    pub y: Y,
+}
+
+pub fn xy<X, Y>(x: X, y: Y) -> XY<X,Y> {
+    XY {x, y}
 }

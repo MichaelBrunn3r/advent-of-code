@@ -3,10 +3,11 @@
 ## Benchmarks
 
 <!-- BEGIN benches -->
-| Benchmark              | Time      |
-| ---------------------- | --------- |
-| [p1](./src/lib.rs#L4)  | 16.89 µs |
-| [p2](./src/lib.rs#L52) | 16.59 µs |
+| Benchmark                | Time      |
+| ------------------------ | --------- |
+| [parse](./src/lib.rs#L6) | 13.61 µs |
+| [p1](./src/lib.rs#L31)   | 2.00 µs  |
+| [p2](./src/lib.rs#L61)   | 2.66 µs  |
 <!-- END benches -->
 <!-- BEGIN other_benches -->
 

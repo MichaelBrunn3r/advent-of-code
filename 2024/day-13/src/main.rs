@@ -1,9 +1,9 @@
 use aoc_2024_13::*;
 
 fn main() {
-    let input = aoc::read_input_to_string();
-    println!("Part 1: {}", p1(&input));
-    println!("Part 2: {}", p2(&input));
+    let machines = parse(&aoc::read_input_to_string());
+    println!("Part 1: {}", p1(&machines));
+    println!("Part 2: {}", p2(&machines));
 }
 
 #[cfg(test)]
@@ -12,11 +12,11 @@ mod tests {
 
     #[test]
     fn test_p1() {
-        assert_eq!(p1(&aoc::read_input_to_string()), 29187);
+        assert_eq!(p1(&parse(&aoc::read_input_to_string())), 29187);
     }
 
     #[test]
     fn test_p2() {
-        assert_eq!(p2(&aoc::read_input_to_string()), 99968222587852);
+        assert_eq!(p2(&parse(&aoc::read_input_to_string())), 99968222587852);
     }
 }
