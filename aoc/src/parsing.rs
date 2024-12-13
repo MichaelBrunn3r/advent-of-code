@@ -3,7 +3,7 @@ use std::ops::{AddAssign, MulAssign};
 
 pub trait U8PtrExt {
     fn as_str(&self, n: usize) -> &str;
-    fn skip(&mut self, n: usize);
+    fn skip(&mut self, n: usize) -> &mut Self;
     fn take(&mut self) -> u8;
     fn peek(&self) -> u8;
 
@@ -33,8 +33,9 @@ impl U8PtrExt for *const u8 {
     fn as_str(&self, n: usize) -> &str {
         unsafe { std::slice::from_raw_parts(*self, n).as_str_unchecked() }
     }
-    fn skip(&mut self, n: usize) {
+    fn skip(&mut self, n: usize) -> &mut Self {
         *self = unsafe { self.add(n) };
+        self
     }
     fn take(&mut self) -> u8 {
         unsafe {

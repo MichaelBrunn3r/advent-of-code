@@ -1,56 +1,51 @@
+use core::slice;
+
 use aoc::{prelude::*, XY};
 use itertools::Itertools;
 
-type Machines = Vec<(XY<i64, i64>, XY<i64, i64>, XY<i64, i64>)>;
+const NUM_MACHINES: usize = 320;
+type Machines = [(XY<i64, i64>, XY<i64, i64>, XY<i64, i64>); NUM_MACHINES];
 
 
 pub fn parse(input: &str) -> Machines {
-    let mut bytes = input.as_bytes();
-    let mut machines = Vec::new();
-    loop {
-        bytes = &bytes["Button A: X+".len()..];
+    let mut crs = input.as_ptr();
+    let mut machines: Machines = unsafe{std::mem::zeroed()};
+    for i in 0..NUM_MACHINES {
+        crs.skip("Button A: X+".len());
         let a = xy(
-            bytes[..2].parse_ascii_digits() as i64,
-            bytes[6..8].parse_ascii_digits() as i64,
+            crs.parse_uint::<i64, 2>(),
+            crs.skip(4).parse_uint::<i64, 2>(),
         );
-        bytes = &bytes["??, Y+??\nButton B: X+".len()..];
+        crs.skip("\nButton B: X+".len());
+
         let b = xy(
-            bytes[..2].parse_ascii_digits() as i64,
-            bytes[6..8].parse_ascii_digits() as i64,
+            crs.parse_uint::<i64, 2>(),
+            crs.skip(4).parse_uint::<i64, 2>(),
         );
-        bytes = &bytes["??, Y+??\nPrize: X=".len()..];
+        crs.skip("\nPrize: X=".len());
 
         // abs. freq. digits(X): 3->12, 4->123, 5->95
-        let digits_x = if bytes[4] == b',' {
+        let digits_x = if unsafe{*crs.add(4)} == b',' {
             4
-        } else if bytes[5] == b',' {
+        } else if unsafe{*crs.add(5)} == b',' {
             5
         } else {
             3
         };
-        let prize_x = bytes.parse_n_ascii_digits(digits_x) as i64;
-        bytes = &bytes[digits_x + ", Y=".len()..];
+        let prize_x = crs.parse_uint_n_digits::<i64>(digits_x);
+        crs.skip(", Y=".len());
 
         // abs. freq. digits(Y): 3->8, 4->213, 5->94
-        let digits_y = if bytes[3] == b'\n' {
+        let digits_y = if unsafe{*crs.add(3)} == b'\n' {
             3
-        } else if bytes[4] == b'\n' {
+        } else if unsafe{*crs.add(4)} == b'\n' {
             4
         } else {
             5
         };
-        let prize_y = bytes.parse_n_ascii_digits(digits_y) as i64;
-        bytes = &bytes[digits_y..];
-
-        bytes = &bytes[1..];
-
-        machines.push((a, b, xy(prize_x, prize_y)));
-
-        if bytes.is_empty() || bytes[0] != b'\n' {
-            break;
-        }
-
-        bytes = &bytes[1..];
+        let prize_y = crs.parse_uint_n_digits::<i64>(digits_y);
+        crs.skip(2);
+        machines[i] = (a, b, xy(prize_x, prize_y));
     }
     machines
 }
