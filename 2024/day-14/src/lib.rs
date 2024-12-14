@@ -17,13 +17,21 @@ pub fn p(input: &str) -> (usize, usize) {
     let mut quadrants = [0, 0, 0, 0];
     let mut robots: [Robot; NUM_ROBOTS] = unsafe{std::mem::zeroed()};
 
+    let mut xs = [0; NUM_ROBOTS];
+    let mut ys = [0; NUM_ROBOTS];
+    let mut vxs = [0; NUM_ROBOTS];
+    let mut vys = [0; NUM_ROBOTS];
+
     let mut crs = input.as_bytes().as_ptr();
     for i in 0..NUM_ROBOTS {
-        let (mut pos, v) = parse_robot(&mut crs);
-        robots[i] = (pos, v);
+        let (mut p, v) = parse_robot(&mut crs);
+        xs[i] = p.x;
+        ys[i] = p.y;
+        vxs[i] = v.x;
+        vys[i] = v.y;
 
-        let mut x = (pos.x as isize + time * v.x) % WIDTH as isize;
-        let mut y = (pos.y as isize + time * v.y) % HEIGHT as isize;
+        let mut x = (p.x as isize + time * v.x) % WIDTH as isize;
+        let mut y = (p.y as isize + time * v.y) % HEIGHT as isize;
         if x < 0 {
             x = WIDTH as isize + x;
         }
@@ -31,33 +39,34 @@ pub fn p(input: &str) -> (usize, usize) {
             y = HEIGHT as isize + y;
         }
 
-        pos.x = x as usize;
-        pos.y = y as usize;
+        p.x = x as usize;
+        p.y = y as usize;
 
-        if pos.x == WIDTH / 2 || pos.y == HEIGHT / 2 {
+        if p.x == WIDTH / 2 || p.y == HEIGHT / 2 {
             continue;
         }
 
-        quadrants[(pos.y < (HEIGHT / 2)) as usize | (((pos.x < (WIDTH / 2)) as usize) << 1)] += 1;
+        quadrants[(p.y < (HEIGHT / 2)) as usize | (((p.x < (WIDTH / 2)) as usize) << 1)] += 1;
     }
 
     let mut min_var = xy(isize::MAX, isize::MAX);
     let mut min_var_t = xy(0, 0);
     for t in 1..PERIOD_X.max(PERIOD_Y)+1 {
-        for (p, v) in robots.iter_mut() {
-            let mut x = (p.x as isize + v.x) % WIDTH as isize;
-            let mut y = (p.y as isize + v.y) % HEIGHT as isize;
+        for i in 0..NUM_ROBOTS {
+            let mut x = (xs[i] as isize + vxs[i]) % WIDTH as isize;
+            let mut y = (ys[i] as isize + vys[i]) % HEIGHT as isize;
             if x < 0 {
                 x = WIDTH as isize + x;
             }
             if y < 0 {
                 y = HEIGHT as isize + y;
             }
-            p.x = x as usize;
-            p.y = y as usize;
+
+            xs[i] = x as usize;
+            ys[i] = y as usize;
         }
 
-        let var = variance(&robots);
+        let var = variance(&xs, &ys);
         if var.x < min_var.x {
             min_var.x = var.x;
             min_var_t.x = t;
@@ -73,11 +82,11 @@ pub fn p(input: &str) -> (usize, usize) {
     (quadrants.into_iter().product(), t)
 }
 
-fn variance(robots: &[Robot]) -> XY<isize, isize> {
-    let mean_x = robots.iter().map(|(p, _)| p.x).sum::<usize>() / NUM_ROBOTS;
-    let mean_y = robots.iter().map(|(p, _)| p.y).sum::<usize>() / NUM_ROBOTS;
-    let sum_sq_diff_x = robots.iter().map(|(p,_)| (p.x as isize - mean_x as isize).pow(2) ).sum::<isize>();
-    let sum_sq_diff_y = robots.iter().map(|(p,_)| (p.y as isize - mean_y as isize).pow(2) ).sum::<isize>();
+fn variance(xs: &[usize], ys: &[usize]) -> XY<isize, isize> {
+    let mean_x = xs.iter().sum::<usize>() / NUM_ROBOTS;
+    let mean_y = ys.iter().sum::<usize>() / NUM_ROBOTS;
+    let sum_sq_diff_x = xs.iter().map(|&x| (x as isize - mean_x as isize).pow(2) ).sum::<isize>();
+    let sum_sq_diff_y = ys.iter().map(|&y| (y as isize - mean_y as isize).pow(2) ).sum::<isize>();
     let var_x = sum_sq_diff_x / NUM_ROBOTS as isize;
     let var_y = sum_sq_diff_y / NUM_ROBOTS as isize;
 

@@ -93,3 +93,17 @@ where
         }
     }
 }
+
+impl<X, Y, A, B> Add<XY<A, B>> for XY<X, Y>
+where
+    X: std::ops::Add<A, Output = X>,
+    Y: std::ops::Add<B, Output = Y>,
+{
+    type Output = Self;
+    fn add(self, rhs: XY<A, B>) -> Self::Output {
+        Self {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
+    }
+}
