@@ -12,12 +12,15 @@ const PERIOD_Y: usize = HEIGHT;
 
 type Robot = (XY<usize, usize>, XY<isize, isize>);
 
-pub fn p1(input: &str) -> usize {
+pub fn p(input: &str) -> (usize, usize) {
     let time = 100;
     let mut quadrants = [0, 0, 0, 0];
+    let mut robots: [Robot; NUM_ROBOTS] = unsafe{std::mem::zeroed()};
+
     let mut crs = input.as_bytes().as_ptr();
-    for _ in 0..NUM_ROBOTS {
+    for i in 0..NUM_ROBOTS {
         let (mut pos, v) = parse_robot(&mut crs);
+        robots[i] = (pos, v);
 
         let mut x = (pos.x as isize + time * v.x) % WIDTH as isize;
         let mut y = (pos.y as isize + time * v.y) % HEIGHT as isize;
@@ -37,13 +40,6 @@ pub fn p1(input: &str) -> usize {
 
         quadrants[(pos.y < (HEIGHT / 2)) as usize | (((pos.x < (WIDTH / 2)) as usize) << 1)] += 1;
     }
-
-    quadrants.into_iter().product()
-}
-
-pub fn p2(input: &str) -> usize {
-    let mut crs = input.as_bytes().as_ptr();
-    let mut robots = (0..NUM_ROBOTS).map(|_| parse_robot(&mut crs)).collect_vec();
 
     let mut min_var = xy(isize::MAX, isize::MAX);
     let mut min_var_t = xy(0, 0);
@@ -72,7 +68,9 @@ pub fn p2(input: &str) -> usize {
     }
 
     let inv_w = 51;
-    (min_var_t.x as usize + ((inv_w * (min_var_t.y as isize - min_var_t.x as isize)) % HEIGHT as isize) as usize * WIDTH) as usize
+    let t = (min_var_t.x as usize + ((inv_w * (min_var_t.y as isize - min_var_t.x as isize)) % HEIGHT as isize) as usize * WIDTH) as usize;
+
+    (quadrants.into_iter().product(), t)
 }
 
 fn variance(robots: &[Robot]) -> XY<isize, isize> {
