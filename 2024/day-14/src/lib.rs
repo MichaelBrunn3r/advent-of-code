@@ -7,7 +7,10 @@ use itertools::Itertools;
 const NUM_ROBOTS: usize = 500;
 const WIDTH: usize = 101;
 const HEIGHT: usize = 103;
-const PERIOD: usize = WIDTH * HEIGHT;
+const PERIOD_X: usize = WIDTH;
+const PERIOD_Y: usize = HEIGHT;
+
+type Robot = (XY<usize, usize>, XY<isize, isize>);
 
 pub fn p1(input: &str) -> usize {
     let time = 100;
@@ -15,7 +18,6 @@ pub fn p1(input: &str) -> usize {
     let mut crs = input.as_bytes().as_ptr();
     for _ in 0..NUM_ROBOTS {
         let (mut pos, v) = parse_robot(&mut crs);
-        // println!("start={:?} {:?}", pos, v);
 
         let mut x = (pos.x as isize + time * v.x) % WIDTH as isize;
         let mut y = (pos.y as isize + time * v.y) % HEIGHT as isize;
@@ -43,35 +45,45 @@ pub fn p2(input: &str) -> usize {
     let mut crs = input.as_bytes().as_ptr();
     let mut robots = (0..NUM_ROBOTS).map(|_| parse_robot(&mut crs)).collect_vec();
 
-    for i in 1..PERIOD {
-        for (pos, v) in robots.iter_mut() {
-            let mut x = (pos.x as isize + v.x) % WIDTH as isize;
-            let mut y = (pos.y as isize + v.y) % HEIGHT as isize;
+    let mut min_var = xy(isize::MAX, isize::MAX);
+    let mut min_var_t = xy(0, 0);
+    for t in 1..PERIOD_X.max(PERIOD_Y)+1 {
+        for (p, v) in robots.iter_mut() {
+            let mut x = (p.x as isize + v.x) % WIDTH as isize;
+            let mut y = (p.y as isize + v.y) % HEIGHT as isize;
             if x < 0 {
                 x = WIDTH as isize + x;
             }
             if y < 0 {
                 y = HEIGHT as isize + y;
             }
-
-            pos.x = x as usize;
-            pos.y = y as usize;
+            p.x = x as usize;
+            p.y = y as usize;
         }
 
-        let diff: usize = robots
-            .iter()
-            .map(|r| {
-                ((r.0.x as isize - (WIDTH as isize /2)).abs()
-                    + (r.0.y as isize - (HEIGHT as isize /2)).abs()) as usize
-            })
-            .sum::<usize>();
-
-        if diff <= 18_000 {
-            return i;
+        let var = variance(&robots);
+        if var.x < min_var.x {
+            min_var.x = var.x;
+            min_var_t.x = t;
+        }if var.y < min_var.y {
+            min_var.y = var.y;
+            min_var_t.y = t;
         }
     }
 
-    0
+    let inv_w = 51;
+    (min_var_t.x as usize + ((inv_w * (min_var_t.y as isize - min_var_t.x as isize)) % HEIGHT as isize) as usize * WIDTH) as usize
+}
+
+fn variance(robots: &[Robot]) -> XY<isize, isize> {
+    let mean_x = robots.iter().map(|(p, _)| p.x).sum::<usize>() / NUM_ROBOTS;
+    let mean_y = robots.iter().map(|(p, _)| p.y).sum::<usize>() / NUM_ROBOTS;
+    let sum_sq_diff_x = robots.iter().map(|(p,_)| (p.x as isize - mean_x as isize).pow(2) ).sum::<isize>();
+    let sum_sq_diff_y = robots.iter().map(|(p,_)| (p.y as isize - mean_y as isize).pow(2) ).sum::<isize>();
+    let var_x = sum_sq_diff_x / NUM_ROBOTS as isize;
+    let var_y = sum_sq_diff_y / NUM_ROBOTS as isize;
+
+    xy(var_x, var_y)
 }
 
 fn parse_robot(crs: &mut *const u8) -> (XY<usize, usize>, XY<isize, isize>) {
