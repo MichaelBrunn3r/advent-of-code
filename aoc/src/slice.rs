@@ -15,3 +15,22 @@ impl<T: PartialEq> SliceExt<T> for [T] {
         return true;
     }
 }
+
+pub trait NumericSliceExt<T> {
+    fn sum(&self) -> T;
+    fn mean(&self) -> T;
+}
+
+impl<T> NumericSliceExt<T> for [T]
+where
+    T: for<'a> std::iter::Sum<&'a T> + std::ops::Div<usize, Output = T> + std::ops::Sub,
+    
+{
+    fn sum(&self) -> T {
+        self.iter().sum()
+    }
+
+    fn mean(&self) -> T {
+        self.sum() / self.len()
+    }
+}

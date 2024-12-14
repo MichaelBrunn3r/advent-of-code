@@ -66,6 +66,7 @@ pub mod prelude {
     pub use crate::point::PointExt;
     pub use crate::range::RangeExt;
     pub use crate::slice::SliceExt;
+    pub use crate::slice::NumericSliceExt;
     pub use crate::string::{CharExt, StrExt};
     pub use crate::u8::U8SliceExt;
     pub use crate::xy;

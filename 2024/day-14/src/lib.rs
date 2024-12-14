@@ -15,7 +15,6 @@ type Robot = (XY<usize, usize>, XY<isize, isize>);
 pub fn p(input: &str) -> (usize, usize) {
     let time = 100;
     let mut quadrants = [0, 0, 0, 0];
-    let mut robots: [Robot; NUM_ROBOTS] = unsafe{std::mem::zeroed()};
 
     let mut xs = [0; NUM_ROBOTS];
     let mut ys = [0; NUM_ROBOTS];
@@ -66,12 +65,12 @@ pub fn p(input: &str) -> (usize, usize) {
             ys[i] = y as usize;
         }
 
-        let var = variance(&xs, &ys);
-        if var.x < min_var.x {
-            min_var.x = var.x;
+        let (var_x, var_y) = (variance(&xs), variance(&ys));
+        if var_x < min_var.x {
+            min_var.x = var_x;
             min_var_t.x = t;
-        }if var.y < min_var.y {
-            min_var.y = var.y;
+        }if var_y < min_var.y {
+            min_var.y = var_y;
             min_var_t.y = t;
         }
     }
@@ -82,15 +81,10 @@ pub fn p(input: &str) -> (usize, usize) {
     (quadrants.into_iter().product(), t)
 }
 
-fn variance(xs: &[usize], ys: &[usize]) -> XY<isize, isize> {
-    let mean_x = xs.iter().sum::<usize>() / NUM_ROBOTS;
-    let mean_y = ys.iter().sum::<usize>() / NUM_ROBOTS;
-    let sum_sq_diff_x = xs.iter().map(|&x| (x as isize - mean_x as isize).pow(2) ).sum::<isize>();
-    let sum_sq_diff_y = ys.iter().map(|&y| (y as isize - mean_y as isize).pow(2) ).sum::<isize>();
-    let var_x = sum_sq_diff_x / NUM_ROBOTS as isize;
-    let var_y = sum_sq_diff_y / NUM_ROBOTS as isize;
-
-    xy(var_x, var_y)
+fn variance(xs: &[usize]) -> isize {
+    let mean = xs.mean();
+    let sum_sq_diff = xs.iter().map(|&x| (x as isize - mean as isize).pow(2) ).sum::<isize>();
+    sum_sq_diff / xs.len() as isize
 }
 
 fn parse_robot(crs: &mut *const u8) -> (XY<usize, usize>, XY<isize, isize>) {
