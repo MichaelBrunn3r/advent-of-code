@@ -7,6 +7,7 @@ use itertools::Itertools;
 const NUM_ROBOTS: usize = 500;
 const WIDTH: usize = 101;
 const HEIGHT: usize = 103;
+const PERIOD: usize = WIDTH * HEIGHT;
 
 pub fn p1(input: &str) -> usize {
     let time = 100;
@@ -42,7 +43,7 @@ pub fn p2(input: &str) -> usize {
     let mut crs = input.as_bytes().as_ptr();
     let mut robots = (0..NUM_ROBOTS).map(|_| parse_robot(&mut crs)).collect_vec();
 
-    for i in 1..10_000 {
+    for i in 1..PERIOD {
         for (pos, v) in robots.iter_mut() {
             let mut x = (pos.x as isize + v.x) % WIDTH as isize;
             let mut y = (pos.y as isize + v.y) % HEIGHT as isize;
@@ -59,15 +60,13 @@ pub fn p2(input: &str) -> usize {
 
         let diff: usize = robots
             .iter()
-            .combinations(2)
-            .map(|a| {
-                ((a[0].0.x as isize - a[1].0.x as isize).abs()
-                    + (a[0].0.y as isize - a[1].0.y as isize).abs()) as usize
+            .map(|r| {
+                ((r.0.x as isize - (WIDTH as isize /2)).abs()
+                    + (r.0.y as isize - (HEIGHT as isize /2)).abs()) as usize
             })
-            .sum::<usize>()
-            / robots.len();
+            .sum::<usize>();
 
-        if diff <= 13_000 {
+        if diff <= 18_000 {
             return i;
         }
     }
