@@ -8,6 +8,7 @@ pub trait UnsignedExt: Unsigned {
     fn even(&self) -> bool;
     fn digits(self) -> usize;
     fn bits(&self) -> usize;
+    fn coprime(&self, other: Self) -> bool;
 }
 
 impl UnsignedExt for usize {
@@ -69,6 +70,10 @@ impl UnsignedExt for usize {
 
     fn bits(&self) -> usize {
         size_of::<Self>() * 8 - self.leading_zeros() as usize
+    }
+
+    fn coprime(&self, other: Self) -> bool {
+        self.gcd(other) == 1
     }
 }
 
