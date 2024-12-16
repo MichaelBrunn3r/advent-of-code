@@ -1,6 +1,6 @@
 use std::collections::{BinaryHeap, HashSet};
 
-use aoc::prelude::*;
+use aoc::{prelude::*, XY};
 use itertools::Itertools;
 use regex::bytes;
 
@@ -12,6 +12,7 @@ const FLAG_VISITED: u8 = 0b1000_0000;
 
 const END: usize = 2 * LINE_LENGTH - 3;
 const START: usize = (SIDE_LENGTH - 2) * LINE_LENGTH + 1;
+const POS_END: XY<u16,u16> = xy(END as u16 % LINE_LENGTH as u16, END as u16 / LINE_LENGTH as u16);
 
 pub fn p1(input: &mut str) -> usize {
     let map = unsafe { input.as_bytes_mut() };
@@ -61,34 +62,16 @@ impl PartialOrd for Node {
 
 impl Ord for Node {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        (-(h(self.0, self.1) as isize + self.2 as isize)).cmp(&-(h(other.0, other.1) as isize + other.2 as isize))
+        (-(h(self.0) as isize + self.2 as isize)).cmp(&-(h(other.0) as isize + other.2 as isize))
     }
 }
 
 
-fn h(pos: u16, dir: Direction) -> u32 {
+fn h(pos: u16) -> u32 {
     let (px, py) = (pos % LINE_LENGTH as u16, pos / LINE_LENGTH as u16);
-    let (ex, ey) = (END as u16 % LINE_LENGTH as u16, END as u16 / LINE_LENGTH as u16);
-    let dx = px.abs_diff(ex);
-    let dy = py.abs_diff(ey);
-
-    let mut score = (dx + dy) as u32;
-    match dir {
-        Direction::Up => {
-            if dx > 0 {
-                score += 1000;
-            }
-        }
-        Direction::Down => score += 2000,
-        Direction::Left => score += 2000,
-        Direction::Right => {
-            if dy > 0 {
-                score += 1000
-            }
-        }
-    }
-
-    score
+    let dx = px.abs_diff(POS_END.x);
+    let dy = py.abs_diff(POS_END.y);
+    (dx + dy) as u32
 }
 
 #[derive(Debug, PartialEq, Clone, Copy, Eq)]

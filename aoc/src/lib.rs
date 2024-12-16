@@ -78,7 +78,7 @@ pub struct XY<X, Y> {
     pub y: Y,
 }
 
-pub fn xy<X, Y>(x: X, y: Y) -> XY<X, Y> {
+pub const fn xy<X, Y>(x: X, y: Y) -> XY<X, Y> {
     XY { x, y }
 }
 
