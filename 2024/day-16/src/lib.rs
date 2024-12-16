@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{BinaryHeap, HashSet};
 
 use aoc::prelude::*;
 use itertools::Itertools;
@@ -10,122 +10,95 @@ const LINE_LENGTH: usize = SIDE_LENGTH + 1;
 const END: u8 = b'E';
 const START: u8 = b'S';
 const WALL: u8 = b'#';
-
 const FLAG_VISITED: u8 = 0b1000_0000;
 
-pub fn p(input: &str) -> (usize, usize) {
-    let map = input.as_bytes();
+const IDX_END: usize = 2 * LINE_LENGTH - 3;
+
+pub fn p1(input: &mut str) -> usize {
+    let map = unsafe { input.as_bytes_mut() };
     let start = map.iter().position(|&b| b == START).unwrap() as u16;
-    let end = map.iter().position(|&b| b == END).unwrap() as u16;
 
-    let mut best_paths = Vec::new();
-    let mut best_score = 0;
-
-    let mut best_score_at = vec![u32::MAX; map.len()];
-
-    let mut path = HashSet::new();
-    path.insert(start);
-    let mut stack = vec![(start,Direction::Right,0u32,path)];
-    while let Some((pos, dir, score, path)) = stack.pop() {        
-        if best_score_at[pos as usize] < u32::MAX && score > best_score_at[pos as usize] + 1000 {
-            continue;
-        }
-        best_score_at[pos as usize] = score;
-
-        if !best_paths.is_empty() && score + h(pos, end, dir) > best_score {
-            continue;
+    let mut queue = BinaryHeap::new();
+    queue.push(Node(start, Direction::Right, 0u32));
+    while let Some(Node(pos, current_dir, score)) = queue.pop() {
+        if pos == IDX_END as u16 {
+            return score as usize;
         }
 
-        if pos == end {
-            best_paths.push(path);
-            best_score = score;
-            continue;
-        }
+        [
+            (pos - LINE_LENGTH as u16, Direction::Up),
+            (pos + LINE_LENGTH as u16, Direction::Down),
+            (pos + 1, Direction::Right),
+            (pos - 1, Direction::Right),
+        ]
+        .into_iter()
+        .for_each(|(pos, dir)| {
+            if current_dir.opposite() != dir
+                && map[pos as usize] != WALL
+                && map[pos as usize] & FLAG_VISITED == 0
+            {
+                let score = score + if current_dir == dir { 1 } else { 1001 };
+                queue.push(Node(pos, dir, score));
+            }
+        });
 
-        let up = pos - LINE_LENGTH as u16;
-        if dir.opposite() != Direction::Up && map[up as usize] != WALL && !path.contains(&up){
-            let score = score + if dir == Direction::Up {
-                1
-            } else {
-                1001
-            };
-            let mut path = path.clone();
-            path.insert(up);
-            stack.push((up, Direction::Up, score, path));
-        }
-
-        let down = pos + LINE_LENGTH as u16;
-        if dir.opposite() != Direction::Down && map[down as usize] != WALL && !path.contains(&down) {
-            let score = score + if dir == Direction::Down {
-                1
-            } else {
-                1001
-            };
-            let mut path = path.clone();
-            path.insert(down);
-            stack.push((down, Direction::Down, score, path));
-        }
-
-        let left = pos - 1;
-        if dir.opposite() != Direction::Left && map[left as usize] != WALL && !path.contains(&left) {
-            let score = score + if dir == Direction::Left {
-                1
-            } else {
-                1001
-            };
-            let mut path = path.clone();
-            path.insert(left);
-            stack.push((left, Direction::Left, score, path));
-        }
-
-        let right = pos + 1;
-        if dir.opposite() != Direction::Right && map[right as usize] != WALL && !path.contains(&right) {
-            let score = score + if dir == Direction::Right {
-                1
-            } else {
-                1001
-            };
-            let mut path = path.clone();
-            path.insert(right);
-            stack.push((right, Direction::Right, score, path));
-        }
-
-        stack.sort_by_key(|&(pos, dir, score, _)| -((h(pos, end, dir) + score) as isize));
+        map[pos as usize] |= FLAG_VISITED;
     }
-    
-    let best_sit_spots = best_paths.into_iter().fold(HashSet::<u16>::new(), |mut acc,path| {acc.extend(&path); acc});
 
-    (best_score as usize, best_sit_spots.len())
+    0
+}
+
+pub fn p(input: &str) -> (usize, usize) {
+    (0, 0)
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct Node(u16, Direction, u32);
+
+impl PartialOrd for Node {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Node {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        (-(h(self.0, self.1) as isize + self.2 as isize)).cmp(&-(h(other.0, other.1) as isize + other.2 as isize))
+    }
 }
 
 
-fn h(pos: u16, end: u16, dir: Direction) -> u32 {
+fn h(pos: u16, dir: Direction) -> u32 {
     let (px, py) = (pos % LINE_LENGTH as u16, pos / LINE_LENGTH as u16);
-    let (ex, ey) = (end % LINE_LENGTH as u16, end / LINE_LENGTH as u16);
+    let (ex, ey) = (IDX_END as u16 % LINE_LENGTH as u16, IDX_END as u16 / LINE_LENGTH as u16);
     let dx = px.abs_diff(ex);
     let dy = py.abs_diff(ey);
 
     let mut score = (dx + dy) as u32;
     match dir {
-        Direction::Up => if dx > 0 {
-            score += 1000;
-        },
+        Direction::Up => {
+            if dx > 0 {
+                score += 1000;
+            }
+        }
         Direction::Down => score += 2000,
         Direction::Left => score += 2000,
-        Direction::Right => if dy > 0 {
-            score += 1000
+        Direction::Right => {
+            if dy > 0 {
+                score += 1000
+            }
         }
     }
 
     score
 }
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy, Eq)]
 enum Direction {
     Up,
     Down,
     Left,
-    Right
+    Right,
 }
 
 impl Direction {

@@ -13,5 +13,5 @@ criterion = {workspace = true}
 rand = {workspace = true}
 
 [[bench]]
-name = "p"
+name = "p1"
 harness = false

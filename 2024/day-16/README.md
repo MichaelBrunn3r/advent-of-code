@@ -3,9 +3,9 @@
 ## Benchmarks
 
 <!-- BEGIN benches -->
-| Benchmark             | Time     |
-| --------------------- | -------- |
-| [p](./src/lib.rs#L16) | 45.10 ms |
+| Benchmark              | Time       |
+| ---------------------- | ---------- |
+| [p1](./src/lib.rs#L17) | 539.26 µs |
 
 <!-- END benches -->
 <!-- BEGIN other_benches -->
