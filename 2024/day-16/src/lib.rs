@@ -1,34 +1,31 @@
-use std::collections::{BinaryHeap, HashSet};
-
+use std::collections::{BinaryHeap};
 use aoc::{prelude::*, XY};
-use itertools::Itertools;
-use regex::bytes;
 
-const SIDE_LENGTH: usize = 141;
-const LINE_LENGTH: usize = SIDE_LENGTH + 1;
+const SIDE_LENGTH: u16 = 141;
+const LINE_LENGTH: u16 = SIDE_LENGTH + 1;
 
 const WALL: u8 = b'#';
 const FLAG_VISITED: u8 = 0b1000_0000;
 
-const END: usize = 2 * LINE_LENGTH - 3;
-const START: usize = (SIDE_LENGTH - 2) * LINE_LENGTH + 1;
-const POS_END: XY<u16,u16> = xy(END as u16 % LINE_LENGTH as u16, END as u16 / LINE_LENGTH as u16);
+const END: u16 = 2 * LINE_LENGTH - 3;
+const START: u16 = (SIDE_LENGTH - 2) * LINE_LENGTH + 1;
+const POS_END: XY<u16,u16> = xy(END % LINE_LENGTH, END / LINE_LENGTH);
 
 pub fn p1(input: &mut str) -> usize {
     let map = unsafe { input.as_bytes_mut() };
 
-    let mut queue = BinaryHeap::new();
-    queue.push(Node(START as u16, Direction::Right, 0u32, h(START as u16)));
+    let mut queue = BinaryHeap::with_capacity(128);
+    queue.push(Node(START, Direction::Right, 0u32, h(START)));
     while let Some(Node(pos, current_dir, score, _)) = queue.pop() {
-        if pos == END as u16 {
+        if pos == END {
             return score as usize;
         }
 
         [
-            (pos - LINE_LENGTH as u16, Direction::Up),
-            (pos + LINE_LENGTH as u16, Direction::Down),
+            (pos - LINE_LENGTH, Direction::Up),
             (pos + 1, Direction::Right),
-            (pos - 1, Direction::Right),
+            (pos + LINE_LENGTH, Direction::Down),
+            (pos - 1, Direction::Left),
         ]
         .into_iter()
         .for_each(|(pos, dir)| {
@@ -62,13 +59,12 @@ impl PartialOrd for Node {
 
 impl Ord for Node {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        (-(self.3 as isize)).cmp(&-(other.3 as isize))
+        other.3.cmp(&self.3)
     }
 }
 
-
 fn h(pos: u16) -> u32 {
-    let (px, py) = (pos % LINE_LENGTH as u16, pos / LINE_LENGTH as u16);
+    let (px, py) = (pos % LINE_LENGTH, pos / LINE_LENGTH);
     let dx = px.abs_diff(POS_END.x);
     let dy = py.abs_diff(POS_END.y);
     (dx + dy) as u32
