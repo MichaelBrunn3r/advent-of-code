@@ -7,21 +7,19 @@ use regex::bytes;
 const SIDE_LENGTH: usize = 141;
 const LINE_LENGTH: usize = SIDE_LENGTH + 1;
 
-const END: u8 = b'E';
-const START: u8 = b'S';
 const WALL: u8 = b'#';
 const FLAG_VISITED: u8 = 0b1000_0000;
 
-const IDX_END: usize = 2 * LINE_LENGTH - 3;
+const END: usize = 2 * LINE_LENGTH - 3;
+const START: usize = (SIDE_LENGTH - 2) * LINE_LENGTH + 1;
 
 pub fn p1(input: &mut str) -> usize {
     let map = unsafe { input.as_bytes_mut() };
-    let start = map.iter().position(|&b| b == START).unwrap() as u16;
 
     let mut queue = BinaryHeap::new();
-    queue.push(Node(start, Direction::Right, 0u32));
+    queue.push(Node(START as u16, Direction::Right, 0u32));
     while let Some(Node(pos, current_dir, score)) = queue.pop() {
-        if pos == IDX_END as u16 {
+        if pos == END as u16 {
             return score as usize;
         }
 
@@ -70,7 +68,7 @@ impl Ord for Node {
 
 fn h(pos: u16, dir: Direction) -> u32 {
     let (px, py) = (pos % LINE_LENGTH as u16, pos / LINE_LENGTH as u16);
-    let (ex, ey) = (IDX_END as u16 % LINE_LENGTH as u16, IDX_END as u16 / LINE_LENGTH as u16);
+    let (ex, ey) = (END as u16 % LINE_LENGTH as u16, END as u16 / LINE_LENGTH as u16);
     let dx = px.abs_diff(ex);
     let dy = py.abs_diff(ey);
 
