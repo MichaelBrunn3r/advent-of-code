@@ -2,8 +2,8 @@ use aoc_2024_15::*;
 
 fn main() {
     let mut input = aoc::read_input_to_string();
-    println!("Part 1: {}", p1(&mut input));
     println!("Part 2: {}", p2(&input));
+    println!("Part 1: {}", p1(&mut input));
 }
 
 #[cfg(test)]

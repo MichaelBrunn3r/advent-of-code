@@ -3,6 +3,7 @@ use itertools::Itertools;
 
 const SIDE_LENGTH: usize = 50;
 const LINE_LENGTH: usize = SIDE_LENGTH + 1;
+const WIDE_LINE_LENGTH: usize = SIDE_LENGTH * 2 + 1;
 
 const WALL: u8 = b'#';
 const ROBOT: u8 = b'@';
@@ -13,7 +14,7 @@ pub fn p1(input: &mut str) -> usize {
     let (map, moves) = unsafe { input.as_bytes_mut() }.split_at_mut(SIDE_LENGTH * LINE_LENGTH + 1);
     let mut robot = map.iter().position(|&b| b == b'@').unwrap();
 
-    moves[..moves.len() - 1].iter().for_each(|&m| {
+    moves.iter().for_each(|&m| {
         let step = match m {
             b'\n' => return,
             b'<' => -1,
@@ -23,8 +24,6 @@ pub fn p1(input: &mut str) -> usize {
             _ => unreachable!(),
         };
         move_robot(&mut robot, step, map);
-
-        // println!("{}", map.as_str_unchecked());
     });
 
     map
@@ -42,6 +41,25 @@ pub fn p1(input: &mut str) -> usize {
 }
 
 pub fn p2(input: &str) -> usize {
+    let (small_map, moves) = input.as_bytes().split_at(SIDE_LENGTH * LINE_LENGTH + 1);
+    let mut map = [0; SIDE_LENGTH * WIDE_LINE_LENGTH];
+
+    let mut i = 0;
+    for &b in small_map.iter() {
+        match b {
+            b'\n' => map[i] = b'\n',
+            EMPTY => {
+                map[i] = EMPTY;
+                map[i+1] = EMPTY;
+            },
+            EMPTY => {
+                map[i] = EMPTY;
+                map[i+1] = EMPTY;
+            },
+            _ => unreachable!()
+        }
+    }
+
     0
 }
 
