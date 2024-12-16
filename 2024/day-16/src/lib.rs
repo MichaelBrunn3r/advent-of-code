@@ -1,5 +1,5 @@
-use std::collections::{BinaryHeap};
 use aoc::{prelude::*, XY};
+use std::collections::BinaryHeap;
 
 const SIDE_LENGTH: u16 = 141;
 const LINE_LENGTH: u16 = SIDE_LENGTH + 1;
@@ -9,7 +9,7 @@ const FLAG_VISITED: u8 = 0b1000_0000;
 
 const END: u16 = 2 * LINE_LENGTH - 3;
 const START: u16 = (SIDE_LENGTH - 2) * LINE_LENGTH + 1;
-const POS_END: XY<u16,u16> = xy(END % LINE_LENGTH, END / LINE_LENGTH);
+const POS_END: XY<u16, u16> = xy(END % LINE_LENGTH, END / LINE_LENGTH);
 
 pub fn p1(input: &mut str) -> usize {
     let map = unsafe { input.as_bytes_mut() };
@@ -21,22 +21,21 @@ pub fn p1(input: &mut str) -> usize {
             return score as usize;
         }
 
-        [
-            (pos - LINE_LENGTH, Direction::Up),
-            (pos + 1, Direction::Right),
-            (pos + LINE_LENGTH, Direction::Down),
-            (pos - 1, Direction::Left),
-        ]
-        .into_iter()
-        .for_each(|(pos, dir)| {
-            if current_dir.opposite() != dir
-                && map[pos as usize] != WALL
-                && map[pos as usize] & FLAG_VISITED == 0
-            {
-                let score = score + if current_dir == dir { 1 } else { 1001 };
+        current_dir.offsets_orthogonal().iter().for_each(|&(offset, dir)| {
+            let pos = (pos as isize + offset) as u16;
+            if map[pos as usize] != WALL && map[pos as usize] & FLAG_VISITED == 0 {
+                let score = score + 1001;
                 queue.push(Node(pos, dir, score, h(pos) + score));
             }
         });
+
+        {
+            let pos: u16 = (pos as isize + current_dir.offset()) as u16;
+            if map[pos as usize] != WALL && map[pos as usize] & FLAG_VISITED == 0 {
+                let score = score + 1;
+                queue.push(Node(pos, current_dir, score, h(pos) + score));
+            }
+        }
 
         map[pos as usize] |= FLAG_VISITED;
     }
@@ -73,20 +72,37 @@ fn h(pos: u16) -> u32 {
 #[derive(Debug, PartialEq, Clone, Copy, Eq)]
 #[repr(u8)]
 enum Direction {
-    Up=0,
-    Down=1,
-    Left=2,
-    Right=3,
+    Up = 0,
+    Down = 1,
+    Left = 2,
+    Right = 3,
 }
 
 impl Direction {
-    fn opposite(&self) -> Self {
-        const OPPOSITE: [Direction; 4] = [
-            Direction::Down,
-            Direction::Up,
-            Direction::Right,
-            Direction::Left
+    fn offsets_orthogonal(&self) -> &[(isize, Direction); 2] {
+        const SIDES: [[(isize, Direction); 2]; 4] = [
+            [
+                (Direction::Left.offset(), Direction::Left),
+                (Direction::Right.offset(), Direction::Right),
+            ],
+            [
+                (Direction::Left.offset(), Direction::Left),
+                (Direction::Right.offset(), Direction::Right),
+            ],
+            [
+                (Direction::Up.offset(), Direction::Up),
+                (Direction::Down.offset(), Direction::Down),
+            ],
+            [
+                (Direction::Up.offset(), Direction::Up),
+                (Direction::Down.offset(), Direction::Down),
+            ],
         ];
-        OPPOSITE[*self as usize]
+        &SIDES[*self as usize]
+    }
+
+    const fn offset(&self) -> isize {
+        const CONTINUE: [isize; 4] = [-(LINE_LENGTH as isize), LINE_LENGTH as isize, -1, 1];
+        CONTINUE[*self as usize]
     }
 }
