@@ -64,8 +64,8 @@ impl Ord for Node {
 
 fn h(pos: u16) -> u32 {
     let (px, py) = (pos % LINE_LENGTH, pos / LINE_LENGTH);
-    let dx = px.abs_diff(POS_END.x);
-    let dy = py.abs_diff(POS_END.y);
+    let dx = POS_END.x - px;
+    let dy = py - POS_END.y;
     (dx + dy) as u32
 }
 
