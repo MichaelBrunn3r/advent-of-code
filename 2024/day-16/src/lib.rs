@@ -18,8 +18,8 @@ pub fn p1(input: &mut str) -> usize {
     let map = unsafe { input.as_bytes_mut() };
 
     let mut queue = BinaryHeap::new();
-    queue.push(Node(START as u16, Direction::Right, 0u32));
-    while let Some(Node(pos, current_dir, score)) = queue.pop() {
+    queue.push(Node(START as u16, Direction::Right, 0u32, h(START as u16)));
+    while let Some(Node(pos, current_dir, score, _)) = queue.pop() {
         if pos == END as u16 {
             return score as usize;
         }
@@ -37,7 +37,7 @@ pub fn p1(input: &mut str) -> usize {
                 && map[pos as usize] & FLAG_VISITED == 0
             {
                 let score = score + if current_dir == dir { 1 } else { 1001 };
-                queue.push(Node(pos, dir, score));
+                queue.push(Node(pos, dir, score, h(pos) + score));
             }
         });
 
@@ -52,7 +52,7 @@ pub fn p(input: &str) -> (usize, usize) {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-struct Node(u16, Direction, u32);
+struct Node(u16, Direction, u32, u32);
 
 impl PartialOrd for Node {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
@@ -62,7 +62,7 @@ impl PartialOrd for Node {
 
 impl Ord for Node {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        (-(h(self.0) as isize + self.2 as isize)).cmp(&-(h(other.0) as isize + other.2 as isize))
+        (-(self.3 as isize)).cmp(&-(other.3 as isize))
     }
 }
 
