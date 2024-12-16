@@ -75,20 +75,22 @@ fn h(pos: u16) -> u32 {
 }
 
 #[derive(Debug, PartialEq, Clone, Copy, Eq)]
+#[repr(u8)]
 enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
+    Up=0,
+    Down=1,
+    Left=2,
+    Right=3,
 }
 
 impl Direction {
     fn opposite(&self) -> Self {
-        match self {
-            Self::Up => Self::Down,
-            Self::Down => Self::Up,
-            Self::Left => Self::Right,
-            Self::Right => Self::Left,
-        }
+        const OPPOSITE: [Direction; 4] = [
+            Direction::Down,
+            Direction::Up,
+            Direction::Right,
+            Direction::Left
+        ];
+        OPPOSITE[*self as usize]
     }
 }
