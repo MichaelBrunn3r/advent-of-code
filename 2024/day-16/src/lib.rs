@@ -15,22 +15,22 @@ const FLAG_VISITED: u8 = 0b1000_0000;
 
 pub fn p(input: &str) -> (usize, usize) {
     let map = input.as_bytes();
-    let start = map.iter().position(|&b| b == START).unwrap();
-    let end = map.iter().position(|&b| b == END).unwrap();
+    let start = map.iter().position(|&b| b == START).unwrap() as u16;
+    let end = map.iter().position(|&b| b == END).unwrap() as u16;
 
     let mut best_paths = Vec::new();
     let mut best_score = 0;
 
-    let mut best_score_at = vec![usize::MAX; map.len()];
+    let mut best_score_at = vec![u32::MAX; map.len()];
 
     let mut path = HashSet::new();
     path.insert(start);
-    let mut stack = vec![(start,Direction::Right,0usize,path)];
+    let mut stack = vec![(start,Direction::Right,0u32,path)];
     while let Some((pos, dir, score, path)) = stack.pop() {        
-        if best_score_at[pos] < usize::MAX && score > best_score_at[pos] + 1000 {
+        if best_score_at[pos as usize] < u32::MAX && score > best_score_at[pos as usize] + 1000 {
             continue;
         }
-        best_score_at[pos] = score;
+        best_score_at[pos as usize] = score;
 
         if !best_paths.is_empty() && score + h(pos, end, dir) > best_score {
             continue;
@@ -42,8 +42,8 @@ pub fn p(input: &str) -> (usize, usize) {
             continue;
         }
 
-        let up = pos - LINE_LENGTH;
-        if dir.opposite() != Direction::Up && map[up] != WALL && !path.contains(&up){
+        let up = pos - LINE_LENGTH as u16;
+        if dir.opposite() != Direction::Up && map[up as usize] != WALL && !path.contains(&up){
             let score = score + if dir == Direction::Up {
                 1
             } else {
@@ -54,8 +54,8 @@ pub fn p(input: &str) -> (usize, usize) {
             stack.push((up, Direction::Up, score, path));
         }
 
-        let down = pos + LINE_LENGTH;
-        if dir.opposite() != Direction::Down && map[down] != WALL && !path.contains(&down) {
+        let down = pos + LINE_LENGTH as u16;
+        if dir.opposite() != Direction::Down && map[down as usize] != WALL && !path.contains(&down) {
             let score = score + if dir == Direction::Down {
                 1
             } else {
@@ -67,7 +67,7 @@ pub fn p(input: &str) -> (usize, usize) {
         }
 
         let left = pos - 1;
-        if dir.opposite() != Direction::Left && map[left] != WALL && !path.contains(&left) {
+        if dir.opposite() != Direction::Left && map[left as usize] != WALL && !path.contains(&left) {
             let score = score + if dir == Direction::Left {
                 1
             } else {
@@ -79,7 +79,7 @@ pub fn p(input: &str) -> (usize, usize) {
         }
 
         let right = pos + 1;
-        if dir.opposite() != Direction::Right && map[right] != WALL && !path.contains(&right) {
+        if dir.opposite() != Direction::Right && map[right as usize] != WALL && !path.contains(&right) {
             let score = score + if dir == Direction::Right {
                 1
             } else {
@@ -93,19 +93,19 @@ pub fn p(input: &str) -> (usize, usize) {
         stack.sort_by_key(|&(pos, dir, score, _)| -((h(pos, end, dir) + score) as isize));
     }
     
-    let best_sit_spots = best_paths.into_iter().fold(HashSet::<usize>::new(), |mut acc,path| {acc.extend(&path); acc});
+    let best_sit_spots = best_paths.into_iter().fold(HashSet::<u16>::new(), |mut acc,path| {acc.extend(&path); acc});
 
-    (best_score, best_sit_spots.len())
+    (best_score as usize, best_sit_spots.len())
 }
 
 
-fn h(pos: usize, end: usize, dir: Direction) -> usize {
-    let (px, py) = (pos % LINE_LENGTH, pos / LINE_LENGTH);
-    let (ex, ey) = (end % LINE_LENGTH, end / LINE_LENGTH);
+fn h(pos: u16, end: u16, dir: Direction) -> u32 {
+    let (px, py) = (pos % LINE_LENGTH as u16, pos / LINE_LENGTH as u16);
+    let (ex, ey) = (end % LINE_LENGTH as u16, end / LINE_LENGTH as u16);
     let dx = px.abs_diff(ex);
     let dy = py.abs_diff(ey);
 
-    let mut score = dx + dy;
+    let mut score = (dx + dy) as u32;
     match dir {
         Direction::Up => if dx > 0 {
             score += 1000;
