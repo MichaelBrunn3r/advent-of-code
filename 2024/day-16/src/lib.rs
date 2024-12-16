@@ -21,13 +21,16 @@ pub fn p1(input: &mut str) -> usize {
             return score as usize;
         }
 
-        current_dir.offsets_orthogonal().iter().for_each(|&(offset, dir)| {
-            let pos = (pos as isize + offset) as u16;
-            if map[pos as usize] != WALL && map[pos as usize] & FLAG_VISITED == 0 {
-                let score = score + 1001;
-                queue.push(Node(pos, dir, score, h(pos) + score));
-            }
-        });
+        current_dir
+            .offsets_orthogonal()
+            .iter()
+            .for_each(|&(offset, dir)| {
+                let pos = (pos as isize + offset) as u16;
+                if map[pos as usize] != WALL && map[pos as usize] & FLAG_VISITED == 0 {
+                    let score = score + 1001;
+                    queue.push(Node(pos, dir, score, h(pos) + score));
+                }
+            });
 
         {
             let pos: u16 = (pos as isize + current_dir.offset()) as u16;
@@ -45,21 +48,6 @@ pub fn p1(input: &mut str) -> usize {
 
 pub fn p(input: &str) -> (usize, usize) {
     (0, 0)
-}
-
-#[derive(Debug, PartialEq, Eq)]
-struct Node(u16, Direction, u32, u32);
-
-impl PartialOrd for Node {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for Node {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        other.3.cmp(&self.3)
-    }
 }
 
 fn h(pos: u16) -> u32 {
@@ -104,5 +92,20 @@ impl Direction {
     const fn offset(&self) -> isize {
         const CONTINUE: [isize; 4] = [-(LINE_LENGTH as isize), LINE_LENGTH as isize, -1, 1];
         CONTINUE[*self as usize]
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct Node(u16, Direction, u32, u32);
+
+impl PartialOrd for Node {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Node {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        other.3.cmp(&self.3)
     }
 }
