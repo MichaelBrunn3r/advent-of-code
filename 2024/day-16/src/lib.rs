@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use aoc::prelude::*;
 use itertools::Itertools;
 use regex::bytes;
@@ -11,67 +13,91 @@ const WALL: u8 = b'#';
 
 const FLAG_VISITED: u8 = 0b1000_0000;
 
-pub fn p1(input: &mut str) -> usize {
-    let map = unsafe{input.as_bytes_mut()};
+pub fn p(input: &str) -> (usize, usize) {
+    let map = input.as_bytes();
     let start = map.iter().position(|&b| b == START).unwrap();
     let end = map.iter().position(|&b| b == END).unwrap();
 
-    let mut stack = vec![(start,Direction::Right,0usize)];
-    while let Some((pos, dir, score)) = stack.pop() {
+    let mut best_paths = Vec::new();
+    let mut best_score = 0;
+
+    let mut best_score_at = vec![usize::MAX; map.len()];
+
+    let mut path = HashSet::new();
+    path.insert(start);
+    let mut stack = vec![(start,Direction::Right,0usize,path)];
+    while let Some((pos, dir, score, path)) = stack.pop() {        
+        if best_score_at[pos] < usize::MAX && score > best_score_at[pos] + 1000 {
+            continue;
+        }
+        best_score_at[pos] = score;
+
+        if !best_paths.is_empty() && score + h(pos, end, dir) > best_score {
+            continue;
+        }
+
         if pos == end {
-            return score;
+            best_paths.push(path);
+            best_score = score;
+            continue;
         }
 
         let up = pos - LINE_LENGTH;
-        if dir.opposite() != Direction::Up && map[up] != WALL && map[up] & FLAG_VISITED == 0{
+        if dir.opposite() != Direction::Up && map[up] != WALL && !path.contains(&up){
             let score = score + if dir == Direction::Up {
                 1
             } else {
                 1001
             };
-            stack.push((up, Direction::Up, score));
+            let mut path = path.clone();
+            path.insert(up);
+            stack.push((up, Direction::Up, score, path));
         }
 
         let down = pos + LINE_LENGTH;
-        if dir.opposite() != Direction::Down && map[down] != WALL && map[down] & FLAG_VISITED == 0 {
+        if dir.opposite() != Direction::Down && map[down] != WALL && !path.contains(&down) {
             let score = score + if dir == Direction::Down {
                 1
             } else {
                 1001
             };
-            stack.push((down, Direction::Down, score));
+            let mut path = path.clone();
+            path.insert(down);
+            stack.push((down, Direction::Down, score, path));
         }
 
         let left = pos - 1;
-        if dir.opposite() != Direction::Left && map[left] != WALL && map[left] & FLAG_VISITED == 0 {
+        if dir.opposite() != Direction::Left && map[left] != WALL && !path.contains(&left) {
             let score = score + if dir == Direction::Left {
                 1
             } else {
                 1001
             };
-            stack.push((left, Direction::Left, score));
+            let mut path = path.clone();
+            path.insert(left);
+            stack.push((left, Direction::Left, score, path));
         }
 
         let right = pos + 1;
-        if dir.opposite() != Direction::Right && map[right] != WALL && map[right] & FLAG_VISITED == 0 {
+        if dir.opposite() != Direction::Right && map[right] != WALL && !path.contains(&right) {
             let score = score + if dir == Direction::Right {
                 1
             } else {
                 1001
             };
-            stack.push((right, Direction::Right, score));
+            let mut path = path.clone();
+            path.insert(right);
+            stack.push((right, Direction::Right, score, path));
         }
 
-        map[pos] |= FLAG_VISITED;
-        stack.sort_by_key(|&(pos, dir, score)| -((h(pos, end, dir) + score) as isize));
+        stack.sort_by_key(|&(pos, dir, score, _)| -((h(pos, end, dir) + score) as isize));
     }
+    
+    let best_sit_spots = best_paths.into_iter().fold(HashSet::<usize>::new(), |mut acc,path| {acc.extend(&path); acc});
 
-    0
+    (best_score, best_sit_spots.len())
 }
 
-pub fn p2(input: &str) -> usize {
-    0
-}
 
 fn h(pos: usize, end: usize, dir: Direction) -> usize {
     let (px, py) = (pos % LINE_LENGTH, pos / LINE_LENGTH);
