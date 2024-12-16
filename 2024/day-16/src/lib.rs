@@ -15,10 +15,10 @@ pub fn p1(input: &mut str) -> usize {
     let map = unsafe { input.as_bytes_mut() };
 
     let mut queue = BinaryHeap::with_capacity(128);
-    queue.push(Node(START, Direction::Right, 0u32, h(START)));
-    while let Some(Node(pos, current_dir, score, _)) = queue.pop() {
+    queue.push(Node(START, Direction::Right, 0u32));
+    while let Some(Node(pos, current_dir, current_score)) = queue.pop() {
         if pos == END {
-            return score as usize;
+            return current_score as usize;
         }
 
         current_dir
@@ -27,16 +27,16 @@ pub fn p1(input: &mut str) -> usize {
             .for_each(|&(offset, dir)| {
                 let pos = (pos as isize + offset) as u16;
                 if map[pos as usize] != WALL && map[pos as usize] & FLAG_VISITED == 0 {
-                    let score = score + 1001;
-                    queue.push(Node(pos, dir, score, h(pos) + score));
+                    let score = current_score + 1001;
+                    queue.push(Node(pos, dir, score));
                 }
             });
 
         {
             let pos: u16 = (pos as isize + current_dir.offset()) as u16;
             if map[pos as usize] != WALL && map[pos as usize] & FLAG_VISITED == 0 {
-                let score = score + 1;
-                queue.push(Node(pos, current_dir, score, h(pos) + score));
+                let score = current_score + 1;
+                queue.push(Node(pos, current_dir, score));
             }
         }
 
@@ -48,13 +48,6 @@ pub fn p1(input: &mut str) -> usize {
 
 pub fn p(input: &str) -> (usize, usize) {
     (0, 0)
-}
-
-fn h(pos: u16) -> u32 {
-    let (px, py) = (pos % LINE_LENGTH, pos / LINE_LENGTH);
-    let dx = POS_END.x - px;
-    let dy = py - POS_END.y;
-    (dx + dy) as u32
 }
 
 #[derive(Debug, PartialEq, Clone, Copy, Eq)]
@@ -96,7 +89,7 @@ impl Direction {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-struct Node(u16, Direction, u32, u32);
+struct Node(u16, Direction, u32);
 
 impl PartialOrd for Node {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
@@ -106,6 +99,6 @@ impl PartialOrd for Node {
 
 impl Ord for Node {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        other.3.cmp(&self.3)
+        other.2.cmp(&self.2)
     }
 }
