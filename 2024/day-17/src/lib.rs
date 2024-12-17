@@ -8,14 +8,26 @@ const A: usize = 4;
 const B: usize = 5;
 const C: usize = 6;
 
-pub fn p1(input: &str) -> String {
-    let (mut reg, program) = parse(input);
+pub fn parse(input: &str) -> (usize, [u8; PROGRAM_LEN]) {
+    let mut crs = input.as_bytes().as_ptr();
+    crs.skip("Register A: ".len());
+
+    let a: usize = crs.parse_uint_n_digits(crs.find(b'\n'));
+    crs.skip("\nRegister B: 0\nRegister C: 0\n\nProgram: ".len());
+
+    let program = crs.parse_n_uints::<u8, PROGRAM_LEN, 1>(1);
+
+    (a, program)
+}
+
+pub fn p1(a: usize, prog: &[u8; PROGRAM_LEN]) -> String {
     let mut output = Vec::new();
+    let mut reg = [0, 1, 2, 3, a, 0, 0];
     
     let mut ip = 0;
-    while ip < program.len() {
-        let op = unsafe { std::mem::transmute::<u8, Opcode>(program[ip]) };
-        let operand = program[ip+1];
+    while ip < prog.len() {
+        let op = unsafe { std::mem::transmute::<u8, Opcode>(prog[ip]) };
+        let operand = prog[ip+1];
 
         match op {
             Opcode::ADV => reg[A] = reg[A] / 2usize.pow(reg[operand as usize] as u32),
@@ -39,20 +51,8 @@ pub fn p1(input: &str) -> String {
     unsafe{String::from_utf8_unchecked(result)}
 }
 
-pub fn p2(input: &str) -> usize {
+pub fn p2(a: usize, prog: &[u8; PROGRAM_LEN]) -> usize {
     0
-}
-
-fn parse(input: &str) -> ([usize; 7], [u8; PROGRAM_LEN]) {
-    let mut crs = input.as_bytes().as_ptr();
-    crs.skip("Register A: ".len());
-
-    let a: usize = crs.parse_uint_n_digits(crs.find(b'\n'));
-    crs.skip("\nRegister B: 0\nRegister C: 0\n\nProgram: ".len());
-
-    let program = crs.parse_n_uints::<u8, PROGRAM_LEN, 1>(1);
-
-    ([0, 1, 2, 3, a, 0, 0], program)
 }
 
 #[derive(Debug)]
