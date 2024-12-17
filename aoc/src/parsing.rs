@@ -6,6 +6,7 @@ pub trait U8PtrExt {
     fn skip(&mut self, n: usize) -> &mut Self;
     fn take(&mut self) -> u8;
     fn peek(&self) -> u8;
+    fn find(&self, needle: u8) -> usize;
 
     // unsigned int
     fn parse_uint<T: From<u8> + MulAssign + AddAssign, const N: usize>(&mut self) -> T;
@@ -46,6 +47,15 @@ impl U8PtrExt for *const u8 {
     }
     fn peek(&self) -> u8 {
         unsafe { self.read() }
+    }
+    fn find(&self, needle: u8) -> usize {
+        let mut i = 0;
+        loop {
+            if unsafe{*self.add(i)} == needle {
+                return i;
+            }
+            i += 1;
+        }
     }
 
     #[track_caller]

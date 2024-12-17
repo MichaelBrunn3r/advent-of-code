@@ -3,3 +3,4 @@
 **/day**/input.txt
 AOC_COOKIE
 **/*.drawio.*
+.direnv/*
