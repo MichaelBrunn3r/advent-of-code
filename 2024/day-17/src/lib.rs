@@ -22,7 +22,7 @@ pub fn parse(input: &str) -> (usize, [u8; PROGRAM_LEN]) {
 }
 
 pub fn p1(a: usize, prog: &[u8; PROGRAM_LEN]) -> String {
-    let mut output: Vec<u8> = Vec::new();
+    let mut output: Vec<u8> = Vec::with_capacity(PROGRAM_LEN * 2);
     let mut reg = [0, 1, 2, 3, a, 0, 0];
     
     let mut ip = 0;
@@ -39,7 +39,10 @@ pub fn p1(a: usize, prog: &[u8; PROGRAM_LEN]) -> String {
                 continue;
             }
             Opcode::BXC => reg[B] ^= reg[C],
-            Opcode::OUT => output.push((reg[operand as usize] % 8) as u8),
+            Opcode::OUT => {
+                output.push((reg[operand as usize] % 8) as u8 + b'0');
+                output.push(b',');
+            },
             Opcode::BDV => reg[B] = reg[A] / (1 << reg[operand as usize]),
             Opcode::CDV => reg[C] = reg[A] / (1 << reg[operand as usize]),
         }
@@ -47,9 +50,8 @@ pub fn p1(a: usize, prog: &[u8; PROGRAM_LEN]) -> String {
         ip += 2;
     }
 
-    let mut result = vec![b','; output.len() * 2 - 1];
-    output.iter().enumerate().for_each(|(i, &x)| result[i << 1] = (x as u8) + b'0');
-    unsafe{String::from_utf8_unchecked(result)}
+    output.pop();
+    unsafe{String::from_utf8_unchecked(output)}
 }
 
 pub fn p2(prog: &[u8; PROGRAM_LEN]) -> usize {
