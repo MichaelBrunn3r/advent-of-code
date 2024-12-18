@@ -19,7 +19,7 @@ pub fn parse(input: &str) -> (usize, [u8; PROGRAM_LEN]) {
 }
 
 pub fn p1(a: usize, prog: &[u8; PROGRAM_LEN]) -> String {
-    let mut output: Vec<u8> = vec![b','; PROGRAM_LEN + 2];
+    let mut output: Vec<u8> = vec![b','; PROGRAM_LEN + 1];
     let mut reg = [0, 1, 2, 3, a, 0, 0];
 
     let mut ip = 0;
@@ -42,7 +42,6 @@ pub fn p1(a: usize, prog: &[u8; PROGRAM_LEN]) -> String {
         ip = 0;
     }
 
-    output.pop();
     unsafe { String::from_utf8_unchecked(output) }
 }
 
