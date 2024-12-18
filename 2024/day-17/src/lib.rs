@@ -1,7 +1,7 @@
 use aoc::prelude::*;
 use core::str;
 
-const PROGRAM_LEN: usize = 16;
+pub const PROGRAM_LEN: usize = 16;
 const A: usize = 4;
 const B: usize = 5;
 const C: usize = 6;
@@ -18,8 +18,7 @@ pub fn parse(input: &str) -> (usize, [u8; PROGRAM_LEN]) {
     (a, program)
 }
 
-pub fn p1(a: usize, prog: &[u8; PROGRAM_LEN]) -> String {
-    let mut output: Vec<u8> = vec![b','; PROGRAM_LEN + 1];
+pub fn p1<'o>(a: usize, prog: &[u8; PROGRAM_LEN], out: &'o mut [u8; PROGRAM_LEN + 1]) -> &'o str {
     let mut reg = [0, 1, 2, 3, a, 0, 0];
 
     let mut ip = 0;
@@ -33,7 +32,7 @@ pub fn p1(a: usize, prog: &[u8; PROGRAM_LEN]) -> String {
                 Opcode::BXL => reg[B] ^= operand as usize,
                 Opcode::BST => reg[B] = reg[operand as usize] % 8,
                 Opcode::BXC => reg[B] ^= reg[C],
-                Opcode::OUT => output[i << 1] = (reg[operand as usize] % 8) as u8 + b'0',
+                Opcode::OUT => out[i << 1] = (reg[operand as usize] % 8) as u8 + b'0',
                 Opcode::CDV => reg[C] = reg[A] / (1 << reg[operand as usize]),
                 _ => unreachable!(),
             }
@@ -42,7 +41,7 @@ pub fn p1(a: usize, prog: &[u8; PROGRAM_LEN]) -> String {
         ip = 0;
     }
 
-    unsafe { String::from_utf8_unchecked(output) }
+    unsafe { std::str::from_utf8_unchecked(out) }
 }
 
 pub fn p2(prog: &[u8; PROGRAM_LEN]) -> usize {

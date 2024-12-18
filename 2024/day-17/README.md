@@ -11,8 +11,8 @@ Assumptions:
 | Benchmark                | Time      |
 | ------------------------ | --------- |
 | [parse](./src/lib.rs#L9) | 10 ns     |
-| [p1](./src/lib.rs#L21)   | 54 ns     |
-| [p2](./src/lib.rs#L48)   | 78.60 µs |
+| [p1](./src/lib.rs#L21)   | 46 ns     |
+| [p2](./src/lib.rs#L47)   | 78.60 µs |
 <!-- END benches -->
 <!-- BEGIN other_benches -->
 
