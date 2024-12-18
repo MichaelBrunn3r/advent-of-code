@@ -1,5 +1,6 @@
 #![feature(slice_split_once)]
 #![feature(const_for)]
+#![feature(generic_const_exprs)]
 
 use aoc::{prelude::*, XY};
 use const_for::const_for;
@@ -13,20 +14,7 @@ const START: usize = SIZE + 1;
 const EXIT: usize = SIZE * (SIZE - 1) - 2;
 
 pub type Grid = [u8; SIZE * SIZE];
-pub static mut GRID: Grid = {
-    let mut grid = [b'.'; SIZE * SIZE];
-    const_for!(i in 0..SIZE => {
-        grid[i] = b'#';
-        grid[i * SIZE] = b'#';
-        grid[i * SIZE] = b'#';
-        grid[i * SIZE + (SIZE - 1)] = b'#';
-    });
-    const_for!(i in ((SIZE-1)*SIZE)..(SIZE*SIZE) => {
-        grid[i] = b'#';
-    });
-
-    grid
-};
+pub static mut GRID: Grid = generate_grid::<SIZE, SIZE>(b'.', b'#');
 
 pub fn parse(input: &str, grid: &mut Grid) -> Vec<XY<usize, usize>> {
     let mut bytes_iter = input.as_bytes().split(|&b| b == b'\n').take(3450).map(|l| {
@@ -75,7 +63,7 @@ pub fn p1(grid: &Grid) -> usize {
 }
 
 pub fn p2(bytes: &[XY<usize, usize>], grid: &mut Grid) -> XY<usize, usize> {
-    'outer: for i in 0..3450-1024 {
+    'outer: for i in 0..3450 - 1024 {
         {
             let p = bytes[i];
             grid[p.x as usize + SIZE + 1 + p.y as usize * SIZE] = b'#';
@@ -113,4 +101,21 @@ pub fn p2(bytes: &[XY<usize, usize>], grid: &mut Grid) -> XY<usize, usize> {
     }
 
     xy(0, 0)
+}
+
+const fn generate_grid<const W: usize, const H: usize>(fill: u8, border: u8) -> [u8; W * H]
+where
+    [(); W * H]:,
+{
+    let mut grid = [fill; W * H];
+    const_for!(i in 0..W => {
+        grid[i] = border; // top
+        grid[i * W] = border; // left
+        grid[i * W + (W - 1)] = border; // right
+    });
+    const_for!(i in (W*(H-1))..(W*H) => {
+        grid[i] = border;
+    });
+
+    grid
 }
