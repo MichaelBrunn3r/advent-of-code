@@ -6,7 +6,7 @@ use aoc::{prelude::*, XY};
 use const_for::const_for;
 use core::str;
 use itertools::Itertools;
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 
 const INNER_SIZE: usize = 71;
 pub const SIZE: usize = INNER_SIZE + 2;
@@ -30,43 +30,49 @@ pub fn parse(input: &str, grid: &mut Grid) -> Vec<XY<usize, usize>> {
     bytes_iter.collect_vec()
 }
 
-pub fn p1(grid: &Grid) -> usize {
-    return match find_best_cost(&mut VecDeque::with_capacity(290), &grid) {
-        Some(cost) => cost,
-        None => 0,
-    };
-}
-
-pub fn p2(bytes: &[XY<usize, usize>], grid: &mut Grid) -> XY<usize, usize> {
+pub fn p(bytes: &[XY<usize, usize>], grid: &mut Grid) -> (usize, XY<usize, usize>) {
     let mut stack = VecDeque::with_capacity(290);
-    for i in 0..3450 - 1024 {
-        {
-            let p = bytes[i];
-            grid[p.x as usize + SIZE + 1 + p.y as usize * SIZE] = b'#';
-        }
+    let mut path = Vec::new();
+    let mut prev = HashMap::new();
 
-        if let None = find_best_cost(&mut stack, &grid) {
-            return bytes[i];
+    let best_cost = find_best_cost(&mut stack, &mut path,&mut prev, &grid).unwrap();
+
+    for i in 0..3450 - 1024 {
+        let b = bytes[i];
+        let b = input_to_grid(b.x as usize + b.y as usize * SIZE);
+        grid[b] = b'#';
+
+        if let Some(_) = path.iter().position(|&p| p == b) {
+            if let None = find_best_cost(&mut stack, &mut path, &mut prev, &grid) {
+                return (best_cost, bytes[i]);
+            }
         }
     }
 
-    xy(0, 0)
+    (best_cost, xy(0, 0))
 }
 
-fn find_best_cost(stack: &mut VecDeque<(usize, usize)>, grid: &Grid) -> Option<usize> {
-    let mut best_cost = [usize::MAX; SIZE * SIZE];
+fn find_best_cost(stack: &mut VecDeque<(usize, usize)>, path: &mut Vec<usize>, prev: &mut HashMap<usize, usize>, grid: &Grid) -> Option<usize> {
+    let mut visited = [false; SIZE * SIZE];
     stack.clear();
     stack.push_back((0usize, START));
+    prev.clear();
 
-    while let Some((current_cost, current_pos)) = stack.pop_front() {
+    while let Some((current_cost, mut current_pos)) = stack.pop_front() {
         if current_pos == EXIT {
+            path.clear();
+            path.push(current_pos);
+            while current_pos != START {
+                current_pos = *prev.get(&current_pos).unwrap();
+                path.push(current_pos);
+            }
             return Some(current_cost);
         }
 
-        if current_cost >= best_cost[current_pos] {
+        if visited[current_pos] {
             continue;
         }
-        best_cost[current_pos] = current_cost;
+        visited[current_pos] = true;
 
         [
             current_pos as isize + 1,
@@ -75,15 +81,23 @@ fn find_best_cost(stack: &mut VecDeque<(usize, usize)>, grid: &Grid) -> Option<u
             current_pos as isize - SIZE as isize,
         ]
         .into_iter()
-        .filter(|&x| x >= START as isize && x <= EXIT as isize)
+        .filter(|&x| {
+            x >= START as isize
+                && x <= EXIT as isize
+                && !visited[x as usize]
+                && grid[x as usize] != b'#'
+        })
         .for_each(|p| {
-            if grid[p as usize] != b'#' {
-                stack.push_back((current_cost + 1, p as usize));
-            }
+            stack.push_back((current_cost + 1, p as usize));
+            prev.insert(p as usize, current_pos);
         });
     }
 
     None
+}
+
+fn input_to_grid(pos: usize) -> usize {
+    pos + SIZE + 1
 }
 
 const fn generate_grid<const W: usize, const H: usize>(fill: u8, border: u8) -> [u8; W * H]

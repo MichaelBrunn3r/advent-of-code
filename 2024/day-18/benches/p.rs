@@ -4,10 +4,10 @@ use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
 fn bench(c: &mut Criterion) {
     let bytes = parse(&aoc::read_input_to_string(), unsafe { &mut GRID });
 
-    c.bench_function("aoc_2024_18_p2", |b| {
+    c.bench_function("aoc_2024_18_p", |b| {
         b.iter_batched(
             || unsafe { GRID.clone() },
-            |mut grid| p2(&bytes, &mut grid),
+            |mut grid| p(&bytes, &mut grid),
             BatchSize::SmallInput,
         )
     });
