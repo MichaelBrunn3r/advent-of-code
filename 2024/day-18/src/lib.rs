@@ -32,10 +32,10 @@ pub fn parse(input: &str, grid: &mut Grid) -> Vec<XY<usize, usize>> {
 
 pub fn p(bytes: &[XY<usize, usize>], grid: &mut Grid) -> (usize, XY<usize, usize>) {
     let mut stack = VecDeque::with_capacity(290);
-    let mut path = vec![START];
     let mut prev = [usize::MAX; SIZE * SIZE];
+    let mut path = vec![START];
 
-    let best_cost = find_best_cost(&mut stack, &mut path,&mut prev, &grid).unwrap();
+    let best_cost = find_best_cost(&mut stack, &mut path, &mut prev, &grid).unwrap();
 
     for i in 0..3450 - 1024 {
         let b = bytes[i];
@@ -53,10 +53,15 @@ pub fn p(bytes: &[XY<usize, usize>], grid: &mut Grid) -> (usize, XY<usize, usize
     (best_cost, xy(0, 0))
 }
 
-fn find_best_cost(stack: &mut VecDeque<(usize, usize)>, path: &mut Vec<usize>, prev: &mut [usize], grid: &Grid) -> Option<usize> {
+fn find_best_cost(
+    stack: &mut VecDeque<(usize, usize)>,
+    path: &mut Vec<usize>,
+    prev: &mut [usize],
+    grid: &Grid,
+) -> Option<usize> {
     let mut visited = [false; SIZE * SIZE];
     stack.clear();
-    let start = path[path.len()-1];
+    let start = path[path.len() - 1];
     stack.push_back((0usize, start));
 
     while let Some((current_cost, mut current_pos)) = stack.pop_front() {
