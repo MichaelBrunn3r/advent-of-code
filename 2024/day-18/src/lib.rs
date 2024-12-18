@@ -6,7 +6,7 @@ use aoc::{prelude::*, XY};
 use const_for::const_for;
 use core::str;
 use itertools::Itertools;
-use std::{cmp::Reverse, collections::{BinaryHeap, VecDeque}};
+use std::collections::VecDeque;
 
 const INNER_SIZE: usize = 71;
 pub const SIZE: usize = INNER_SIZE + 2;
@@ -31,12 +31,36 @@ pub fn parse(input: &str, grid: &mut Grid) -> Vec<XY<usize, usize>> {
 }
 
 pub fn p1(grid: &Grid) -> usize {
-    let mut best_cost = [usize::MAX; SIZE * SIZE];
+    return match find_best_cost(&mut VecDeque::with_capacity(290), &grid) {
+        Some(cost) => cost,
+        None => 0,
+    };
+}
+
+pub fn p2(bytes: &[XY<usize, usize>], grid: &mut Grid) -> XY<usize, usize> {
     let mut stack = VecDeque::with_capacity(290);
+    for i in 0..3450 - 1024 {
+        {
+            let p = bytes[i];
+            grid[p.x as usize + SIZE + 1 + p.y as usize * SIZE] = b'#';
+        }
+
+        if let None = find_best_cost(&mut stack, &grid) {
+            return bytes[i];
+        }
+    }
+
+    xy(0, 0)
+}
+
+fn find_best_cost(stack: &mut VecDeque<(usize, usize)>, grid: &Grid) -> Option<usize> {
+    let mut best_cost = [usize::MAX; SIZE * SIZE];
+    stack.clear();
     stack.push_back((0usize, START));
+
     while let Some((current_cost, current_pos)) = stack.pop_front() {
         if current_pos == EXIT {
-            return current_cost;
+            return Some(current_cost);
         }
 
         if current_cost >= best_cost[current_pos] {
@@ -46,8 +70,8 @@ pub fn p1(grid: &Grid) -> usize {
 
         [
             current_pos as isize + 1,
-            current_pos as isize + SIZE as isize,
             current_pos as isize - 1,
+            current_pos as isize + SIZE as isize,
             current_pos as isize - SIZE as isize,
         ]
         .into_iter()
@@ -59,49 +83,7 @@ pub fn p1(grid: &Grid) -> usize {
         });
     }
 
-    0
-}
-
-pub fn p2(bytes: &[XY<usize, usize>], grid: &mut Grid) -> XY<usize, usize> {
-    let mut stack = VecDeque::with_capacity(290);
-    'outer: for i in 0..3450 - 1024 {
-        {
-            let p = bytes[i];
-            grid[p.x as usize + SIZE + 1 + p.y as usize * SIZE] = b'#';
-        }
-
-        let mut best_cost = [usize::MAX; SIZE * SIZE];
-        stack.clear();
-        stack.push_back((0usize, START));
-        while let Some((current_cost, current_pos)) = stack.pop_front() {
-            if current_pos == EXIT {
-                continue 'outer;
-            }
-
-            if current_cost >= best_cost[current_pos] {
-                continue;
-            }
-            best_cost[current_pos] = current_cost;
-
-            [
-                current_pos as isize + 1,
-                current_pos as isize - 1,
-                current_pos as isize + SIZE as isize,
-                current_pos as isize - SIZE as isize,
-            ]
-            .into_iter()
-            .filter(|&x| x >= START as isize && x <= EXIT as isize)
-            .for_each(|p| {
-                if grid[p as usize] != b'#' {
-                    stack.push_back((current_cost + 1, p as usize));
-                }
-            });
-        }
-
-        return bytes[i];
-    }
-
-    xy(0, 0)
+    None
 }
 
 const fn generate_grid<const W: usize, const H: usize>(fill: u8, border: u8) -> [u8; W * H]
