@@ -55,10 +55,10 @@ pub fn p1(a: usize, prog: &[u8; PROGRAM_LEN]) -> String {
 }
 
 pub fn p2(prog: &[u8; PROGRAM_LEN]) -> usize {
-    let min_a = 8usize.pow((PROGRAM_LEN - 1) as u32);
-    // let max_a = 8usize.pow(PROGRAM_LEN as u32) - 1;
+    const MIN_A: usize = 8usize.pow((PROGRAM_LEN - 1) as u32);
+    // const MAX_A: usize = 8usize.pow(PROGRAM_LEN as u32) - 1;
 
-    let mut a = min_a;
+    let mut a = MIN_A;
     for i in 0..prog.len() {
         let digit = prog.len() - i - 1;
         let step = 8usize.pow(digit as u32);
@@ -70,10 +70,9 @@ pub fn p2(prog: &[u8; PROGRAM_LEN]) -> usize {
     a
 }
 
-fn check(a: usize, mut digit: usize, prog: &[u8; PROGRAM_LEN]) -> bool {
-    let mut output: Vec<u8> = Vec::with_capacity(PROGRAM_LEN);
+fn check(a: usize, digit: usize, prog: &[u8; PROGRAM_LEN]) -> bool {
+    let mut i = 0;
     let mut reg = [0, 1, 2, 3, a, 0, 0];
-
     let mut ip = 0;
     while ip < prog.len() {
         let op = unsafe { std::mem::transmute::<u8, Opcode>(prog[ip]) };
@@ -91,7 +90,11 @@ fn check(a: usize, mut digit: usize, prog: &[u8; PROGRAM_LEN]) -> bool {
             }
             Opcode::BXC => reg[B] ^= reg[C],
             Opcode::OUT => {
-                output.push((reg[operand as usize] % 8) as u8);
+                let val = (reg[operand as usize] % 8) as u8;
+                if i >= digit && prog[i] != val {
+                    return false;
+                }
+                 i += 1;
             }
             Opcode::BDV => reg[B] = reg[A] / (1 << reg[operand as usize]),
             Opcode::CDV => reg[C] = reg[A] / (1 << reg[operand as usize]),
@@ -100,12 +103,6 @@ fn check(a: usize, mut digit: usize, prog: &[u8; PROGRAM_LEN]) -> bool {
         ip += 2;
     }
 
-    while digit < prog.len() {
-        if output[digit] != prog[digit] {
-            return false;
-        }
-        digit += 1;
-    }
     true
 }
 

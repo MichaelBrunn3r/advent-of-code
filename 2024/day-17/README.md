@@ -7,11 +7,11 @@ Assumptions:
 ## Benchmarks
 
 <!-- BEGIN benches -->
-| Benchmark                | Time       |
-| ------------------------ | ---------- |
-| [parse](./src/lib.rs#L9) | 10 ns      |
-| [p1](./src/lib.rs#L21)   | 62 ns      |
-| [p2](./src/lib.rs#L57)   | 105.16 µs |
+| Benchmark                | Time      |
+| ------------------------ | --------- |
+| [parse](./src/lib.rs#L9) | 10 ns     |
+| [p1](./src/lib.rs#L21)   | 62 ns     |
+| [p2](./src/lib.rs#L57)   | 78.56 µs |
 <!-- END benches -->
 <!-- BEGIN other_benches -->
 
