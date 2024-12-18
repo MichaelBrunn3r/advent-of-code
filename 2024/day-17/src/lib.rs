@@ -1,5 +1,5 @@
-use core::str;
 use aoc::prelude::*;
+use core::str;
 
 const PROGRAM_LEN: usize = 16;
 const A: usize = 4;
@@ -23,28 +23,31 @@ pub fn p1(a: usize, prog: &[u8; PROGRAM_LEN]) -> String {
     let mut reg = [0, 1, 2, 3, a, 0, 0];
 
     let mut ip = 0;
-    while ip < prog.len() {
-        let op = unsafe { std::mem::transmute::<u8, Opcode>(prog[ip]) };
-        let operand = prog[ip + 1];
+    for _ in 0..(a as f32).log(8.0).ceil() as usize {
+        for _ in 0..(prog.len() / 2) - 1 {
+            let op = unsafe { std::mem::transmute::<u8, Opcode>(prog[ip]) };
+            let operand = prog[ip + 1];
 
-        match op {
-            Opcode::ADV => reg[A] = reg[A] / (1 << reg[operand as usize]),
-            Opcode::BXL => reg[B] ^= operand as usize,
-            Opcode::BST => reg[B] = reg[operand as usize] % 8,
-            Opcode::JNZ => if reg[A] != 0 {
-                    ip = operand as usize;
-                    continue;
+            match op {
+                Opcode::ADV => reg[A] = reg[A] / (1 << reg[operand as usize]),
+                Opcode::BXL => reg[B] ^= operand as usize,
+                Opcode::BST => reg[B] = reg[operand as usize] % 8,
+                // Opcode::JNZ => if reg[A] != 0 {
+                //     ip = operand as usize;
+                //     continue;
+                // }
+                Opcode::BXC => reg[B] ^= reg[C],
+                Opcode::OUT => {
+                    output.push((reg[operand as usize] % 8) as u8 + b'0');
+                    output.push(b',');
                 }
-            Opcode::BXC => reg[B] ^= reg[C],
-            Opcode::OUT => {
-                output.push((reg[operand as usize] % 8) as u8 + b'0');
-                output.push(b',');
+                // Opcode::BDV => reg[B] = reg[A] / (1 << reg[operand as usize]),
+                Opcode::CDV => reg[C] = reg[A] / (1 << reg[operand as usize]),
+                _ => unreachable!(),
             }
-            Opcode::BDV => reg[B] = reg[A] / (1 << reg[operand as usize]),
-            Opcode::CDV => reg[C] = reg[A] / (1 << reg[operand as usize])
+            ip += 2;
         }
-
-        ip += 2;
+        ip = 0;
     }
 
     output.pop();
@@ -104,7 +107,7 @@ fn check(a: usize, mut digit: usize, prog: &[u8; PROGRAM_LEN]) -> bool {
         digit += 1;
     }
     true
-} 
+}
 
 #[derive(Debug)]
 #[repr(u8)]

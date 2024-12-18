@@ -2,6 +2,7 @@
 
 Assumptions:
  - Programs always end in `3,0`
+ - Programs have exactly 1 output instruction. That instruction always outputs the same register B or C
 
 ## Benchmarks
 
@@ -9,8 +10,8 @@ Assumptions:
 | Benchmark                | Time       |
 | ------------------------ | ---------- |
 | [parse](./src/lib.rs#L9) | 10 ns      |
-| [p1](./src/lib.rs#L21)   | 79 ns      |
-| [p2](./src/lib.rs#L54)   | 105.16 µs |
+| [p1](./src/lib.rs#L21)   | 62 ns      |
+| [p2](./src/lib.rs#L57)   | 105.16 µs |
 <!-- END benches -->
 <!-- BEGIN other_benches -->
 
