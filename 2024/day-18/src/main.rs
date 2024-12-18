@@ -1,9 +1,9 @@
 use aoc_2024_18::*;
 
 fn main() {
-    let input = aoc::read_input_to_string();
-    println!("Part 1: {}", p1(&input, unsafe { &mut GRID }));
-    println!("Part 2: {:?}", p2(&input));
+    let bytes = parse(&aoc::read_input_to_string(), unsafe { &mut GRID });
+    println!("Part 1: {}", p1(unsafe { &GRID }));
+    println!("Part 2: {:?}", p2(&bytes, unsafe { &mut GRID }));
 }
 
 #[cfg(test)]
@@ -14,11 +14,13 @@ mod tests {
 
     #[test]
     fn test_p1() {
-        assert_eq!(p1(&aoc::read_input_to_string(), unsafe { &mut GRID }), 276);
+        parse(&aoc::read_input_to_string(), unsafe { &mut GRID });
+        assert_eq!(p1(unsafe { &GRID }), 276);
     }
 
     #[test]
     fn test_p2() {
-        assert_eq!(p2(&aoc::read_input_to_string()), xy(60usize, 37usize));
+        let bytes = parse(&aoc::read_input_to_string(), unsafe { &mut GRID });
+        assert_eq!(p2(&bytes, unsafe { &mut GRID }), xy(60usize, 37usize));
     }
 }

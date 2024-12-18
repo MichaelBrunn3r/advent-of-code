@@ -3,8 +3,8 @@
 
 use aoc::{prelude::*, XY};
 use const_for::const_for;
-use itertools::Itertools;
 use core::str;
+use itertools::Itertools;
 use std::{cmp::Reverse, collections::BinaryHeap};
 
 const INNER_SIZE: usize = 71;
@@ -28,19 +28,21 @@ pub static mut GRID: Grid = {
     grid
 };
 
-pub fn p1(input: &str, grid: &mut Grid) -> usize {
-    input
-        .as_bytes()
-        .split(|&b| b == b'\n')
-        .take(1024)
-        .map(|l| {
-            let (x, y) = l.split_once(|&b| b == b',').unwrap();
-            xy(x.parse_ascii_digits(), y.parse_ascii_digits())
-        })
-        .for_each(|p| {
-            grid[p.x as usize + SIZE + 1 + p.y as usize * SIZE] = b'#';
-        });
+pub fn parse(input: &str, grid: &mut Grid) -> Vec<XY<usize, usize>> {
+    let mut bytes_iter = input.as_bytes().split(|&b| b == b'\n').take(3450).map(|l| {
+        let (x, y) = l.split_once(|&b| b == b',').unwrap();
+        xy(x.parse_ascii_digits(), y.parse_ascii_digits())
+    });
 
+    for _ in 0..1024 {
+        let b = bytes_iter.next().unwrap();
+        grid[b.x as usize + SIZE + 1 + b.y as usize * SIZE] = b'#';
+    }
+
+    bytes_iter.collect_vec()
+}
+
+pub fn p1(grid: &Grid) -> usize {
     let mut best_cost = [usize::MAX; SIZE * SIZE];
     let mut stack = BinaryHeap::new();
     stack.push(Reverse((0usize, START)));
@@ -67,39 +69,15 @@ pub fn p1(input: &str, grid: &mut Grid) -> usize {
                 stack.push(Reverse((current_cost + 1, p as usize)));
             }
         });
-
-        grid[current_pos] = b'O';
     }
 
     0
 }
 
-pub fn p2(input: &str) -> XY<usize, usize> {
-    let mut grid = [b'.'; SIZE * SIZE];
-    (0..SIZE).for_each(|i| {
-        grid[i] = b'#';
-        grid[i * SIZE] = b'#';
-        grid[i * SIZE] = b'#';
-        grid[i * SIZE + (SIZE - 1)] = b'#';
-    });
-    ((SIZE - 1) * SIZE..SIZE * SIZE).for_each(|i| grid[i] = b'#');
-
-    let bytes = input
-    .as_bytes()
-    .split(|&b| b == b'\n')
-    .take(3450)
-    .map(|l| {
-        let (x, y) = l.split_once(|&b| b == b',').unwrap();
-        xy(x.parse_ascii_digits(), y.parse_ascii_digits())
-    }).collect_vec();
-
-    bytes.iter().take(1024).for_each(|p| {
-        grid[p.x as usize + SIZE + 1 + p.y as usize * SIZE] = b'#';
-    });
-    
-    'outer: for i in 1024..=3450 {
+pub fn p2(bytes: &[XY<usize, usize>], grid: &mut Grid) -> XY<usize, usize> {
+    'outer: for i in 0..3450-1024 {
         {
-            let p = bytes[i-1];
+            let p = bytes[i];
             grid[p.x as usize + SIZE + 1 + p.y as usize * SIZE] = b'#';
         }
 
@@ -131,7 +109,7 @@ pub fn p2(input: &str) -> XY<usize, usize> {
             });
         }
 
-        return bytes[i-1];
+        return bytes[i];
     }
 
     xy(0, 0)
