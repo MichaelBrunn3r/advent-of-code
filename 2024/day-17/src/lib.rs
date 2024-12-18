@@ -19,11 +19,11 @@ pub fn parse(input: &str) -> (usize, [u8; PROGRAM_LEN]) {
 }
 
 pub fn p1(a: usize, prog: &[u8; PROGRAM_LEN]) -> String {
-    let mut output: Vec<u8> = Vec::with_capacity(PROGRAM_LEN * 2);
+    let mut output: Vec<u8> = vec![b','; PROGRAM_LEN + 2];
     let mut reg = [0, 1, 2, 3, a, 0, 0];
 
     let mut ip = 0;
-    for _ in 0..(a as f32).log(8.0).ceil() as usize {
+    for i in 0..(a as f32).log(8.0).ceil() as usize {
         for _ in 0..(prog.len() / 2) - 1 {
             let op = unsafe { std::mem::transmute::<u8, Opcode>(prog[ip]) };
             let operand = prog[ip + 1];
@@ -32,16 +32,8 @@ pub fn p1(a: usize, prog: &[u8; PROGRAM_LEN]) -> String {
                 Opcode::ADV => reg[A] = reg[A] / (1 << reg[operand as usize]),
                 Opcode::BXL => reg[B] ^= operand as usize,
                 Opcode::BST => reg[B] = reg[operand as usize] % 8,
-                // Opcode::JNZ => if reg[A] != 0 {
-                //     ip = operand as usize;
-                //     continue;
-                // }
                 Opcode::BXC => reg[B] ^= reg[C],
-                Opcode::OUT => {
-                    output.push((reg[operand as usize] % 8) as u8 + b'0');
-                    output.push(b',');
-                }
-                // Opcode::BDV => reg[B] = reg[A] / (1 << reg[operand as usize]),
+                Opcode::OUT => output[i << 1] = (reg[operand as usize] % 8) as u8 + b'0',
                 Opcode::CDV => reg[C] = reg[A] / (1 << reg[operand as usize]),
                 _ => unreachable!(),
             }
