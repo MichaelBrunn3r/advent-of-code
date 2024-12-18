@@ -2,23 +2,23 @@ use aoc_2024_18::*;
 
 fn main() {
     let input = aoc::read_input_to_string();
-    println!("Part 1: {}", p1(&input));
+    println!("Part 1: {}", p1(&input, unsafe { &mut GRID }));
     println!("Part 2: {:?}", p2(&input));
 }
 
 #[cfg(test)]
 mod tests {
-    use aoc::{xy, XY};
+    use aoc::xy;
 
     use super::*;
 
     #[test]
     fn test_p1() {
-        assert_eq!(p1(&aoc::read_input_to_string()), 276);
+        assert_eq!(p1(&aoc::read_input_to_string(), unsafe { &mut GRID }), 276);
     }
 
     #[test]
     fn test_p2() {
-        assert_eq!(p2(&aoc::read_input_to_string()), xy(60usize,37usize));
+        assert_eq!(p2(&aoc::read_input_to_string()), xy(60usize, 37usize));
     }
 }

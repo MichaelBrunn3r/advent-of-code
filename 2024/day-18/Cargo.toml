@@ -11,6 +11,7 @@ itertools = { workspace = true }
 rayon = { workspace = true }
 criterion = {workspace = true}
 rand = {workspace = true}
+const_for = "0.1.5"
 
 [[bench]]
 name = "p1"

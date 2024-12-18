@@ -1,24 +1,34 @@
 #![feature(slice_split_once)]
+#![feature(const_for)]
+
 use aoc::{prelude::*, XY};
+use const_for::const_for;
 use itertools::Itertools;
 use core::str;
 use std::{cmp::Reverse, collections::BinaryHeap};
 
 const INNER_SIZE: usize = 71;
-const SIZE: usize = INNER_SIZE + 2;
+pub const SIZE: usize = INNER_SIZE + 2;
 const START: usize = SIZE + 1;
 const EXIT: usize = SIZE * (SIZE - 1) - 2;
 
-pub fn p1(input: &str) -> usize {
+pub type Grid = [u8; SIZE * SIZE];
+pub static mut GRID: Grid = {
     let mut grid = [b'.'; SIZE * SIZE];
-    (0..SIZE).for_each(|i| {
+    const_for!(i in 0..SIZE => {
         grid[i] = b'#';
         grid[i * SIZE] = b'#';
         grid[i * SIZE] = b'#';
         grid[i * SIZE + (SIZE - 1)] = b'#';
     });
-    ((SIZE - 1) * SIZE..SIZE * SIZE).for_each(|i| grid[i] = b'#');
+    const_for!(i in ((SIZE-1)*SIZE)..(SIZE*SIZE) => {
+        grid[i] = b'#';
+    });
 
+    grid
+};
+
+pub fn p1(input: &str, grid: &mut Grid) -> usize {
     input
         .as_bytes()
         .split(|&b| b == b'\n')
@@ -64,7 +74,6 @@ pub fn p1(input: &str) -> usize {
     0
 }
 
-// 2976
 pub fn p2(input: &str) -> XY<usize, usize> {
     let mut grid = [b'.'; SIZE * SIZE];
     (0..SIZE).for_each(|i| {
@@ -89,11 +98,8 @@ pub fn p2(input: &str) -> XY<usize, usize> {
     });
     
     'outer: for i in 1024..=3450 {
-        // println!("{i}");
-
         {
             let p = bytes[i-1];
-            // println!("{:?}", p);
             grid[p.x as usize + SIZE + 1 + p.y as usize * SIZE] = b'#';
         }
 
