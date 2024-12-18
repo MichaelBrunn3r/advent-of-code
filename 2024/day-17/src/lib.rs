@@ -1,52 +1,49 @@
 use aoc::prelude::*;
 use core::str;
-use itertools::Itertools;
 
-pub const PROGRAM_LEN: usize = 16;
+pub const PROG_LEN: usize = 16;
 const A: usize = 4;
 const B: usize = 5;
 const C: usize = 6;
 
-pub fn parse(input: &str) -> (usize, [u8; PROGRAM_LEN]) {
+pub fn parse(input: &str) -> (usize, [u8; PROG_LEN]) {
     let mut crs = input.as_bytes().as_ptr();
     crs.skip("Register A: ".len());
 
     let a: usize = crs.parse_uint_n_digits(crs.find(b'\n'));
     crs.skip("\nRegister B: 0\nRegister C: 0\n\nProgram: ".len());
 
-    let program = crs.parse_n_uints::<u8, PROGRAM_LEN, 1>(1);
+    let program = crs.parse_n_uints::<u8, PROG_LEN, 1>(1);
 
     (a, program)
 }
 
-pub fn p1<'o>(a: usize, prog: &[u8; PROGRAM_LEN], out: &'o mut [u8; PROGRAM_LEN + 1]) -> &'o str {
+pub fn p1<'o>(a: usize, prog: &[u8; PROG_LEN], out: &'o mut [u8; PROG_LEN + 1]) -> &'o str {
     let mut reg = [0, 1, 2, 3, a, 0, 0];
-
     let mut ip = 0;
     for i in 0..(a as f32).log(8.0).ceil() as usize {
-        for _ in 0..(prog.len() / 2) - 1 {
-            let op = unsafe { std::mem::transmute::<u8, Opcode>(prog[ip]) };
-            let operand = prog[ip + 1];
+        for _ in 0..(prog.len() >> 1) - 1 {
+            let op = Opcode::from(prog[ip]);
+            let operand = prog[ip + 1] as usize;
 
             match op {
-                Opcode::ADV => reg[A] = reg[A] / (1 << reg[operand as usize]),
-                Opcode::BXL => reg[B] ^= operand as usize,
-                Opcode::BST => reg[B] = reg[operand as usize] % 8,
+                Opcode::ADV => reg[A] = reg[A] >> reg[operand],
+                Opcode::BXL => reg[B] ^= operand,
+                Opcode::BST => reg[B] = reg[operand] & 0b111,
                 Opcode::BXC => reg[B] ^= reg[C],
-                Opcode::OUT => out[i << 1] = (reg[operand as usize] % 8) as u8 + b'0',
-                Opcode::CDV => reg[C] = reg[A] / (1 << reg[operand as usize]),
+                Opcode::OUT => out[i << 1] = (reg[operand] & 0b111) as u8 + b'0',
+                Opcode::CDV => reg[C] = reg[A] >> reg[operand],
                 _ => unreachable!(),
             }
-            ip += 2;
+            ip = (ip + 2) % (prog.len() - 2);
         }
-        ip = 0;
     }
 
     unsafe { std::str::from_utf8_unchecked(out) }
 }
 
-pub fn p2(prog: &[u8; PROGRAM_LEN]) -> usize {
-    const MIN_A: usize = 8usize.pow((PROGRAM_LEN - 1) as u32);
+pub fn p2(prog: &[u8; PROG_LEN]) -> usize {
+    const MIN_A: usize = 8usize.pow((PROG_LEN - 1) as u32);
     // const MAX_A: usize = 8usize.pow(PROGRAM_LEN as u32) - 1;
 
     let mut a = MIN_A;
@@ -61,7 +58,7 @@ pub fn p2(prog: &[u8; PROGRAM_LEN]) -> usize {
     a
 }
 
-fn check_digits(mut a: usize, digit: usize, prog: &[u8; PROGRAM_LEN]) -> bool {
+fn check_digits(mut a: usize, digit: usize, prog: &[u8; PROG_LEN]) -> bool {
     a = a >> digit * 3;
     for i in digit..prog.len() {
         let val = ((((a & 0b111) ^ 7) ^ (a >> (((a & 0b111) ^ 7)))) ^ 4) & 0b111;
@@ -85,6 +82,12 @@ enum Opcode {
     OUT = 5, // output(<COMBO> % 8); IP += 2
     BDV = 6, // B = floor(A/pow(2, <COMBO>)); IP += 2
     CDV = 7, // C = floor(A/pow(2, <COMBO>)); IP += 2
+}
+
+impl From<u8> for Opcode {
+    fn from(value: u8) -> Self {
+        unsafe { std::mem::transmute::<u8, Opcode>(value) }
+    }
 }
 
 // B = A % 8

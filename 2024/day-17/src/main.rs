@@ -1,6 +1,6 @@
 use aoc_2024_17::*;
 
-static mut OUTPUT_BUFFER: [u8; PROGRAM_LEN + 1] = [b','; PROGRAM_LEN + 1];
+static mut OUTPUT_BUFFER: [u8; PROG_LEN + 1] = [b','; PROG_LEN + 1];
 
 fn main() {
     let (a, prog) = parse(&aoc::read_input_to_string());
@@ -15,7 +15,7 @@ mod tests {
     #[test]
     fn test_p1() {
         let (a, prog) = parse(&aoc::read_input_to_string());
-        let mut out = [b','; PROGRAM_LEN + 1];
+        let mut out = [b','; PROG_LEN + 1];
         assert_eq!(p1(a, &prog, &mut out), "2,1,0,4,6,2,4,2,0");
     }
 
