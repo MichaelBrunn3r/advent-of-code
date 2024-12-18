@@ -19,6 +19,6 @@ mod tests {
     #[test]
     fn test_p2() {
         let (_, prog) = parse(&aoc::read_input_to_string());
-        assert_eq!(p2(&prog), 0);
+        assert_eq!(p2(&prog), 109685330781408);
     }
 }
