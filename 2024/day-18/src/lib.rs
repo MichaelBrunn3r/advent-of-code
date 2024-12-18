@@ -32,8 +32,8 @@ pub fn parse(input: &str, grid: &mut Grid) -> Vec<XY<usize, usize>> {
 
 pub fn p(bytes: &[XY<usize, usize>], grid: &mut Grid) -> (usize, XY<usize, usize>) {
     let mut stack = VecDeque::with_capacity(290);
-    let mut path = Vec::new();
-    let mut prev = HashMap::new();
+    let mut path = vec![START];
+    let mut prev = [usize::MAX; SIZE * SIZE];
 
     let best_cost = find_best_cost(&mut stack, &mut path,&mut prev, &grid).unwrap();
 
@@ -43,6 +43,7 @@ pub fn p(bytes: &[XY<usize, usize>], grid: &mut Grid) -> (usize, XY<usize, usize
         grid[b] = b'#';
 
         if let Some(_) = path.iter().position(|&p| p == b) {
+            path.truncate(1);
             if let None = find_best_cost(&mut stack, &mut path, &mut prev, &grid) {
                 return (best_cost, bytes[i]);
             }
@@ -52,18 +53,20 @@ pub fn p(bytes: &[XY<usize, usize>], grid: &mut Grid) -> (usize, XY<usize, usize
     (best_cost, xy(0, 0))
 }
 
-fn find_best_cost(stack: &mut VecDeque<(usize, usize)>, path: &mut Vec<usize>, prev: &mut HashMap<usize, usize>, grid: &Grid) -> Option<usize> {
+fn find_best_cost(stack: &mut VecDeque<(usize, usize)>, path: &mut Vec<usize>, prev: &mut [usize], grid: &Grid) -> Option<usize> {
     let mut visited = [false; SIZE * SIZE];
     stack.clear();
-    stack.push_back((0usize, START));
-    prev.clear();
+    let start = path[path.len()-1];
+    stack.push_back((0usize, start));
 
     while let Some((current_cost, mut current_pos)) = stack.pop_front() {
         if current_pos == EXIT {
-            path.clear();
             path.push(current_pos);
-            while current_pos != START {
-                current_pos = *prev.get(&current_pos).unwrap();
+            loop {
+                current_pos = prev[current_pos];
+                if current_pos == start {
+                    break;
+                }
                 path.push(current_pos);
             }
             return Some(current_cost);
@@ -76,8 +79,8 @@ fn find_best_cost(stack: &mut VecDeque<(usize, usize)>, path: &mut Vec<usize>, p
 
         [
             current_pos as isize + 1,
-            current_pos as isize - 1,
             current_pos as isize + SIZE as isize,
+            current_pos as isize - 1,
             current_pos as isize - SIZE as isize,
         ]
         .into_iter()
@@ -89,7 +92,7 @@ fn find_best_cost(stack: &mut VecDeque<(usize, usize)>, path: &mut Vec<usize>, p
         })
         .for_each(|p| {
             stack.push_back((current_cost + 1, p as usize));
-            prev.insert(p as usize, current_pos);
+            prev[p as usize] = current_pos;
         });
     }
 
