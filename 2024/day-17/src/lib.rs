@@ -1,5 +1,6 @@
 use aoc::prelude::*;
 use core::str;
+use itertools::Itertools;
 
 pub const PROGRAM_LEN: usize = 16;
 const A: usize = 4;
@@ -49,10 +50,10 @@ pub fn p2(prog: &[u8; PROGRAM_LEN]) -> usize {
     // const MAX_A: usize = 8usize.pow(PROGRAM_LEN as u32) - 1;
 
     let mut a = MIN_A;
-    for i in 0..prog.len() {
-        let digit = prog.len() - i - 1;
-        let step = 8usize.pow(digit as u32);
-        while !check(a, digit, prog) {
+    for digit in (0..prog.len()).rev() {
+        let step = 1 << digit * 3;
+
+        while !check_digits(a, digit, prog) {
             a += step;
         }
     }
@@ -60,37 +61,14 @@ pub fn p2(prog: &[u8; PROGRAM_LEN]) -> usize {
     a
 }
 
-fn check(a: usize, digit: usize, prog: &[u8; PROGRAM_LEN]) -> bool {
-    let mut i = 0;
-    let mut reg = [0, 1, 2, 3, a, 0, 0];
-    let mut ip = 0;
-    while ip < prog.len() {
-        let op = unsafe { std::mem::transmute::<u8, Opcode>(prog[ip]) };
-        let operand = prog[ip + 1];
-
-        match op {
-            Opcode::ADV => reg[A] = reg[A] / (1 << reg[operand as usize]),
-            Opcode::BXL => reg[B] ^= operand as usize,
-            Opcode::BST => reg[B] = reg[operand as usize] % 8,
-            Opcode::JNZ => {
-                if reg[A] != 0 {
-                    ip = operand as usize;
-                    continue;
-                }
-            }
-            Opcode::BXC => reg[B] ^= reg[C],
-            Opcode::OUT => {
-                let val = (reg[operand as usize] % 8) as u8;
-                if i >= digit && prog[i] != val {
-                    return false;
-                }
-                 i += 1;
-            }
-            Opcode::BDV => reg[B] = reg[A] / (1 << reg[operand as usize]),
-            Opcode::CDV => reg[C] = reg[A] / (1 << reg[operand as usize]),
+fn check_digits(mut a: usize, digit: usize, prog: &[u8; PROGRAM_LEN]) -> bool {
+    a = a >> digit * 3;
+    for i in digit..prog.len() {
+        let val = ((((a & 0b111) ^ 7) ^ (a >> (((a & 0b111) ^ 7)))) ^ 4) & 0b111;
+        if prog[i] as usize != val {
+            return false;
         }
-
-        ip += 2;
+        a >>= 3;
     }
 
     true
