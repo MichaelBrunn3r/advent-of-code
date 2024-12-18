@@ -6,7 +6,7 @@ use aoc::{prelude::*, XY};
 use const_for::const_for;
 use core::str;
 use itertools::Itertools;
-use std::{cmp::Reverse, collections::BinaryHeap};
+use std::{cmp::Reverse, collections::{BinaryHeap, VecDeque}};
 
 const INNER_SIZE: usize = 71;
 pub const SIZE: usize = INNER_SIZE + 2;
@@ -32,9 +32,9 @@ pub fn parse(input: &str, grid: &mut Grid) -> Vec<XY<usize, usize>> {
 
 pub fn p1(grid: &Grid) -> usize {
     let mut best_cost = [usize::MAX; SIZE * SIZE];
-    let mut stack = BinaryHeap::new();
-    stack.push(Reverse((0usize, START)));
-    while let Some(Reverse((current_cost, current_pos))) = stack.pop() {
+    let mut stack = VecDeque::with_capacity(290);
+    stack.push_back((0usize, START));
+    while let Some((current_cost, current_pos)) = stack.pop_front() {
         if current_pos == EXIT {
             return current_cost;
         }
@@ -46,15 +46,15 @@ pub fn p1(grid: &Grid) -> usize {
 
         [
             current_pos as isize + 1,
-            current_pos as isize - 1,
             current_pos as isize + SIZE as isize,
+            current_pos as isize - 1,
             current_pos as isize - SIZE as isize,
         ]
         .into_iter()
         .filter(|&x| x >= START as isize && x <= EXIT as isize)
         .for_each(|p| {
             if grid[p as usize] != b'#' {
-                stack.push(Reverse((current_cost + 1, p as usize)));
+                stack.push_back((current_cost + 1, p as usize));
             }
         });
     }
@@ -63,6 +63,7 @@ pub fn p1(grid: &Grid) -> usize {
 }
 
 pub fn p2(bytes: &[XY<usize, usize>], grid: &mut Grid) -> XY<usize, usize> {
+    let mut stack = VecDeque::with_capacity(290);
     'outer: for i in 0..3450 - 1024 {
         {
             let p = bytes[i];
@@ -70,9 +71,9 @@ pub fn p2(bytes: &[XY<usize, usize>], grid: &mut Grid) -> XY<usize, usize> {
         }
 
         let mut best_cost = [usize::MAX; SIZE * SIZE];
-        let mut stack = BinaryHeap::new();
-        stack.push(Reverse((0usize, START)));
-        while let Some(Reverse((current_cost, current_pos))) = stack.pop() {
+        stack.clear();
+        stack.push_back((0usize, START));
+        while let Some((current_cost, current_pos)) = stack.pop_front() {
             if current_pos == EXIT {
                 continue 'outer;
             }
@@ -92,7 +93,7 @@ pub fn p2(bytes: &[XY<usize, usize>], grid: &mut Grid) -> XY<usize, usize> {
             .filter(|&x| x >= START as isize && x <= EXIT as isize)
             .for_each(|p| {
                 if grid[p as usize] != b'#' {
-                    stack.push(Reverse((current_cost + 1, p as usize)));
+                    stack.push_back((current_cost + 1, p as usize));
                 }
             });
         }
