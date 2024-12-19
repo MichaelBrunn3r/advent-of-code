@@ -38,7 +38,7 @@ pub fn p(patterns: &[Node], designs: &[u8]) -> (usize, usize) {
     designs
         .par_split(|&b|b == b'\n')
         .filter(|d| d.len() > 0)
-        .map(|d| num_possibilities(&patterns, d, &mut vec![u64::MAX; d.len() + 1]))
+        .map(|d| num_possibilities(&patterns, d, &mut [u64::MAX; 65]))
         .filter(|&n| n > 0)
         .map(|n| (1, n as usize))
         .reduce(|| (0,0), |a, b| (a.0 + b.0, a.1 + b.1))
@@ -47,7 +47,7 @@ pub fn p(patterns: &[Node], designs: &[u8]) -> (usize, usize) {
 fn num_possibilities<'d>(
     patterns: &[Node],
     design: &'d [u8],
-    memo: &mut Vec<u64>,
+    memo: &mut [u64],
 ) -> u64 {
     if design.len() == 0 {
         return 1;
