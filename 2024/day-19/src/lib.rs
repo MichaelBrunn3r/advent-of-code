@@ -11,7 +11,7 @@ pub fn p(input: &str) -> (usize, usize) {
     patterns
         .split(", ")
         .map(|s| s.as_bytes())
-        .for_each(|p| patterns_by_char[pattern_idx(p[0])].push(p));
+        .for_each(|p| patterns_by_char[hash(p[0])].push(p));
 
     designs
         .par_split('\n')
@@ -36,7 +36,7 @@ fn num_possibilities<'d>(
         return memo[design.len()];
     }
 
-    let num_possibilities = patterns_by_char[pattern_idx(design[0])]
+    let num_possibilities = patterns_by_char[hash(design[0])]
         .iter()
         .filter(|p| design.starts_with(p))
         .map(|p| num_possibilities(patterns_by_char, &design[p.len()..], memo))
@@ -46,6 +46,6 @@ fn num_possibilities<'d>(
     num_possibilities
 }
 
-fn pattern_idx(c: u8) -> usize {
+fn hash(c: u8) -> usize {
     (c - b'0') as usize % 6
 }
