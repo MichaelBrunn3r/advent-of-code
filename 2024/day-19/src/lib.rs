@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, usize};
 
 use aoc::prelude::*;
 use fxhash::FxHashMap;
@@ -17,35 +17,33 @@ pub fn p(input: &str) -> (usize, usize) {
         .par_split('\n')
         .map(|d| d.as_bytes())
         .filter(|d| d.len() > 0)
-        .map(|d| num_possibilities(&patterns_by_char, d, &mut FxHashMap::default()))
+        .map(|d| num_possibilities(&patterns_by_char, d, &mut vec![u64::MAX; d.len() + 1]))
         .filter(|&n| n > 0)
-        .map(|n| (1, n))
+        .map(|n| (1, n as usize))
         .reduce(|| (0,0), |a, b| (a.0 + b.0, a.1 + b.1))
 }
 
 fn num_possibilities<'d>(
     patterns_by_char: &Vec<Vec<&[u8]>>,
     design: &'d [u8],
-    memo: &mut FxHashMap<&'d [u8], usize>,
-) -> usize {
+    memo: &mut Vec<u64>,
+) -> u64 {
     if design.len() == 0 {
         return 1;
     }
 
-    if let Some(&num_possibilities) = memo.get(design) {
-        return num_possibilities;
+    if memo[design.len()] != u64::MAX {
+        return memo[design.len()];
     }
 
-    patterns_by_char[pattern_idx(design[0])]
+    let num_possibilities = patterns_by_char[pattern_idx(design[0])]
         .iter()
         .filter(|p| design.starts_with(p))
-        .map(|p| {
-            let design = &design[p.len()..];
-            let num_possibilities = num_possibilities(patterns_by_char, design, memo);
-            memo.insert(design, num_possibilities);
-            num_possibilities
-        })
-        .sum()
+        .map(|p| num_possibilities(patterns_by_char, &design[p.len()..], memo))
+        .sum();
+
+    memo[design.len()] = num_possibilities;
+    num_possibilities
 }
 
 fn pattern_idx(c: u8) -> usize {
