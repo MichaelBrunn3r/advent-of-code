@@ -3,7 +3,9 @@ use rayon::{iter::ParallelIterator, slice::ParallelSlice};
 // 1: 4, 2: 23, 3: 120, 4: 100, 5: 80, 6: 60, 7: 39, 8: 20
 
 pub fn parse<'i>(input: &'i str) -> (Vec<Node>, &'i [u8]) {
-    let mut trie = vec![Node::new()];
+    let mut trie = Vec::with_capacity(850);
+    trie.push(Node::new());
+
     let mut crs = input.as_ptr();
     let mut idx = 0;
     loop {
