@@ -6,16 +6,12 @@ pub fn parse<'i>(input: &'i str) -> (Vec<Node>, &'i [u8]) {
     let mut trie = vec![Node::new()];
     let mut crs = input.as_ptr();
     let mut idx = 0;
-    let mut i = 0;
     loop {
         let c = crs.take();
-        i += 1;
-
         if c < b'a' {
             trie[idx].set_towel();
             idx = 0;
 
-            i += 1;
             if crs.take() == b'\n' {
                 break;
             } else {    
@@ -24,16 +20,16 @@ pub fn parse<'i>(input: &'i str) -> (Vec<Node>, &'i [u8]) {
         }
 
         let color = hash(c);
-        if trie[idx].next[color] == 0 {
+        idx = if trie[idx].next[color] == 0 {
             trie[idx].next[color] = trie.len();
-            idx = trie.len();
             trie.push(Node::new());
+            trie.len() - 1
         } else {
-            idx = trie[idx].next[color]
+            trie[idx].next[color]
         }
     }
 
-    (trie, &input.as_bytes()[i..])
+    (trie, &input.as_bytes()[unsafe{crs.offset_from(input.as_ptr())} as usize..])
 }
 
 pub fn p(patterns: &[Node], designs: &[u8]) -> (usize, usize) {
