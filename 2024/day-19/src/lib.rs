@@ -1,36 +1,53 @@
 use aoc::prelude::*;
-use rayon::{iter::ParallelIterator, str::ParallelString};
+use rayon::{iter::ParallelIterator, slice::ParallelSlice};
+// 1: 4, 2: 23, 3: 120, 4: 100, 5: 80, 6: 60, 7: 39, 8: 20
 
-pub fn p(input: &str) -> (usize, usize) {
-    let (patterns, designs) = input.split_once("\n\n").unwrap();
-
+pub fn parse<'i>(input: &'i str) -> (Vec<Node>, &'i [u8]) {
     let mut trie = vec![Node::new()];
-    patterns.split(", ").for_each(|p| {
-        let mut i = 0;
-        p.bytes().map(hash).for_each(|color| {
-            if trie[i].next[color] == 0 {
-                trie[i].next[color] = trie.len();
-                i = trie.len();
-                trie.push(Node::new());
-            } else {
-                i = trie[i].next[color]
-            }
-        });
-        trie[i].set_towel();
-    });
+    let mut crs = input.as_ptr();
+    let mut idx = 0;
+    let mut i = 0;
+    loop {
+        let c = crs.take();
+        i += 1;
 
+        if c < b'a' {
+            trie[idx].set_towel();
+            idx = 0;
+
+            i += 1;
+            if crs.take() == b'\n' {
+                break;
+            } else {    
+                continue;
+            }
+        }
+
+        let color = hash(c);
+        if trie[idx].next[color] == 0 {
+            trie[idx].next[color] = trie.len();
+            idx = trie.len();
+            trie.push(Node::new());
+        } else {
+            idx = trie[idx].next[color]
+        }
+    }
+
+    (trie, &input.as_bytes()[i..])
+}
+
+pub fn p(patterns: &[Node], designs: &[u8]) -> (usize, usize) {
     designs
-        .par_split('\n')
-        .map(|d| d.as_bytes())
+        .par_split(|&b|b == b'\n')
         .filter(|d| d.len() > 0)
-        .map(|d| num_possibilities(&trie, d, &mut vec![u64::MAX; d.len() + 1]))
+        .map(|d| num_possibilities(&patterns, d, &mut vec![u64::MAX; d.len() + 1]))
         .filter(|&n| n > 0)
         .map(|n| (1, n as usize))
         .reduce(|| (0,0), |a, b| (a.0 + b.0, a.1 + b.1))
 }
 
 fn num_possibilities<'d>(
-    trie: &[Node],
+    patterns: &[Node],
     design: &'d [u8],
     memo: &mut Vec<u64>,
 ) -> u64 {
@@ -43,17 +60,17 @@ fn num_possibilities<'d>(
     }
 
     let mut sum = 0;
-    let mut n = &trie[0];
+    let mut n = &patterns[0];
     for (i, &c) in design.iter().enumerate() {
         let color = hash(c);
         if n.next[color] == 0 {
             break;
         }
 
-        n = &trie[n.next[color]];
+        n = &patterns[n.next[color]];
 
         if n.is_towel() {
-            sum += num_possibilities(trie, &design[i+1..], memo);
+            sum += num_possibilities(patterns, &design[i+1..], memo);
         }
     }
 
@@ -76,7 +93,7 @@ fn hash(c: u8) -> usize {
 }
 
 #[derive(Debug)]
-struct Node {
+pub struct Node {
     next: [usize; 6],
 }
 

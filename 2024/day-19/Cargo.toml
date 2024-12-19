@@ -14,5 +14,9 @@ rand = {workspace = true}
 fxhash = {workspace = true}
 
 [[bench]]
+name = "parse"
+harness = false
+
+[[bench]]
 name = "p"
 harness = false

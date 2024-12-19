@@ -2,7 +2,8 @@ use aoc_2024_19::*;
 
 fn main() {
     let input = aoc::read_input_to_string();
-    println!("Part 1&2: {:?}", p(&input));
+    let (patterns, designs) = parse(&input);
+    println!("Part 1&2: {:?}", p(&patterns, designs));
 }
 
 #[cfg(test)]
@@ -11,6 +12,8 @@ mod tests {
 
     #[test]
     fn test_p() {
-        assert_eq!(p(&aoc::read_input_to_string()), (220, 565600047715343));
+        let input = aoc::read_input_to_string();
+        let (patterns, designs) = parse(&input);
+        assert_eq!(p(&patterns, designs), (220, 565600047715343));
     }
 }
