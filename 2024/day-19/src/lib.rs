@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
 use aoc::prelude::*;
+use fxhash::FxHashMap;
 use itertools::Itertools;
 
 pub fn p(input: &str) -> (usize, usize) {
     let (patterns, designs) = input.split_once("\n\n").unwrap();
     let patterns = patterns.split(", ").map(|s| s.as_bytes()).collect_vec();
-    let mut memo = HashMap::new();
+    let mut memo = FxHashMap::default();
 
     designs
         .split("\n")
@@ -22,7 +23,7 @@ pub fn p(input: &str) -> (usize, usize) {
 fn num_possibilities<'d>(
     patterns: &[&[u8]],
     design: &'d [u8],
-    memo: &mut HashMap<&'d [u8], usize>,
+    memo: &mut FxHashMap<&'d [u8], usize>,
 ) -> usize {
     if design.len() == 0 {
         return 1;
