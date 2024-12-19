@@ -3,9 +3,9 @@
 ## Benchmarks
 
 <!-- BEGIN benches -->
-| Benchmark            | Time    |
-| -------------------- | ------- |
-| [p](./src/lib.rs#L8) | 1.33 ms |
+| Benchmark            | Time       |
+| -------------------- | ---------- |
+| [p](./src/lib.rs#L8) | 482.99 µs |
 
 <!-- END benches -->
 <!-- BEGIN other_benches -->

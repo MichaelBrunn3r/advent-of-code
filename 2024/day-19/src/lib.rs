@@ -7,20 +7,24 @@ use rayon::{iter::ParallelIterator, str::ParallelString};
 
 pub fn p(input: &str) -> (usize, usize) {
     let (patterns, designs) = input.split_once("\n\n").unwrap();
-    let patterns = patterns.split(", ").map(|s| s.as_bytes()).collect_vec();
+    let mut patterns_by_char = vec![Vec::new(); 6];
+    patterns
+        .split(", ")
+        .map(|s| s.as_bytes())
+        .for_each(|p| patterns_by_char[pattern_idx(p[0])].push(p));
 
     designs
         .par_split('\n')
         .map(|d| d.as_bytes())
         .filter(|d| d.len() > 0)
-        .map(|d| num_possibilities(&patterns, d, &mut FxHashMap::default()))
+        .map(|d| num_possibilities(&patterns_by_char, d, &mut FxHashMap::default()))
         .filter(|&n| n > 0)
         .map(|n| (1, n))
         .reduce(|| (0,0), |a, b| (a.0 + b.0, a.1 + b.1))
 }
 
 fn num_possibilities<'d>(
-    patterns: &[&[u8]],
+    patterns_by_char: &Vec<Vec<&[u8]>>,
     design: &'d [u8],
     memo: &mut FxHashMap<&'d [u8], usize>,
 ) -> usize {
@@ -32,14 +36,18 @@ fn num_possibilities<'d>(
         return num_possibilities;
     }
 
-    patterns
+    patterns_by_char[pattern_idx(design[0])]
         .iter()
         .filter(|p| design.starts_with(p))
         .map(|p| {
             let design = &design[p.len()..];
-            let num_possibilities = num_possibilities(patterns, design, memo);
+            let num_possibilities = num_possibilities(patterns_by_char, design, memo);
             memo.insert(design, num_possibilities);
             num_possibilities
         })
         .sum()
+}
+
+fn pattern_idx(c: u8) -> usize {
+    (c - b'0') as usize % 6
 }
